@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Lastweekend Photos - Gallery{% endblock %}
+
+{% block breadcrumb %}
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{% url 'photo_gallery:index' %}"><i class="fas fa-home"></i> Home</a>
+      </li>
+      {% block breadcrumb_items %}
+      {% endblock %}
+    </ol>
+  </nav>
+{% endblock %}
+

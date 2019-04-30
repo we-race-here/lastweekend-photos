@@ -1,0 +1,25 @@
+.kt-page--loading2 * {
+  -webkit-transition: none !important;
+  transition: none !important;
+}
+
+.kt-page--loading2 .kt-page-loader {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.thumbnail-photo {
+  width: auto;
+  height: 128px;
+}
+
+.pointer-cursor {
+  cursor: pointer;
+}
