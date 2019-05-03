@@ -82,6 +82,18 @@
                     </div>
                   </div>
                   <div class="form-group kt-form__group row">
+                    <label class="col-md-2 col-form-label">First Name:</label>
+                    <div class="col-md-6">
+                      <input type="text" class="form-control" placeholder="First Name" v-model="profile.first_name">
+                    </div>
+                  </div>
+                  <div class="form-group kt-form__group row">
+                    <label class="col-md-2 col-form-label">Last Name:</label>
+                    <div class="col-md-6">
+                      <input type="text" class="form-control" placeholder="Last Name" v-model="profile.last_name">
+                    </div>
+                  </div>
+                  <div class="form-group kt-form__group row">
                     <label class="col-md-2 col-form-label">Birth Date</label>
                     <div class="col-md-6">
                       <div class="input-group date">
@@ -94,18 +106,6 @@
                           <span class="input-group-text"><i class="la la-calendar-o"></i></span>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                  <div class="form-group kt-form__group row">
-                    <label class="col-md-2 col-form-label">First Name:</label>
-                    <div class="col-md-6">
-                      <input type="text" class="form-control" placeholder="First Name" v-model="profile.first_name">
-                    </div>
-                  </div>
-                  <div class="form-group kt-form__group row">
-                    <label class="col-md-2 col-form-label">Last Name:</label>
-                    <div class="col-md-6">
-                      <input type="text" class="form-control" placeholder="Last Name" v-model="profile.last_name">
                     </div>
                   </div>
                   <div class="form-group kt-form__group row">

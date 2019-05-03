@@ -70,7 +70,7 @@ def getattribute(value, arg):
     Gets an attribute of an object dynamically AND recursively
     from a string name
     """
-    numeric_test = re.compile("^\d+$")
+    numeric_test = re.compile(r"^\d+$")
     if "." in str(arg):
         firstarg = str(arg).split(".")[0]
         value = getattribute(value, firstarg)

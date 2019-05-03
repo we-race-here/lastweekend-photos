@@ -110,28 +110,76 @@ class Sponsor(models.Model):
         return str(self.user)
 
 
-class Tag(models.Model):
+class PhotoTag(models.Model):
     name = models.CharField(max_length=128)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='tag')
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='photo_tag')
+
+    class Meta:
+        unique_together = (('name', 'user',),)
+
+    def save(self, *args, **kwargs):
+        if self.name:
+            self.name = self.name.lower()
+        return super().save(*args, **kwargs)
 
     def __str__(self):
         return str(self.name)
+
+
+class PhotoPeople(models.Model):
+    name = models.CharField(max_length=128)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='photo_people')
+
+    class Meta:
+        unique_together = (('name', 'user',),)
+
+    def save(self, *args, **kwargs):
+        if self.name:
+            self.name = self.name.lower()
+        return super().save(*args, **kwargs)
+
+    def __str__(self):
+        return str(self.name)
+
+
+class ActivePhotoManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(archived__isnull=True)
+
+
+class ArchivePhotoManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(archived__isnull=False)
+
+
+class PublicPhotoManager(ActivePhotoManager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_public=True)
 
 
 class Photo(models.Model):
     title = models.CharField(max_length=256)
     description = models.TextField(blank=True, null=True)
     owner = models.ForeignKey(User, on_delete=models.PROTECT, related_name='photo')
-    tags = models.ManyToManyField(Tag)
+    tags = models.ManyToManyField(PhotoTag, blank=True)
+    peoples = models.ManyToManyField(PhotoPeople, blank=True)
     original = models.ImageField(upload_to=photo_original_file_path_func)
     low_resolution = models.ImageField(upload_to=photo_low_resolution_file_path_func, editable=False)
     thumbnail = models.ImageField(upload_to=photo_thumbnail_file_path_func, editable=False)
     price = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
+    is_public = models.BooleanField(default=False)
     downloads = models.PositiveIntegerField(default=0)
     likes = models.PositiveIntegerField(default=0)
-    archive_datetime = models.BooleanField(null=True, blank=True)
+    photo_date = models.DateField(null=True, blank=True)
+    photo_location = models.CharField(max_length=128, null=True, blank=True)
+    archive_datetime = models.DateTimeField(null=True, blank=True)
     create_datetime = models.DateTimeField(auto_now_add=True)
     update_datetime = models.DateTimeField(auto_now=True)
+
+    objects = models.Manager()
+    active_objects = ActivePhotoManager()
+    archive_objects = ArchivePhotoManager()
+    public_objects = PublicPhotoManager()
 
     @property
     def archived(self):
@@ -146,6 +194,9 @@ class Cart(models.Model):
     photo = models.ForeignKey(Photo, on_delete=models.CASCADE, related_name='cart')
     create_datetime = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        unique_together = (('user', 'photo',),)
+
     def __str__(self):
         return str(self.photo)
 
@@ -155,6 +206,9 @@ class PhotoOrder(models.Model):
     photo = models.ForeignKey(Photo, on_delete=models.CASCADE, related_name='photo_order')
     price = models.DecimalField(max_digits=8, decimal_places=2)
     create_datetime = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = (('user', 'photo',),)
 
     def __str__(self):
         return str(self.photo)
