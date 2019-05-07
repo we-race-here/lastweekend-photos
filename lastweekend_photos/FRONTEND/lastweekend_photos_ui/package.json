@@ -8,6 +8,8 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@babel/core": "^7.4.4",
+    "@vue/babel-preset-app": "^3.7.0",
     "axios": "^0.18.0",
     "bootstrap-vue": "^2.0.0-rc.19",
     "core-js": "^2.6.5",
