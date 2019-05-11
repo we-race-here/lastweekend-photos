@@ -34,7 +34,7 @@ const router = new VueRouter({
       redirect: {name: routeNames.DASHBOARD}
     },
     {
-      path: "/myprofile",
+      path: "/my-profile",
       name: routeNames.MY_PROFILE,
       meta: {
         pageInfo: {
@@ -56,7 +56,7 @@ const router = new VueRouter({
       component: Dashboard
     },
     {
-      path: "/myphotos",
+      path: "/my-photos",
       name: routeNames.MY_PHOTOS,
       meta: {
         pageInfo: {
