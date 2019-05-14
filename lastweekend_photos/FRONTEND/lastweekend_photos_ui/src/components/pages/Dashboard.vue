@@ -115,23 +115,25 @@
                               <span class="cover-row">man in laps</span>
                             </div>
                           </div>
-                          <div class="row h5">
-                            <div class="col-md-2 text-center">
+                          <div class="row">
+                            <div class="col-md-2 text-center h5">
                               <span class="la la-comment-o"></span>
                               35
                             </div>
-                            <div class="col-md-3 text-center">
+                            <div class="col-md-3 text-center h5">
                               <span class="la la-heart-o"></span>
                               443
                             </div>
-                            <div class="col-md-1 offset-4">
+                            <div class="col-md-1 offset-3 h3">
                               <span class="la la-star-o"></span>
                             </div>
-                            <div class="col-md-1">
+                            <div class="col-md-1 h3">
                               <span class="la la-thumbs-o-up"></span>
                             </div>
-                            <div class="col-md-1">
+                            <div class="col-md-1 h3" style="font-weight: bold">
+                              <a is="router-link" :to="{name: $rns.DOWNLOAD}" class="kt-menu__link ">
                               <span class="la la-download"></span>
+                              </a>
                             </div>
                           </div>
                         </div>
