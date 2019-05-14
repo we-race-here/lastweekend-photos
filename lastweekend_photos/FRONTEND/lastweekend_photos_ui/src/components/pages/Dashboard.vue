@@ -1,65 +1,10 @@
-<style scoped>
-  .text-black {
-    color: #000000;
-  }
-
-
-  .cover-row {
-    position: absolute;
-    width: 95%;
-    z-index: 2;
-    opacity: 0.8;
-    color: #000000;
-    background-color: #cccccc;
-    bottom: 0px;
-    margin-left: 10px;
-    left: 0px;
-  }
-
-  .element-box {
-    margin-left: 4.444%
-  }
-
-  .la {
-    cursor: pointer;
-  }
-
-  .nav-item, .nav {
-    display: inline-table !important;
-    color: #000000;
-  }
-
-  .nav-link.active, .nav-link:hover {
-    color: #000000 !important;
-    border-color: #000000 !important;
-  }
-
-  .thumbnail {
-    padding: 4px;
-    line-height: 1.42857;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    -webkit-transition: border .2s ease-in-out;
-    -o-transition: border .2s ease-in-out;
-    transition: border .2s ease-in-out;
-  }
-
-  .nav-tabs.nav-tabs-line.nav-tabs-line-brand.nav-tabs-line-2x {
-    border: none !important;;
-  }
-</style>
-
 <template>
-  <div>
+  <section>
     <page-bar></page-bar>
-
-
     <div class="kt-portlet">
       <div class="kt-portlet__body">
         <input type="text" class="form-control" placeholder="Search photo - friends - groups...">
         <div class="kt-portlet__head-toolbar">
-
         </div>
       </div>
       <ul class="nav nav-tabs nav-tabs-line nav-tabs-line-brand nav-tabs-line-2x nav-tabs-line-right nav-tabs-bold text-center"
@@ -132,7 +77,7 @@
                             </div>
                             <div class="col-md-1 h3" style="font-weight: bold">
                               <a is="router-link" :to="{name: $rns.DOWNLOAD}" class="kt-menu__link ">
-                              <span class="la la-download"></span>
+                                <span class="la la-download"></span>
                               </a>
                             </div>
                           </div>
@@ -143,7 +88,6 @@
                 </div>
               </div>
             </div>
-
           </form>
         </div>
         <div class="tab-pane active" id="friends_tab_content" role="tabpanel">
@@ -151,12 +95,9 @@
             <div class="kt-section kt-section--first">
               <div class="kt-section__body">
                 <div class="form-group kt-form__group row">
-
                 </div>
-
               </div>
             </div>
-
           </form>
         </div>
         <div class="tab-pane active" id="groups_tab_content" role="tabpanel">
@@ -164,22 +105,38 @@
             <div class="kt-section kt-section--first">
               <div class="kt-section__body">
                 <div class="form-group kt-form__group row">
-
                 </div>
-
               </div>
             </div>
           </form>
         </div>
       </div>
     </div>
-  </div>
+  </section>
 </template>
 
 <script>
     import PageBar from "../partials/PageBar";
 
     export default {
-        components: {PageBar}
+        components: {
+            PageBar
+        }
     }
 </script>
+
+<style scoped>
+
+  .element-box {
+    margin-left: 4.444%
+  }
+
+  .nav-link.active, .nav-link:hover {
+    color: #000000 !important;
+    border-color: #000000 !important;
+  }
+
+  .nav-tabs.nav-tabs-line.nav-tabs-line-brand.nav-tabs-line-2x {
+    border: none !important;;
+  }
+</style>

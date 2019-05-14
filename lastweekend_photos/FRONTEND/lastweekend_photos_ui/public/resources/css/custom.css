@@ -23,3 +23,28 @@
 .pointer-cursor {
   cursor: pointer;
 }
+
+.text-black {
+  color: #000000;
+}
+
+.cover-row {
+  position: absolute;
+  width: 96%;
+  z-index: 2;
+  opacity: 0.8;
+  color: #000000;
+  background-color: #cccccc;
+  bottom: 0px;
+  margin-left: 10px;
+  left: 0px;
+}
+
+.la {
+  cursor: pointer;
+}
+
+.nav-item, .nav {
+  display: inline-table !important;
+  color: #000000;
+}
