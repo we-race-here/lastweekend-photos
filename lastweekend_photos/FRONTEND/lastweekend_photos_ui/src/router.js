@@ -7,6 +7,7 @@ import VueRouter from "vue-router";
 import Dashboard from "./components/pages/Dashboard";
 import MyProfile from "./components/pages/MyProfile";
 import MyPhotos from "./components/pages/MyPhotos";
+import Download from "./components/pages/Download";
 
 Vue.use(VueRouter);
 
@@ -15,6 +16,7 @@ export const routeNames = {
   DASHBOARD: "dashboard",
   MY_PROFILE: "my-profile",
   MY_PHOTOS: "my-photos",
+  DOWNLOAD:'download',
 };
 
 Vue.prototype.$rns = routeNames;
@@ -65,6 +67,17 @@ const router = new VueRouter({
         }
       },
       component: MyPhotos
+    },
+      {
+      path: "/download",
+      name: routeNames.DOWNLOAD,
+      meta: {
+        pageInfo: {
+          title: "Download",
+          titleDesc: "download photo"
+        }
+      },
+      component: Download
     },
     {
       path: "*",
