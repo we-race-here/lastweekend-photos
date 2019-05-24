@@ -1,5 +1,5 @@
-django==2.2
-djangorestframework==3.9.2
+django==2.2.1
+djangorestframework==3.9.4
 djangorestframework-filters==0.10.2
 djangorestframework-jwt==1.11.0
 drf-tracking==1.5.0

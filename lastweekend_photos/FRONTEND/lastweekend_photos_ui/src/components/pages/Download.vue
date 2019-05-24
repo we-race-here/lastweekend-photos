@@ -6,7 +6,7 @@
           <div class="row">
             <div class="thumbnail">
               <div class="col-12 image-box">
-                <img src='resources/images/img2.jpg'
+                <img :src="`${$publicPath}resources/images/img2.jpg`"
                      style="width: 100%;height: auto;">
                 <span class="cover-row">man in laps</span>
               </div>
@@ -180,22 +180,17 @@
 </template>
 
 <script>
-    import bModal from "bootstrap-vue/es/components/modal/modal";
-
     export default {
         name: "Download",
-        components: {
-            "b-modal": bModal
-        },
         data: function () {
             return {
                 images: [
-                    "resources/images/img1.jpg",
-                    "resources/images/img4.jpg",
-                    "resources/images/img2.jpg",
-                    "resources/images/img3.jpg",
-                    "resources/images/img2.jpg",
-                    "resources/images/img4.jpg",
+                    `${this.$publicPath}resources/images/img1.jpg`,
+                    `${this.$publicPath}resources/images/img4.jpg`,
+                    `${this.$publicPath}resources/images/img2.jpg`,
+                    `${this.$publicPath}resources/images/img3.jpg`,
+                    `${this.$publicPath}resources/images/img2.jpg`,
+                    `${this.$publicPath}resources/images/img4.jpg`,
                 ]
             }
         }

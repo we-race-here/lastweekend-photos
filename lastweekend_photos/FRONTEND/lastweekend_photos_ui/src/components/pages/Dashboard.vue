@@ -55,7 +55,7 @@
                           </div>
                           <div class="row">
                             <div class="col-12 image-box">
-                              <img v-bind:src="'resources/images/'+'img'+i+'.jpg'"
+                              <img v-bind:src="`${$publicPath}resources/images/img${i}.jpg`"
                                    style="width: 100%;height: auto;">
                               <span class="cover-row">man in laps</span>
                             </div>

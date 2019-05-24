@@ -158,7 +158,7 @@
             removeSelectedImages: function () {
                 let images = this.images;
                 images.forEach(function (image, index) {
-                    if (image.active == true) {
+                    if (image.active === true) {
                         images.splice(index, 1);
                     }
                 })
@@ -177,13 +177,13 @@
             uploadFile: function () {
                 let self = this;
                 const reader = new FileReader();
-                let file = this.$refs.newPhoto.files[0]
+                let file = this.$refs.newPhoto.files[0];
                 let newImage;
                 reader.onload = e => {
                     newImage = e.target.result;
                     self.images.push({address: newImage, active: false});
                     self.closeFileModal();
-                }
+                };
                 reader.readAsDataURL(file);
             },
             isActive: function () {
@@ -192,14 +192,19 @@
         },
         data: function () {
             return {
-                images: [{address: "resources/images/img1.jpg", active: false}, {
-                    address: "resources/images/img2.jpg",
-                    active: false
-                }, {
-                    address: "resources/images/img3.jpg",
-                    active: false
-                }
-                    , {address: "resources/images/img4.jpg", active: false}]
+              images: [{
+                address: `${this.$publicPath}resources/images/img1.jpg`,
+                active: false
+              }, {
+                address: `${this.$publicPath}resources/images/img2.jpg`,
+                active: false
+              }, {
+                address: `${this.$publicPath}resources/images/img3.jpg`,
+                active: false
+              }, {
+                address: `${this.$publicPath}resources/images/img4.jpg`,
+                active: false
+              }]
             }
         }
     }
