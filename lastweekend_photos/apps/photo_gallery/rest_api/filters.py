@@ -1,15 +1,32 @@
 import django_filters
 from django_filters import rest_framework as filters
 
-# from apps.photo_gallery.models import Event
-#
-#
-# class EventFilter(filters.FilterSet):
-#     start_date_min = django_filters.DateFilter(field_name='start_date', lookup_expr='gte', required=False)
-#     start_date_max = django_filters.DateFilter(field_name='start_date', lookup_expr='lte', required=False)
-#     end_date_min = django_filters.DateFilter(field_name='end_date', lookup_expr='gte', required=False)
-#     end_date_max = django_filters.DateFilter(field_name='end_date', lookup_expr='lte', required=False)
-#
-#     class Meta:
-#         model = Event
-#         exclude = ('event_flyer', 'image')
+from apps.photo_gallery.models import Photo, Event, PhotoTag, PhotoPeople
+
+
+class EventFilter(filters.FilterSet):
+
+    class Meta:
+        model = Event
+        fields = '__all__'
+
+
+class PhotoTagFilter(filters.FilterSet):
+
+    class Meta:
+        model = PhotoTag
+        fields = '__all__'
+
+
+class PhotoPeopleFilter(filters.FilterSet):
+
+    class Meta:
+        model = PhotoPeople
+        fields = '__all__'
+
+
+class PhotoFilter(filters.FilterSet):
+
+    class Meta:
+        model = Photo
+        exclude = ('low_res_file', 'original_file', 'preview_file')

@@ -3,10 +3,14 @@ import random
 import string
 import uuid
 
+from PIL import Image
+from django.conf import settings
+from django.core.files.base import ContentFile
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 from phonenumber_field.modelfields import PhoneNumberField
+from six import BytesIO
 
 
 def random_id(n=8, no_upper=False, no_lower=False, no_digit=False):
@@ -44,12 +48,52 @@ def photo_original_file_path_func(instance, filename):
     return get_random_upload_path(os.path.join('uploads', 'photo', 'original'), filename)
 
 
-def photo_low_resolution_file_path_func(instance, filename):
-    return get_random_upload_path(os.path.join('uploads', 'photo', 'low_resolution'), filename)
+def photo_low_res_file_path_func(instance, filename):
+    return get_random_upload_path(os.path.join('uploads', 'photo', 'low_res'), filename)
 
 
-def photo_thumbnail_file_path_func(instance, filename):
-    return get_random_upload_path(os.path.join('uploads', 'photo', 'thumbnail'), filename)
+def photo_preview_file_path_func(instance, filename):
+    return get_random_upload_path(os.path.join('uploads', 'photo', 'preview'), filename)
+
+
+def resize_photo(origin_field, resized_field, scale=100):
+    new_name, new_extension = os.path.splitext(origin_field.name)
+    new_extension = new_extension.lower()
+
+    new_filename = new_name + '_size{}'.format(scale) + new_extension
+
+    if new_extension in ['.jpg', '.jpeg']:
+        FTYPE = 'JPEG'
+    elif new_extension == '.gif':
+        FTYPE = 'GIF'
+    elif new_extension == '.png':
+        FTYPE = 'PNG'
+    else:
+        raise Exception('Not supported format "{}"'.format(new_extension))
+
+    image = Image.open(origin_field).copy()
+    new_size = (scale, scale)
+    x, y = image.size
+
+    if x > scale and y > scale:
+        if x > y:
+            ratio = max(y / scale, 1)
+            new_size = (int(max(x / ratio, 1)), scale)
+        elif x < y:
+            ratio = max(x / scale, 1)
+            new_size = (scale, int(max(y / ratio, 1)))
+        image.thumbnail(new_size, Image.ANTIALIAS)
+
+    # Save resizednail to in-memory file as StringIO
+    temp_resized = BytesIO()
+    image.save(temp_resized, FTYPE)
+    temp_resized.seek(0)
+
+    # set save=False, otherwise it will run in an infinite loop
+    resized_field.save(new_filename, ContentFile(temp_resized.read()), save=False)
+    temp_resized.close()
+
+    return True
 
 
 class User(AbstractUser):
@@ -110,6 +154,19 @@ class Sponsor(models.Model):
         return str(self.user)
 
 
+class Event(models.Model):
+    name = models.CharField(max_length=128, unique=True)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    location = models.CharField(max_length=128)
+    map_latitude = models.DecimalField(max_digits=9, decimal_places=7, null=True, blank=True)
+    map_longitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True)
+    sponsor = models.ForeignKey(Sponsor, on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return str(self.name)
+
+
 class PhotoTag(models.Model):
     name = models.CharField(max_length=128)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='photo_tag')
@@ -142,48 +199,55 @@ class PhotoPeople(models.Model):
         return str(self.name)
 
 
-class ActivePhotoManager(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().filter(archived__isnull=True)
-
-
-class ArchivePhotoManager(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().filter(archived__isnull=False)
-
-
-class PublicPhotoManager(ActivePhotoManager):
-    def get_queryset(self):
-        return super().get_queryset().filter(is_public=True)
-
-
 class Photo(models.Model):
+    LOGO_POSITION_TL = 'tl'
+    LOGO_POSITION_TC = 'tc'
+    LOGO_POSITION_TR = 'tr'
+    LOGO_POSITION_CL = 'cl'
+    LOGO_POSITION_CC = 'cc'
+    LOGO_POSITION_CR = 'cr'
+    LOGO_POSITION_BL = 'bl'
+    LOGO_POSITION_BC = 'bc'
+    LOGO_POSITION_BR = 'br'
+    LOGO_POSITION_CHOICES = (
+        (LOGO_POSITION_TL, 'Top-Left'),
+        (LOGO_POSITION_TC, 'Top-Center'),
+        (LOGO_POSITION_TR, 'Top-Right'),
+        (LOGO_POSITION_CL, 'Center-Left'),
+        (LOGO_POSITION_CC, 'Center-Center'),
+        (LOGO_POSITION_CR, 'Center-Right'),
+        (LOGO_POSITION_BL, 'Bottom-Left'),
+        (LOGO_POSITION_BC, 'Bottom-Center'),
+        (LOGO_POSITION_BR, 'Bottom-Right'),
+    )
     title = models.CharField(max_length=256)
     description = models.TextField(blank=True, null=True)
     owner = models.ForeignKey(User, on_delete=models.PROTECT, related_name='photo')
     tags = models.ManyToManyField(PhotoTag, blank=True)
     peoples = models.ManyToManyField(PhotoPeople, blank=True)
-    original = models.ImageField(upload_to=photo_original_file_path_func)
-    low_resolution = models.ImageField(upload_to=photo_low_resolution_file_path_func, editable=False)
-    thumbnail = models.ImageField(upload_to=photo_thumbnail_file_path_func, editable=False)
+    original_file = models.ImageField(upload_to=photo_original_file_path_func)
+    low_res_file = models.ImageField(upload_to=photo_low_res_file_path_func, editable=False)
+    preview_file = models.ImageField(upload_to=photo_preview_file_path_func, editable=False)
+    logo_position = models.CharField(max_length=2, choices=LOGO_POSITION_CHOICES, default=LOGO_POSITION_BR)
     price = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
-    is_public = models.BooleanField(default=False)
     downloads = models.PositiveIntegerField(default=0)
+    seen = models.PositiveIntegerField(default=0)
     likes = models.PositiveIntegerField(default=0)
+    event = models.ForeignKey(Event, on_delete=models.PROTECT, null=True, related_name='photo')
     photo_date = models.DateField(null=True, blank=True)
-    photo_location = models.CharField(max_length=128, null=True, blank=True)
     archive_datetime = models.DateTimeField(null=True, blank=True)
     create_datetime = models.DateTimeField(auto_now_add=True)
     update_datetime = models.DateTimeField(auto_now=True)
 
-    objects = models.Manager()
-    active_objects = ActivePhotoManager()
-    archive_objects = ArchivePhotoManager()
-    public_objects = PublicPhotoManager()
-
     @property
     def archived(self):
         return self.archive_datetime is not None
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            resize_photo(self.original_file, self.low_res_file, scale=settings.PHOTO_LOW_RES_SCALE)
+            resize_photo(self.low_res_file, self.preview_file, scale=settings.PHOTO_PREVIEW_RES_SCALE)
+        return super().save(*args, **kwargs)
 
     def __str__(self):
         return str(self.title)

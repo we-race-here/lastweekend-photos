@@ -19,7 +19,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django_filters import OrderingFilter
 from django_filters.constants import EMPTY_VALUES
-from rest_framework import status, serializers
+from rest_framework import status, serializers, permissions
 from rest_framework.exceptions import APIException
 from rest_framework.pagination import PageNumberPagination, _positive_int
 from rest_framework.permissions import BasePermission, DjangoModelPermissions
@@ -589,3 +589,46 @@ def get_current_page_size(request, default=None):
     if page_size <= 0:
         page_size = default or settings.PAGINATION_DEFAULT_PAGINATION
     return min(page_size, settings.PAGINATION_MAX_SIZE)
+
+
+class IsOwnerPermission(permissions.BasePermission):
+
+    def has_object_permission(self, request, view, obj):
+        owner_field = getattr(view, 'owner_permission_field', 'owner')
+        return getattr(obj, owner_field) == request.user
+
+
+class IsOwnerOrReadOnlyPermission(IsOwnerPermission):
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return super().has_object_permission(request, view, obj)
+
+
+class IsPhotographerPermission(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        return bool(getattr(request.user, 'is_photographer', None))
+
+
+class IsPhotographerOrReadOnlyPermission(IsPhotographerPermission):
+
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        return super().has_permission(request, view)
+
+
+class IsSponsorPermission(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        return bool(getattr(request.user, 'is_sponsor', None))
+
+
+class IsSponsorOrReadOnlyPermission(IsSponsorPermission):
+
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return super().has_permission(request, view)

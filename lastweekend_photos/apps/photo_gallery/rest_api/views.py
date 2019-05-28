@@ -3,17 +3,23 @@ import simplejson as json
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django_filters import rest_framework as filters
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions, status, serializers
 from rest_framework.decorators import action
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import get_object_or_404
 from rest_framework.parsers import FileUploadParser
+from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly, IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
 from reversion.models import Version
 
+from apps.photo_gallery.models import Event, Photo, PhotoTag, PhotoPeople
+from apps.photo_gallery.rest_api.filters import EventFilter, PhotoFilter, PhotoTagFilter, PhotoPeopleFilter
 from apps.photo_gallery.rest_api.serializers import SessionSerializer, UserSessionSerializer, UserProfileSerializer, \
-    SetPasswordSerializer
-from lastweekend_photos.helpers.utils import ExtendedOrderingFilterBackend, CustomLoggingMixin as LoggingMixin
+    SetPasswordSerializer, EventSerializer, PhotoSerializer, PhotoOriginalFileSerializer, PhotoLowResFileSerializer, \
+    PhotoTagSerializer, PhotoPeopleSerializer
+from lastweekend_photos.helpers.utils import ExtendedOrderingFilterBackend, CustomLoggingMixin as LoggingMixin, \
+    IsOwnerOrReadOnlyPermission, IsPhotographerOrReadOnlyPermission
 
 
 class HistoricalViewMixin(object):
@@ -159,3 +165,83 @@ class ProfileView(LoggingMixin, viewsets.ViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     create = put
+
+
+class EventView(LoggingMixin, HistoricalViewMixin, viewsets.ModelViewSet):
+    queryset = Event.objects.all()
+    permission_classes = (DjangoModelPermissionsOrAnonReadOnly,)
+    serializer_class = EventSerializer
+    filterset_class = EventFilter
+    max_page_size = 0
+    ordering = '-start_date'
+    ordering_fields = '__all__'
+    search_fields = ['name', 'location']
+
+
+class PhotoTagView(LoggingMixin, HistoricalViewMixin, viewsets.ModelViewSet):
+    queryset = PhotoTag.objects.all()
+    permission_classes = (IsPhotographerOrReadOnlyPermission, IsOwnerOrReadOnlyPermission,)
+    serializer_class = PhotoTagSerializer
+    filterset_class = PhotoTagFilter
+    max_page_size = 200
+    ordering = ('name', 'user')
+    ordering_fields = '__all__'
+    search_fields = ['name']
+
+
+class PhotoPeopleView(LoggingMixin, HistoricalViewMixin, viewsets.ModelViewSet):
+    queryset = PhotoPeople.objects.all()
+    permission_classes = (IsPhotographerOrReadOnlyPermission, IsOwnerOrReadOnlyPermission,)
+    serializer_class = PhotoPeopleSerializer
+    filterset_class = PhotoPeopleFilter
+    max_page_size = 200
+    ordering = ('name', 'user')
+    ordering_fields = '__all__'
+    search_fields = ['name']
+
+
+class PhotoView(LoggingMixin, HistoricalViewMixin, viewsets.ModelViewSet):
+    queryset = Photo.objects.all()
+    permission_classes = (IsPhotographerOrReadOnlyPermission, IsOwnerOrReadOnlyPermission)
+    serializer_class = PhotoSerializer
+    filterset_class = PhotoFilter
+    max_page_size = 200
+    ordering = ('-event__start_date', '-id')
+    ordering_fields = '__all__'
+    extra_ordering_fields = {
+        'event__start_date': 'event__start_date',
+        'event__end_date': 'event__end_date',
+    }
+    search_fields = ['title', 'description', 'tags__name', 'peoples__name']
+
+    def get_current_user(self, request):
+        if not request.user.is_authenticated:
+            raise AuthenticationFailed()
+        return request.user
+
+    @action(detail=True, methods=['GET'])
+    def original_file(self, request, *args, **kwargs):
+        photo = self.get_object()
+        user = self.get_current_user(request)
+        if not photo.photo_order.filter(user=user).exists():
+            return Response({'detail': 'No Access to original file! You should buy this photo'},
+                            status=status.HTTP_403_FORBIDDEN)
+        return Response(PhotoOriginalFileSerializer(photo, context={'request': request}).data)
+
+    @action(detail=True, methods=['GET'])
+    def low_res_file(self, request, *args, **kwargs):
+        photo = self.get_object()
+        user = self.get_current_user(request)
+        # TODO: we should paste the ads logos on image and then save and send link to user
+        return Response(PhotoLowResFileSerializer(photo, context={'request': request}).data)
+
+    @action(detail=False, methods=['GET'])
+    def my(self, request, *args, **kwargs):
+        user = self.get_current_user(request)
+
+        qs = self.get_queryset().filter(owner=user)
+        qs = self.filter_queryset(qs)
+        qs = self.paginate_queryset(qs)
+        serializer = self.get_serializer(qs, many=True)
+        return self.get_paginated_response(serializer.data)
+

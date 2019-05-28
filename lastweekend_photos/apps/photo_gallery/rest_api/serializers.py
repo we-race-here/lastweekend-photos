@@ -4,7 +4,7 @@ from rest_framework import serializers
 from django.contrib.auth.models import Group, Permission
 from django.core import exceptions as django_exceptions
 
-from apps.photo_gallery.models import User, Photographer, Sponsor
+from apps.photo_gallery.models import User, Photographer, Sponsor, Photo, PhotoTag, PhotoPeople, Event
 from lastweekend_photos.helpers.utils import DynamicFieldsSerializerMixin, Base64ImageField
 
 
@@ -51,6 +51,12 @@ class NestedGroupSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'permissions')
 
 
+class NestedUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'first_name', 'last_name')
+
+
 class UserSessionSerializer(DynamicFieldsSerializerMixin, serializers.ModelSerializer):
     user_permissions = PermissionSerializer(read_only=True, many=True)
     groups = NestedGroupSerializer(read_only=True, many=True)
@@ -60,14 +66,14 @@ class UserSessionSerializer(DynamicFieldsSerializerMixin, serializers.ModelSeria
         exclude = ('password',)
 
 
-class PhotographerProfileSerializer(serializers.ModelSerializer):
+class PhotographerProfileSerializer(DynamicFieldsSerializerMixin, serializers.ModelSerializer):
     class Meta:
         model = Photographer
         fields = '__all__'
         read_only_fields = ('user',)
 
 
-class SponsorProfileSerializer(serializers.ModelSerializer):
+class SponsorProfileSerializer(DynamicFieldsSerializerMixin, serializers.ModelSerializer):
     class Meta:
         model = Sponsor
         fields = '__all__'
@@ -120,3 +126,101 @@ class UserProfileSerializer(DynamicFieldsSerializerMixin, serializers.ModelSeria
         if not res.get('sponsor'):
             res['sponsor'] = {}
         return res
+
+
+class NestedPhotoTagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PhotoTag
+        fields = ('id', 'name',)
+
+
+class NestedPhotoPeopleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PhotoPeople
+        fields = ('id', 'name',)
+
+
+class NestedEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Event
+        fields = ('id', 'name',)
+
+
+class NestedSponsorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sponsor
+        fields = ('id', 'brand_name', 'logo')
+
+
+class EventSerializer(DynamicFieldsSerializerMixin, serializers.ModelSerializer):
+    _sponsor = NestedSponsorSerializer(read_only=True)
+
+    class Meta:
+        model = Event
+        fields = '__all__'
+
+
+class PhotoTagSerializer(DynamicFieldsSerializerMixin, serializers.ModelSerializer):
+
+    class Meta:
+        model = PhotoTag
+        fields = '__all__'
+        read_only_fields = ('user',)
+
+    def create(self, validated_data):
+        request = self.context.get('request', None)
+        if request:
+            validated_data['user'] = request.user
+        return super().create(validated_data)
+
+
+class PhotoPeopleSerializer(DynamicFieldsSerializerMixin, serializers.ModelSerializer):
+
+    class Meta:
+        model = PhotoPeople
+        fields = '__all__'
+        read_only_fields = ('user',)
+
+    def create(self, validated_data):
+        request = self.context.get('request', None)
+        if request:
+            validated_data['user'] = request.user
+        return super().create(validated_data)
+
+
+class PhotoSerializer(DynamicFieldsSerializerMixin, serializers.ModelSerializer):
+    tags = NestedPhotoTagSerializer(read_only=True, many=True)
+    peoples = NestedPhotoPeopleSerializer(read_only=True, many=True)
+    _owner = NestedUserSerializer(read_only=True, source='owner')
+    _event = NestedEventSerializer(read_only=True, source='event')
+    original_file = Base64ImageField(required=False, write_only=True, allow_null=False)
+
+    class Meta:
+        model = Photo
+        exclude = ('low_res_file',)
+        read_only_fields = ('owner', 'downloads', 'seen', 'likes', 'preview_file', 'archive_datetime')
+        extra_kwargs = {
+            'event': {'required': True, 'allow_null': False}
+        }
+
+    def create(self, validated_data):
+        if not validated_data.get('original_file'):
+            raise serializers.ValidationError({'original_file': 'photo file required'})
+        request = self.context.get('request', None)
+        if request:
+            validated_data['owner'] = request.user
+        return super().create(validated_data)
+
+
+class PhotoOriginalFileSerializer(DynamicFieldsSerializerMixin, serializers.ModelSerializer):
+
+    class Meta:
+        model = Photo
+        fields = ('original_file',)
+
+
+class PhotoLowResFileSerializer(DynamicFieldsSerializerMixin, serializers.ModelSerializer):
+
+    class Meta:
+        model = Photo
+        fields = ('low_res_file',)
