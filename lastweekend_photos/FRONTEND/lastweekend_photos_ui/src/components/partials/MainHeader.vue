@@ -1,11 +1,12 @@
 <style scoped>
-.kt-user-card__email {
-  color: #9e9d9d;
-}
-.kt-header__topbar .kt-header__topbar-item.kt-header__topbar-item--user .kt-header__topbar-wrapper img {
-  width: 34px;
-  height: 34px;
-}
+  .kt-user-card__email {
+    color: #9e9d9d;
+  }
+
+  .kt-header__topbar .kt-header__topbar-item.kt-header__topbar-item--user .kt-header__topbar-wrapper img {
+    width: 34px;
+    height: 34px;
+  }
 </style>
 <template>
   <div id="kt_header" class="kt-header kt-grid kt-grid--ver  kt-header--fixed ">
@@ -13,7 +14,7 @@
     <div class="kt-header__brand kt-grid__item  " id="kt_header_brand">
       <div class="kt-header__brand-logo">
         <a href="/">
-          <img alt="Logo" :src="`${$publicPath}resources/images/logo-6.png`" />
+          <img alt="Logo" :src="`${$publicPath}resources/images/logo-6.png`"/>
         </a>
       </div>
     </div>
@@ -22,7 +23,8 @@
       Lastweekend Photos
     </h3>
 
-    <button class="kt-header-menu-wrapper-close" id="kt_header_menu_mobile_close_btn"><i class="la la-close"></i></button>
+    <button class="kt-header-menu-wrapper-close" id="kt_header_menu_mobile_close_btn"><i class="la la-close"></i>
+    </button>
     <div class="kt-header-menu-wrapper kt-grid__item kt-grid__item--fluid" id="kt_header_menu_wrapper">
       <div id="kt_header_menu" class="kt-header-menu kt-header-menu-mobile  kt-header-menu--layout-default ">
         <ul class="kt-menu__nav ">
@@ -153,6 +155,7 @@
 
 <script>
   import UtilMixin from "../mixins/UtilMixin";
+  import SessionApi from "../../endpoint/SessionApi"
 
   export default {
     mixins: [UtilMixin],
@@ -161,7 +164,7 @@
       logout: function () {
         var self = this;
         this.showInfo("Logging out ...");
-        this.$http.delete("session").then(
+        SessionApi.logout().then(
             function () {
               self.$store.state.currentUser = {};
             },

@@ -10,6 +10,7 @@
 <template>
   <div class="kt-grid kt-grid--hor kt-grid--root">
     <span title="Ui Version" class="fixed-top badge badge-danger app-version-tag">{{ $appVersion }}</span>
+    $store.getters.isLoadedUser: {{$store.getters.isLoadedUser}}
     <template v-if="$store.getters.isLoadedUser">
       <main-layout></main-layout>
     </template>

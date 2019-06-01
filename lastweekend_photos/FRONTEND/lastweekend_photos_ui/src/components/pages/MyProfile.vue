@@ -62,7 +62,7 @@
                         </label>
                         <span v-if="profileChosenFile">{{ profileChosenFile.name }}
                           <a href="javascript:" @click="clearChosenAvatar"
-                                  title="Clear chosen image"><span
+                             title="Clear chosen image"><span
                                   class="la la-close"></span></a>
                         </span>
                         <span v-if="!profileChosenFile" class="text-muted">No Image Chosen</span>
@@ -126,7 +126,8 @@
                   <div class="row">
                     <div class="col-md-2"></div>
                     <div class="col-md-6">
-                      <button type="submit" name="submitBtn" class="btn btn-success kt-margin-r-5" :disabled="errors.any() || savingProfile">
+                      <button type="submit" name="submitBtn" class="btn btn-success kt-margin-r-5"
+                              :disabled="errors.any() || savingProfile">
                         <i :class="savingProfile? 'la la-spin la-spinner':'la la-save'"></i>
                         <span v-show="!savingProfile">Save</span>
                         <span v-show="savingProfile">Saving</span>
@@ -156,19 +157,22 @@
                   <div class="form-group kt-form__group row">
                     <label class="col-md-2 col-form-label">Phone</label>
                     <div class="col-md-6">
-                      <input type="text" class="form-control" placeholder="Phone Number" v-model="profile.photographer.phone">
+                      <input type="text" class="form-control" placeholder="Phone Number"
+                             v-model="profile.photographer.phone">
                     </div>
                   </div>
                   <div class="form-group kt-form__group row">
                     <label class="col-md-2 col-form-label">Street Address</label>
                     <div class="col-md-6">
-                      <input type="text" class="form-control" placeholder="Street Address" v-model="profile.photographer.street_address">
+                      <input type="text" class="form-control" placeholder="Street Address"
+                             v-model="profile.photographer.street_address">
                     </div>
                   </div>
                   <div class="form-group kt-form__group row">
                     <label class="col-md-2 col-form-label">Country</label>
                     <div class="col-md-6">
-                      <input type="text" class="form-control" placeholder="Country" v-model="profile.photographer.country">
+                      <input type="text" class="form-control" placeholder="Country"
+                             v-model="profile.photographer.country">
                     </div>
                   </div>
                   <div class="form-group kt-form__group row">
@@ -186,7 +190,8 @@
                   <div class="form-group kt-form__group row">
                     <label class="col-md-2 col-form-label">Zip Code</label>
                     <div class="col-md-6">
-                      <input type="text" class="form-control" placeholder="Zip Code" v-model="profile.photographer.zipcode">
+                      <input type="text" class="form-control" placeholder="Zip Code"
+                             v-model="profile.photographer.zipcode">
                     </div>
                   </div>
                 </div>
@@ -196,7 +201,8 @@
                   <div class="row">
                     <div class="col-md-2"></div>
                     <div class="col-md-6">
-                      <button type="submit" name="submitBtn" class="btn btn-success kt-margin-r-5" :disabled="errors.any() || savingProfile">
+                      <button type="submit" name="submitBtn" class="btn btn-success kt-margin-r-5"
+                              :disabled="errors.any() || savingProfile">
                         <i :class="savingProfile? 'la la-spin la-spinner':'la la-save'"></i>
                         <span v-show="!savingProfile">Save</span>
                         <span v-show="savingProfile">Saving</span>
@@ -226,19 +232,22 @@
                   <div class="form-group kt-form__group row">
                     <label class="col-md-2 col-form-label">Brand Name</label>
                     <div class="col-md-6">
-                      <input type="text" class="form-control" placeholder="Brand Name" v-model="profile.sponsor.brand_name">
+                      <input type="text" class="form-control" placeholder="Brand Name"
+                             v-model="profile.sponsor.brand_name">
                     </div>
                   </div>
                   <div class="form-group kt-form__group row">
                     <label class="col-md-2 col-form-label">Phone</label>
                     <div class="col-md-6">
-                      <input type="text" class="form-control" placeholder="Phone Number" v-model="profile.sponsor.phone">
+                      <input type="text" class="form-control" placeholder="Phone Number"
+                             v-model="profile.sponsor.phone">
                     </div>
                   </div>
                   <div class="form-group kt-form__group row">
                     <label class="col-md-2 col-form-label">Street Address</label>
                     <div class="col-md-6">
-                      <input type="text" class="form-control" placeholder="Street Address" v-model="profile.sponsor.street_address">
+                      <input type="text" class="form-control" placeholder="Street Address"
+                             v-model="profile.sponsor.street_address">
                     </div>
                   </div>
                   <div class="form-group kt-form__group row">
@@ -272,7 +281,8 @@
                   <div class="row">
                     <div class="col-md-2"></div>
                     <div class="col-md-6">
-                      <button type="submit" name="submitBtn" class="btn btn-success kt-margin-r-5" :disabled="errors.any() || savingProfile">
+                      <button type="submit" name="submitBtn" class="btn btn-success kt-margin-r-5"
+                              :disabled="errors.any() || savingProfile">
                         <i :class="savingProfile? 'la la-spin la-spinner':'la la-save'"></i>
                         <span v-show="!savingProfile">Save</span>
                         <span v-show="savingProfile">Saving</span>
@@ -307,7 +317,8 @@
                     <div class="col-md-6">
                       <input name="re_new_password" type="password" class="form-control"
                              placeholder="Re-Type New Password" v-model="userPassword.re_new_password" required/>
-                      <span class="help-block text-danger" v-show="!passwordMatched"> Mismatched re-type password </span>
+                      <span class="help-block text-danger"
+                            v-show="!passwordMatched"> Mismatched re-type password </span>
                     </div>
                   </div>
                 </div>
@@ -337,137 +348,136 @@
 </template>
 
 <script>
-import $ from "jquery";
-import UtilMixin from "../mixins/UtilMixin";
-import VueDatetimepicker from "../libs/VueDatetimepicker";
-import LoadingOverlayableMixin from "../mixins/LoadingOverlayableMixin";
-import PageBar from "../partials/PageBar";
-import {GENDER_OPTIONS} from "../../Constants";
+  import $ from "jquery";
+  import UtilMixin from "../mixins/UtilMixin";
+  import VueDatetimepicker from "../libs/VueDatetimepicker";
+  import LoadingOverlayableMixin from "../mixins/LoadingOverlayableMixin";
+  import PageBar from "../partials/PageBar";
+  import {GENDER_OPTIONS} from "../../Constants";
+  import ProfileApi from "../../endpoint/ProfileApi"
 
-const moment = window.moment;
+  const moment = window.moment;
 
-export default {
-  mixins: [UtilMixin, LoadingOverlayableMixin],
-  components: { PageBar, VueDatetimepicker },
-  data: function() {
-    return {
-      profileChosenFile: null,
-      profileChosenFileData: null,
-      deletingAvatar: false,
-      savingProfile: false,
-      changingPassword: false,
-      genderOptions: GENDER_OPTIONS,
-      userPassword: {
-        current_password: "",
-        new_password: "",
-        re_new_password: ""
-      },
-      profile: {
-        photographer: {},
-        sponsor: {},
-      }
-    };
-  },
-  created: function() {
-    var self = this;
-    this.loadingOverlay = true;
-    this.$http.get("me").then(
-      function(response) {
-        self.profile = response.data;
-        self.loadingOverlay = false;
-      },
-      function(error) {
-        self.showDefaultServerError(error);
-        self.loadingOverlay = false;
-      }
-    );
-  },
-  computed: {
-    passwordMatched: function() {
-      return (
-        this.userPassword.new_password === this.userPassword.re_new_password
-      );
-    }
-  },
-  methods: {
-    clearChosenAvatar: function() {
-      this.profileChosenFile = null;
-      this.profileChosenFileData = null;
-      $("#profile_image").val("");
-    },
-    onChangeProfileFile: function(event) {
-      if (event.target.files.length > 0) {
-        this.profileChosenFile = event.target.files[0];
-        var f = this.profileChosenFile,
-          self = this,
-          r = new FileReader();
-        r.onloadend = function(e) {
-          self.profileChosenFileData = e.target.result;
-        };
-        r.readAsDataURL(f);
-
-      }
-    },
-    getProfilePostData: function(profileType) {
-      var postData = {},
-        self = this;
-      if (profileType === "basic") {
-        ["first_name", "last_name", "gender", "birth_date", "avatar"].forEach(function (f) {
-          postData[f] = self.profile[f];
-        });
-        if (postData.birth_date && typeof postData.birth_date === "object") {
-          postData.birth_date = moment(postData.birth_date).format("YYYY-MM-DD");
-        }
-        if (this.profileChosenFileData) {
-          postData.avatar = this.profileChosenFileData;
-        } else if (postData.avatar !== null) {
-          delete postData.avatar;
-        }
-      }
-      else if (profileType === "photographer") {
-        postData["photographer"] = this.profile.photographer || {};
-        postData["is_photographer"] = this.profile.is_photographer === true;
-      }
-      else if (profileType === "sponsor") {
-        postData["sponsor"] = this.profile.sponsor || {};
-        postData["is_sponsor"] = this.profile.is_sponsor === true;
-      }
-      return postData;
-    },
-    saveProfileInfo: function(profileType) {
-      var self = this;
-      this.savingProfile = true;
-      var postData = this.getProfilePostData(profileType || "basic");
-      this.savingProfile = true;
-      this.$http.put("me", postData).then(
-        function(response) {
-          self.profile = response.data;
-          self.$store.state.currentUser.avatar = self.profile.avatar;
-          self.savingProfile = false;
-          self.clearChosenAvatar();
-          self.showSuccess("Profile updated successfully", 5000);
+  export default {
+    mixins: [UtilMixin, LoadingOverlayableMixin],
+    components: {PageBar, VueDatetimepicker},
+    data: function () {
+      return {
+        profileChosenFile: null,
+        profileChosenFileData: null,
+        deletingAvatar: false,
+        savingProfile: false,
+        changingPassword: false,
+        genderOptions: GENDER_OPTIONS,
+        userPassword: {
+          current_password: "",
+          new_password: "",
+          re_new_password: ""
         },
-        function(error) {
-          self.savingProfile = false;
-          self.showDefaultServerError(error);
+        profile: {
+          photographer: {},
+          sponsor: {},
         }
+      };
+    },
+    created: function () {
+      var self = this;
+      this.loadingOverlay = true;
+      ProfileApi.get().then(
+          function (response) {
+            self.profile = response.data;
+            self.loadingOverlay = false;
+          },
+          function (error) {
+            self.showDefaultServerError(error);
+            self.loadingOverlay = false;
+          }
       );
     },
-    changePassword: function() {
-      var self = this;
-      this.changingPassword = true;
-      this.$http.put("me/password", this.userPassword).then(
-        function() {
-          self.userPassword = {};
-          self.changingPassword = false;
-          self.showSuccess("Password changed successfully", 5000);
-        },
-        function(response) {
-          self.changingPassword = false;
-          self.showDefaultServerError(response, true);
+    computed: {
+      passwordMatched: function () {
+        return (
+            this.userPassword.new_password === this.userPassword.re_new_password
+        );
+      }
+    },
+    methods: {
+      clearChosenAvatar: function () {
+        this.profileChosenFile = null;
+        this.profileChosenFileData = null;
+        $("#profile_image").val("");
+      },
+      onChangeProfileFile: function (event) {
+        if (event.target.files.length > 0) {
+          this.profileChosenFile = event.target.files[0];
+          var f = this.profileChosenFile,
+              self = this,
+              r = new FileReader();
+          r.onloadend = function (e) {
+            self.profileChosenFileData = e.target.result;
+          };
+          r.readAsDataURL(f);
+
         }
-      );
+      },
+      getProfilePostData: function (profileType) {
+        var postData = {},
+            self = this;
+        if (profileType === "basic") {
+          ["first_name", "last_name", "gender", "birth_date", "avatar"].forEach(function (f) {
+            postData[f] = self.profile[f];
+          });
+          if (postData.birth_date && typeof postData.birth_date === "object") {
+            postData.birth_date = moment(postData.birth_date).format("YYYY-MM-DD");
+          }
+          if (this.profileChosenFileData) {
+            postData.avatar = this.profileChosenFileData;
+          } else if (postData.avatar !== null) {
+            delete postData.avatar;
+          }
+        } else if (profileType === "photographer") {
+          postData["photographer"] = this.profile.photographer || {};
+          postData["is_photographer"] = this.profile.is_photographer === true;
+        } else if (profileType === "sponsor") {
+          postData["sponsor"] = this.profile.sponsor || {};
+          postData["is_sponsor"] = this.profile.is_sponsor === true;
+        }
+        return postData;
+      },
+      saveProfileInfo: function (profileType) {
+        var self = this;
+        this.savingProfile = true;
+        var postData = this.getProfilePostData(profileType || "basic");
+        this.savingProfile = true;
+        ProfileApi.update(postData).then(
+            function (response) {
+              self.profile = response.data;
+              self.$store.state.currentUser.avatar = self.profile.avatar;
+              self.savingProfile = false;
+              self.clearChosenAvatar();
+              self.showSuccess("Profile updated successfully", 5000);
+            },
+            function (error) {
+              self.savingProfile = false;
+              self.showDefaultServerError(error);
+            }
+        );
+      },
+      changePassword: function () {
+        var self = this;
+        this.changingPassword = true;
+        this.$http.put("me/password", this.userPassword).then(
+            function () {
+              self.userPassword = {};
+              self.changingPassword = false;
+              self.showSuccess("Password changed successfully", 5000);
+            },
+            function (response) {
+              self.changingPassword = false;
+              self.showDefaultServerError(response, true);
+            }
+        );
+      }
     }
-  }
-};
+  };
 </script>

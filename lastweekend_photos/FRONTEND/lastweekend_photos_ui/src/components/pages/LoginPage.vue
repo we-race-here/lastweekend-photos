@@ -365,6 +365,7 @@
 
 <script>
 import UtilMixin from "../mixins/UtilMixin";
+import SessionApi from "../../endpoint/SessionApi"
 
 export default {
   data: function() {
@@ -377,9 +378,9 @@ export default {
   mixins: [UtilMixin],
   methods: {
     signIn: function() {
-      var self = this;
+      let self = this;
       this.signingIn = true;
-      this.$http.post("session", this.signinForm).then(
+      SessionApi.singIn(this.signinForm).then(
         function(response) {
           self.signinForm = {};
           self.$store.state.currentUser = response.data;

@@ -26,6 +26,7 @@ class PhotoPeopleFilter(filters.FilterSet):
 
 
 class PhotoFilter(filters.FilterSet):
+    event = django_filters.ModelMultipleChoiceFilter(queryset=Event.objects.all())
 
     class Meta:
         model = Photo
