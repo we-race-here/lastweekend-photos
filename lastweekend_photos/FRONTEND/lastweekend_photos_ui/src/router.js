@@ -74,7 +74,8 @@ const router = new VueRouter({
       meta: {
         pageInfo: {
           title: "Download",
-          titleDesc: "download photo"
+          titleDesc: "download photo",
+          back: routeNames.DASHBOARD
         }
       },
       component: Download

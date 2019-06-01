@@ -1,7 +1,7 @@
 <template>
   <section>
     <page-bar></page-bar>
-    <div class="kt-subheader   kt-grid__item" id="kt_subheader">
+    <div class="kt-subheader   kt-grid__item" id="kt_subheader_search_container">
       <div class="kt-subheader__main">
 
         <h3 class="kt-subheader__title">
@@ -78,7 +78,8 @@
                               </div>
                               <div class="kt-portlet__head-toolbar">
                                 <div class="kt-portlet__head-actions">
-                                  <a href="#" class="btn btn-outline-success btn-sm btn-icon btn-icon-md mr-1">
+                                  <a @click="openDownloadPhotoModal(photo)"
+                                     class="btn btn-outline-success btn-sm btn-icon btn-icon-md mr-1">
                                     <i class="flaticon-download"></i>
                                   </a>
                                   <a href="#" class="btn btn-outline-danger btn-sm btn-icon btn-icon-md mr-1">
@@ -122,6 +123,120 @@
         </div>
       </div>
     </div>
+    <b-modal
+            size="lg"
+            centered
+            ref="downloadModalModalRef"
+            id="downloadModalModal"
+            :title="'Ready to download ' + selectedPhoto.title + '?'"
+            :hide-footer="true"
+    >
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-6">
+            <div class="row">
+              <div class="kt-portlet">
+                <div class="kt-portlet__head">
+                  <div class="kt-portlet__head-label">
+                              <span class="kt-portlet__head-icon">
+                                <i class="la la-user large-icon"></i>
+                              </span>
+                    <h3 class="kt-portlet__head-title">
+                      {{selectedPhoto.title}}
+                    </h3>
+                  </div>
+                </div>
+                <div class="kt-portlet__body">
+                  <img :src="selectedPhoto.preview_file" class="size-auto"/>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-5">
+            <div class="row ml-3">
+              <div class="col">
+                <div class="text-center">
+                  <ul class="nav nav-pills nav-fill" role="tablist">
+                    <li class="nav-item nav-small">
+                      <a class="nav-link active" data-toggle="tab" href="#small_size_tab">Small</a>
+                    </li>
+                    <li class="nav-item nav-medium">
+                      <a class="nav-link" data-toggle="tab" href="#medium_size_tab">Medium</a>
+                    </li>
+                    <li class="nav-item nav-large">
+                      <a class="nav-link" data-toggle="tab" href="#large_size_tab">Large</a>
+                    </li>
+                  </ul>
+                  <div class="tab-content">
+                    <div class="tab-pane active" id="small_size_tab" role="tabpanel">
+                      <div class="row mt-4">
+                        <span class="border-bottom pb-4 btn-block text-black">Small | 1296 x 864 px | 43.9 x 29.3 cm @ 72 dpi | JPEG</span>
+                      </div>
+                    </div>
+                    <div class="tab-pane" id="medium_size_tab" role="tabpanel">
+                      <p>Medium | 2592 x 1728 px | 43.9 x 29.3 cm @ 150 dpi | JPEG</p>
+                    </div>
+                    <div class="tab-pane" id="large_size_tab" role="tabpanel">
+                      <p>Large | 5184 x 3456 px | 43.9 x 29.3 cm @ 300 dpi | JPEG</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row ml-3">
+              <div class="col">
+                <div class="row mt-4">
+                  <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Choose logo position {{logoPosition}}
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" x-placement="top-start"
+                         style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, -138px, 0px);">
+                      <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
+                            @click="logoPosition='tl'"
+                            >Top Left</span>
+                      <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
+                            @click="logoPosition='tc'"
+                            >Top Center</span>
+                      <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
+                            @click="logoPosition='tr'"
+                            >Top Right</span>
+                      <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
+                            @click="logoPosition='cl'"
+                            >Center Left</span>
+                      <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
+                            @click="logoPosition='cc'"
+                            >Center Center</span>
+                      <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
+                            @click="logoPosition='cr'"
+                            >Center Right</span>
+                      <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
+                            @click="logoPosition='bl'"
+                            >Bottom Left</span>
+                      <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
+                            @click="logoPosition='bc'"
+                            >Bottom Center</span>
+                      <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
+                            @click="logoPosition='br'"
+                            >Bottom Right</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="row mt-4">
+                  <button class="btn btn-secondary btn-block btn-lg mt-2" disabled>
+                    Download original file
+                  </button>
+                </div>
+                <div class="row mt-4">
+                  <button class="btn btn-success btn-block btn-lg mt-2">Download for free (with Logo)</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </b-modal>
   </section>
 </template>
 
@@ -153,9 +268,23 @@
       this.getPhotos();
     },
     data: function () {
+      const LOGO_POSITION = {
+        TopLeft: "TL",
+        TopCenter: "TC",
+        TopRight: "TR",
+        CenterLeft: "CL",
+        CenterCenter: "CC",
+        CenterRight: "CR",
+        BottomLeft: "BL",
+        BottomCenter: "BC",
+        BottomRight: "BR"
+      };
+
       return {
         searchValue: "",
-        previousSearchTimeout: undefined,
+        logoPosition: "",
+        previousSearchTimeout: LOGO_POSITION.BottomRight,
+        selectedPhoto: {},
         photos: [],
         selectedEvents: [],
         events: []
@@ -193,6 +322,10 @@
         }, function () {
 
         })
+      },
+      openDownloadPhotoModal: function (photo) {
+        this.selectedPhoto = photo;
+        this.$refs.downloadModalModalRef.show();
       }
     }
   }
@@ -224,7 +357,7 @@
   }
 
   .size-auto {
-    width: auto;
+    width: 100%;
     height: auto;
   }
 
@@ -252,6 +385,7 @@
     border: 1px solid #ebedf2 !important;
     border-radius: 4px !important;
     display: flex !important;
+    flex-shrink: 1 !important;
   }
 
   .multiselect__tag {
@@ -282,8 +416,20 @@
     margin-top: 8px !important;
   }
 
-  #kt_subheader .kt-subheader__title {
+  #kt_subheader_search_container .kt-subheader__main .kt-subheader__title {
     margin-top: 5px !important;
+  }
+
+  .modal .modal-content .modal-header .close:before {
+    content: ""
+  }
+
+  .dropdown {
+    width: 100%;
+  }
+
+  .dropdown * {
+    width: 100%;
   }
 
 </style>
