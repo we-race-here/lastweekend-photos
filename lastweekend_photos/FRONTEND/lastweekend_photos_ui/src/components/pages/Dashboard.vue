@@ -11,7 +11,7 @@
         <span class="kt-subheader__separator kt-subheader__separator--v"></span>
 
         <div class="kt-subheader__group" id="kt_subheader_search">
-          <span class="kt-subheader__desc" id="kt_subheader_total">{{photos.length}} Total</span>
+          <span class="kt-subheader__desc" id="kt_subheader_total">{{photos.pagination.total}} Total</span>
           <div class="kt-input-icon kt-input-icon--right kt-subheader__search mr-3">
             <input type="text" class="form-control" placeholder="Search..." id="generalSearch" v-model="searchValue">
             <span class="kt-input-icon__icon kt-input-icon__icon--right">
@@ -65,7 +65,7 @@
                   <div class="form-group kt-form__group row">
                     <div class="container-fluid mr-3 ml-3">
                       <div class="row">
-                        <div class="col-md-4" v-for="photo in photos" :key="photo.id">
+                        <div class="col-md-4" v-for="photo in photos.results" :key="photo.id">
                           <div class="kt-portlet">
                             <div class="kt-portlet__head">
                               <div class="kt-portlet__head-label">
@@ -94,63 +94,16 @@
                           </div>
                         </div>
                       </div>
-                      <div class="row" style="display: none;">
+                      <div class="row">
                         <div class="col">
-                          <div class="kt-pagination  kt-pagination--brand">
-                            <ul class="kt-pagination__links">
-                              <li class="kt-pagination__link--first">
-                                <a href="#"><i class="fa fa-angle-double-left kt-font-brand"></i></a>
-                              </li>
-                              <li class="kt-pagination__link--next">
-                                <a href="#"><i class="fa fa-angle-left kt-font.kt-paginatio-brand"></i></a>
-                              </li>
-
-                              <li>
-                                <a href="#">...</a>
-                              </li>
-                              <li>
-                                <a href="#">29</a>
-                              </li>
-                              <li>
-                                <a href="#">30</a>
-                              </li>
-                              <li>
-                                <a href="#">31</a>
-                              </li>
-                              <li class="kt-pagination__link--active">
-                                <a href="#">32</a>
-                              </li>
-                              <li>
-                                <a href="#">33</a>
-                              </li>
-                              <li>
-                                <a href="#">34</a>
-                              </li>
-                              <li>
-                                <a href="#">...</a>
-                              </li>
-
-                              <li class="kt-pagination__link--prev">
-                                <a href="#"><i class="fa fa-angle-right kt-font-brand"></i></a>
-                              </li>
-                              <li class="kt-pagination__link--last">
-                                <a href="#"><i class="fa fa-angle-double-right kt-font-brand"></i></a>
-                              </li>
-                            </ul>
-
-                            <div class="kt-pagination__toolbar">
-                              <select class="form-control kt-font-brand" style="width: 60px;">
-                                <option value="10">10</option>
-                                <option value="20">20</option>
-                                <option value="30">30</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
-                              </select>
-                              <span class="pagination__desc">
-                                Displaying 10 of 230 records
-                            </span>
-                            </div>
-                          </div>
+                          <b-pagination size="lg" :total-rows="photos.pagination.total" v-model="currentPage"
+                                        :per-page="pageSize" first-text="First"
+                                        prev-text="Prev"
+                                        next-text="Next"
+                                        last-text="Last"
+                                        align="center"
+                                        @input="getPhotos(searchValue, currentPage, pageSize)">
+                          </b-pagination>
                         </div>
                       </div>
                     </div>
@@ -275,11 +228,13 @@
   import PhotoApi from "../../endpoint/PhotoApi";
   import Multiselect from 'vue-multiselect'
   import UtilMixin from "../mixins/UtilMixin";
+  import Pagination from 'bootstrap-vue/es/components'
 
   export default {
     components: {
       PageBar,
-      Multiselect
+      Multiselect,
+      Pagination
     },
     mixins: [
       UtilMixin
@@ -294,7 +249,7 @@
       });
 
       // Retrieve photo list
-      this.getPhotos();
+      this.getPhotos(this.searchValue, this.currentPage, this.pageSize);
     },
     data: function () {
       const LOGO_POSITION = {
@@ -314,9 +269,14 @@
         logoPosition: "",
         previousSearchTimeout: LOGO_POSITION.BottomRight,
         selectedPhoto: {},
-        photos: [],
+        photos: {
+          pagination: {},
+          results: []
+        },
         selectedEvents: [],
-        events: []
+        events: [],
+        currentPage: 1,
+        pageSize: 10
       }
     },
     watch: {
@@ -329,13 +289,13 @@
           clearTimeout(this.previousSearchTimeout);
         }
         this.previousSearchTimeout = setTimeout(() => {
-          this.getPhotos();
+          this.getPhotos(this.searchValue, this.currentPage, this.pageSize);
         }, 500)
       }
     },
     methods: {
-      getPhotos: function () {
-        let params = {'search': this.searchValue};
+      getPhotos: function (searchValue, currentPage, pageSize) {
+        let params = {'search': searchValue, 'page': currentPage, 'page_size': pageSize};
 
         // Create events id
         if (this.selectedEvents.length > 0) {
@@ -347,7 +307,7 @@
         }
 
         PhotoApi.get(params).then((resp) => {
-          this.photos = resp.data.results;
+          this.photos = resp.data;
         }, function () {
 
         })
