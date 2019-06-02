@@ -228,13 +228,11 @@
   import PhotoApi from "../../endpoint/PhotoApi";
   import Multiselect from 'vue-multiselect'
   import UtilMixin from "../mixins/UtilMixin";
-  import Pagination from 'bootstrap-vue/es/components'
 
   export default {
     components: {
       PageBar,
       Multiselect,
-      Pagination
     },
     mixins: [
       UtilMixin
