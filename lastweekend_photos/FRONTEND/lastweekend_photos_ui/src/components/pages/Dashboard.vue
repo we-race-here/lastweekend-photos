@@ -94,6 +94,65 @@
                           </div>
                         </div>
                       </div>
+                      <div class="row" style="display: none;">
+                        <div class="col">
+                          <div class="kt-pagination  kt-pagination--brand">
+                            <ul class="kt-pagination__links">
+                              <li class="kt-pagination__link--first">
+                                <a href="#"><i class="fa fa-angle-double-left kt-font-brand"></i></a>
+                              </li>
+                              <li class="kt-pagination__link--next">
+                                <a href="#"><i class="fa fa-angle-left kt-font.kt-paginatio-brand"></i></a>
+                              </li>
+
+                              <li>
+                                <a href="#">...</a>
+                              </li>
+                              <li>
+                                <a href="#">29</a>
+                              </li>
+                              <li>
+                                <a href="#">30</a>
+                              </li>
+                              <li>
+                                <a href="#">31</a>
+                              </li>
+                              <li class="kt-pagination__link--active">
+                                <a href="#">32</a>
+                              </li>
+                              <li>
+                                <a href="#">33</a>
+                              </li>
+                              <li>
+                                <a href="#">34</a>
+                              </li>
+                              <li>
+                                <a href="#">...</a>
+                              </li>
+
+                              <li class="kt-pagination__link--prev">
+                                <a href="#"><i class="fa fa-angle-right kt-font-brand"></i></a>
+                              </li>
+                              <li class="kt-pagination__link--last">
+                                <a href="#"><i class="fa fa-angle-double-right kt-font-brand"></i></a>
+                              </li>
+                            </ul>
+
+                            <div class="kt-pagination__toolbar">
+                              <select class="form-control kt-font-brand" style="width: 60px;">
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="30">30</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                              </select>
+                              <span class="pagination__desc">
+                                Displaying 10 of 230 records
+                            </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -155,37 +214,7 @@
           <div class="col-5">
             <div class="row ml-3">
               <div class="col">
-                <div class="text-center">
-                  <ul class="nav nav-pills nav-fill" role="tablist">
-                    <li class="nav-item nav-small">
-                      <a class="nav-link active" data-toggle="tab" href="#small_size_tab">Small</a>
-                    </li>
-                    <li class="nav-item nav-medium">
-                      <a class="nav-link" data-toggle="tab" href="#medium_size_tab">Medium</a>
-                    </li>
-                    <li class="nav-item nav-large">
-                      <a class="nav-link" data-toggle="tab" href="#large_size_tab">Large</a>
-                    </li>
-                  </ul>
-                  <div class="tab-content">
-                    <div class="tab-pane active" id="small_size_tab" role="tabpanel">
-                      <div class="row mt-4">
-                        <span class="border-bottom pb-4 btn-block text-black">Small | 1296 x 864 px | 43.9 x 29.3 cm @ 72 dpi | JPEG</span>
-                      </div>
-                    </div>
-                    <div class="tab-pane" id="medium_size_tab" role="tabpanel">
-                      <p>Medium | 2592 x 1728 px | 43.9 x 29.3 cm @ 150 dpi | JPEG</p>
-                    </div>
-                    <div class="tab-pane" id="large_size_tab" role="tabpanel">
-                      <p>Large | 5184 x 3456 px | 43.9 x 29.3 cm @ 300 dpi | JPEG</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="row ml-3">
-              <div class="col">
-                <div class="row mt-4">
+                <div class="row">
                   <div class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -195,31 +224,31 @@
                          style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, -138px, 0px);">
                       <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
                             @click="logoPosition='tl'"
-                            >Top Left</span>
+                      >Top Left</span>
                       <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
                             @click="logoPosition='tc'"
-                            >Top Center</span>
+                      >Top Center</span>
                       <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
                             @click="logoPosition='tr'"
-                            >Top Right</span>
+                      >Top Right</span>
                       <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
                             @click="logoPosition='cl'"
-                            >Center Left</span>
+                      >Center Left</span>
                       <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
                             @click="logoPosition='cc'"
-                            >Center Center</span>
+                      >Center Center</span>
                       <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
                             @click="logoPosition='cr'"
-                            >Center Right</span>
+                      >Center Right</span>
                       <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
                             @click="logoPosition='bl'"
-                            >Bottom Left</span>
+                      >Bottom Left</span>
                       <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
                             @click="logoPosition='bc'"
-                            >Bottom Center</span>
+                      >Bottom Center</span>
                       <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
                             @click="logoPosition='br'"
-                            >Bottom Right</span>
+                      >Bottom Right</span>
                     </div>
                   </div>
                 </div>
