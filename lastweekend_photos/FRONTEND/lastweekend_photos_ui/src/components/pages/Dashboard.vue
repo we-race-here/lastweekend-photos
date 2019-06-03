@@ -1,20 +1,26 @@
 <template>
   <section>
     <page-bar></page-bar>
-    <div class="kt-subheader   kt-grid__item" id="kt_subheader_search_container">
+    <div class="kt-subheader kt-grid__item" id="kt_subheader_search_container">
       <div class="kt-subheader__main">
-
-        <h3 class="kt-subheader__title">
-          Photos
-        </h3>
-
-        <span class="kt-subheader__separator kt-subheader__separator--v"></span>
-
-        <div class="kt-subheader__group" id="kt_subheader_search">
-          <span class="kt-subheader__desc" id="kt_subheader_total">{{photos.pagination.total}} Total</span>
-          <div class="kt-input-icon kt-input-icon--right kt-subheader__search mr-3">
-            <input type="text" class="form-control" placeholder="Search..." id="generalSearch" v-model="searchValue">
-            <span class="kt-input-icon__icon kt-input-icon__icon--right">
+        <div class="container-fluid">
+          <div class="row justify-content-md-center align-items-center">
+            <div class="col-auto p-0">
+              <h3 class="kt-subheader__title">
+                My Photos
+              </h3>
+            </div>
+            <div class="col-auto mt-1 p-0">
+              <span class="kt-subheader__separator kt-subheader__separator--v"></span>
+            </div>
+            <div class="col-auto mt-1 p-0">
+              <span class="kt-subheader__desc" id="kt_subheader_total">{{photos.pagination.total}} Total</span>
+            </div>
+            <div class="col-md-6 col-sm-12 p-0 mr-auto kt-subheader__group" id="kt_subheader_search">
+              <div class="kt-input-icon kt-input-icon--right kt-subheader__search mr-3">
+                <input type="text" class="form-control" placeholder="Search..." id="generalSearch"
+                       v-model="searchValue">
+                <span class="kt-input-icon__icon kt-input-icon__icon--right">
                             <span>
                                 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                                      width="24px" height="24px" viewBox="0 0 24 24" version="1.1" class="kt-svg-icon">
@@ -28,10 +34,12 @@
 </svg>                                <!--<i class="flaticon2-search-1"></i>-->
                             </span>
                         </span>
-          </div>
-          <div class="kt-subheader__search event-select">
-            <multiselect v-model="selectedEvents" :options="events" :multiple="true" track-by="id" label="name"
-                         placeholder="Select events..."></multiselect>
+              </div>
+              <div class="kt-subheader__search event-select">
+                <multiselect v-model="selectedEvents" :options="events" :multiple="true" track-by="id" label="name"
+                             placeholder="Select events..."></multiselect>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -65,7 +73,7 @@
                   <div class="form-group kt-form__group row">
                     <div class="container-fluid mr-3 ml-3">
                       <div class="row">
-                        <div class="col-md-4" v-for="photo in photos.results" :key="photo.id">
+                        <div class="col-md-4 mt-3 mb-3" v-for="photo in photos.results" :key="photo.id">
                           <div class="kt-portlet">
                             <div class="kt-portlet__head">
                               <div class="kt-portlet__head-label">
@@ -139,7 +147,7 @@
             size="lg"
             centered
             ref="downloadModalModalRef"
-            id="downloadModalModal"
+            id="downloadModal"
             :title="'Ready to download ' + selectedPhoto.title + '?'"
             :hide-footer="true"
     >
@@ -228,6 +236,7 @@
   import PhotoApi from "../../endpoint/PhotoApi";
   import Multiselect from 'vue-multiselect'
   import UtilMixin from "../mixins/UtilMixin";
+  import LogoPosition from "../model/LogoPosition"
 
   export default {
     components: {
@@ -250,22 +259,10 @@
       this.getPhotos(this.searchValue, this.currentPage, this.pageSize);
     },
     data: function () {
-      const LOGO_POSITION = {
-        TopLeft: "TL",
-        TopCenter: "TC",
-        TopRight: "TR",
-        CenterLeft: "CL",
-        CenterCenter: "CC",
-        CenterRight: "CR",
-        BottomLeft: "BL",
-        BottomCenter: "BC",
-        BottomRight: "BR"
-      };
-
       return {
         searchValue: "",
         logoPosition: "",
-        previousSearchTimeout: LOGO_POSITION.BottomRight,
+        previousSearchTimeout: LogoPosition.BottomRight,
         selectedPhoto: {},
         photos: {
           pagination: {},
@@ -304,7 +301,7 @@
           params['event'] = ids;
         }
 
-        PhotoApi.get(params).then((resp) => {
+        PhotoApi.getAll(params).then((resp) => {
           this.photos = resp.data;
         }, function () {
 
@@ -322,10 +319,6 @@
 
 <style>
 
-  .element-box {
-    margin-left: 4.444%
-  }
-
   .nav-link.active, .nav-link:hover {
     color: #000000 !important;
     border-color: #000000 !important;
@@ -333,10 +326,6 @@
 
   .nav-tabs.nav-tabs-line.nav-tabs-line-brand.nav-tabs-line-2x {
     border: none !important;;
-  }
-
-  .large {
-    width: 80%;
   }
 
   .large-icon {
@@ -354,14 +343,6 @@
 
   #generalSearch {
     font-size: 1rem !important;
-  }
-
-  #kt_subheader_search {
-    display: flex;
-    flex-flow: row wrap;
-    align-items: center;
-    width: 80%;
-    margin-top: 8px;
   }
 
   .multiselect__tags {
@@ -399,7 +380,7 @@
   }
 
   .event-select {
-    width: 50% !important;
+    width: 70% !important;
     margin-top: 8px !important;
   }
 
