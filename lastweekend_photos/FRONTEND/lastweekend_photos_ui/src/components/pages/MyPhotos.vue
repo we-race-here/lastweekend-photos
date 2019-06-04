@@ -36,7 +36,8 @@
                         </span>
               </div>
               <div class="kt-subheader__search event-select">
-                <multiselect v-model="searchSelectedEvents" :options="events" :multiple="true" track-by="id" label="name"
+                <multiselect v-model="searchSelectedEvents" :options="events" :multiple="true" track-by="id"
+                             label="name"
                              placeholder="Select events..."></multiselect>
               </div>
             </div>
@@ -97,27 +98,7 @@
         </div>
       </div>
 
-      <!-- Add modal -->
-      <b-modal
-              size="lg"
-              centered
-              ref="addPhotoModalRef1"
-              id="addPhotoModal1"
-              title="Add new photo"
-              :hide-footer="true"
-      >
-        <div class="modal-body text-center" @drop="drop(event)" @dragover="allowDrop(event)">
-          <div class="upload-content">
-            <p>Drag & drop photos</p>
-            <p>or</p>
-            <div class="upload-btn-wrapper">
-              <button class="btn-file">Upload a file</button>
-              <input type="file" name="myfile" ref="newPhoto" @change="uploadFile"/>
-            </div>
-          </div>
-        </div>
-      </b-modal>
-
+      <!-- Add photo modal -->
       <b-modal
               size="lg"
               centered
@@ -132,64 +113,45 @@
                 <div class="kt-portlet">
                   <div class="kt-portlet__head">
                     <div class="kt-portlet__head-label">
-                      <h3>12 file(s) selected</h3>
+                      <h5>{{Object.keys(uploadedPhotos).length}} photo(s) selected</h5>
+                    </div>
+                    <div class="kt-portlet__head-toolbar">
+                      <div class="kt-portlet__head-actions">
+                        <div class="upload-btn-wrapper">
+                          <button class="btn btn-outline-brand btn-sm">Select photo(s)</button>
+                          <input type="file" ref="selectedPhotosRef" @change="uploadFiles" multiple accept="image/*"/>
+                        </div>
+                      </div>
                     </div>
                   </div>
                   <div class="kt-portlet__body">
-                    <img :src="uploadedPhotos[uploadedPhotoPreviewIndex]" class="size-auto"/>
+                    <img :src="uploadedPhotos[uploadedPhotoPreviewName].address" v-if="uploadedPhotos[uploadedPhotoPreviewName]" class="size-auto"/>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="col-5">
+            <div class="col-6">
               <div class="row ml-3">
                 <div class="col">
                   <div class="row">
                     <div class="col">
-                      <input type="text" class="form-control" id="uploadedPhotos[uploadedPhotoPreviewIndex].name"
+                      <input type="text" class="form-control" id="uploadedPhotos[uploadedPhotoPreviewName].name"
                              placeholder="Pick a name for your photo">
                     </div>
                   </div>
                   <div class="row mt-2">
                     <div class="col">
                       <textarea aria-multiline="true" class="form-control"
-                                id="uploadedPhotos[uploadedPhotoPreviewIndex].description"
-                                placeholder="add a description">
+                                id="uploadedPhotos[uploadedPhotoPreviewName].description"
+                                placeholder="Add a description">
                       </textarea>
                     </div>
                   </div>
                   <div class="row mt-2">
                     <div class="col">
-                      <input type="text" class="form-control" id="uploadedPhotos[uploadedPhotoPreviewIndex].price"
-                             placeholder="How much do you want to sell?">
+                      <input type="text" class="form-control" id="uploadedPhotos[uploadedPhotoPreviewName].price"
+                             placeholder="Price">
                     </div>
-                  </div>
-                  <div class="row mt-2">
-                    <div class="col">
-                      <input type="date" class="form-control" id="uploadedPhotos[uploadedPhotoPreviewIndex].date"
-                             placeholder="when do you pick this image?">
-                    </div>
-                  </div>
-                  <div class="row mt-2">
-                    <div class="col">
-                      <multiselect v-model="selectedEvents" :options="events" :multiple="true" track-by="id" label="name"
-                                   placeholder="Select tags..."></multiselect>
-                    </div>
-                  </div>
-                  <div class="row mt-2">
-                    <div class="col">
-                      <multiselect v-model="selectedTags" :options="tags" :multiple="true" track-by="id" label="name"
-                                   placeholder="Select tags..."></multiselect>
-                    </div>
-                  </div>
-                  <div class="row mt-2">
-                    <div class="col">
-                      <multiselect v-model="selectedPeople" :options="people" :multiple="true" track-by="id"
-                                   label="name"
-                                   placeholder="Select people..."></multiselect>
-                    </div>
-                  </div>
-                  <div class="row mt-2">
                     <div class="col">
                       <div class="dropdown">
                         <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
@@ -229,21 +191,61 @@
                       </div>
                     </div>
                   </div>
-                  <div class="row mt-4">
+                  <div class="row mt-2">
                     <div class="col">
-                      <button class="btn btn-primary btn-block btn-lg mt-2">
-                        Upload
-                      </button>
+                      <input type="date" class="form-control" id="uploadedPhotos[uploadedPhotoPreviewName].date"
+                             placeholder="when do you pick this photo?">
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col mt-2">
+                      <multiselect v-model="selectedEvents" :options="events" :multiple="false" track-by="id"
+                                   label="name"
+                                   placeholder="Select events..."></multiselect>
+                    </div>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="col">
+                      <multiselect v-model="selectedTags" :options="tags" :multiple="true" track-by="id" label="name"
+                                   placeholder="Select tags..."></multiselect>
+                    </div>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="col">
+                      <multiselect v-model="selectedPeople" :options="people" :multiple="true" track-by="id"
+                                   label="name"
+                                   placeholder="Select people..."></multiselect>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+          <div class="row">
+            <div class="col">
+              <b-container fluid class="p-4 bg-dark mt-2">
+                <b-row>
+                  <b-col v-for="index in 10" :key="(index - 1) + uploadedPhotoNavigationIndex">
+                    <b-img thumbnail fluid
+                           v-if="Object.keys(uploadedPhotos).length >= index + uploadedPhotoNavigationIndex"
+                           :src="uploadedPhotos[Object.keys(uploadedPhotos)[(index - 1) + uploadedPhotoNavigationIndex]].address"
+                           @click="uploadedPhotoPreviewName = Object.keys(uploadedPhotos)[(index - 1) + uploadedPhotoNavigationIndex]"></b-img>
+                  </b-col>
+                </b-row>
+              </b-container>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <button class="btn btn-success btn-block btn-lg mt-3 mr-3">
+                Upload
+              </button>
+            </div>
+          </div>
         </div>
       </b-modal>
 
-      <!-- edit modal -->
+      <!-- Edit modal -->
       <b-modal
               size="md"
               centered
@@ -372,40 +374,22 @@
 
         })
       },
-      drop: function () {
-        alert('drop');
-      },
-      allowDrop: function (ev) {
-        ev.preventDefault();
-      },
-      openFileModal: function () {
-        $('#add_photo_modal').modal('show')
-      },
-      closeFileModal: function () {
-        $('#add_photo_modal').modal('hide')
-      },
       openEditPhotoModal: function (photo) {
         this.selectedPhoto = photo;
         this.$refs.editPhotoModalRef.show();
       },
-      removePhoto: function (photo) {
-        //TODO: remove photo
+      uploadFiles: function () {
+
+        for (let i = 0; i < this.$refs.selectedPhotosRef.files.length; i++) {
+          let reader = new FileReader();
+          let file = this.$refs.selectedPhotosRef.files[i];
+          reader.onload = e => {
+            let newPhoto = e.target.result;
+            this.$set(this.uploadedPhotos, file.name, {address: newPhoto, uploaded: false});
+          };
+          reader.readAsDataURL(file);
+        }
       },
-      uploadFile: function () {
-        let self = this;
-        const reader = new FileReader();
-        let file = this.$refs.newPhoto.files[0];
-        let newImage;
-        reader.onload = e => {
-          newImage = e.target.result;
-          self.images.push({address: newImage, active: false});
-          self.closeFileModal();
-        };
-        reader.readAsDataURL(file);
-      },
-      // isActive: function () {
-      //   return Array.from(arguments).indexOf(this.$route.name) >= 0;
-      // }
     },
     data: function () {
       return {
@@ -419,8 +403,9 @@
         },
         searchSelectedEvents: [],
         events: [],
-        uploadedPhotos: [],
-        uploadedPhotoPreviewIndex: 0,
+        uploadedPhotos: {},
+        uploadedPhotoPreviewName: 0,
+        uploadedPhotoNavigationIndex: 0,
         selectedEvents: [],
         selectedTags: [],
         tags: [],
@@ -494,6 +479,11 @@
 
   .size-auto {
     width: 100%;
+    height: auto;
+  }
+
+  .size-auto-1 {
+    width: auto;
     height: auto;
   }
 
