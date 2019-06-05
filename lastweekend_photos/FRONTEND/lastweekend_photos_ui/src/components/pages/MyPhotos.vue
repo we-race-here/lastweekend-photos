@@ -38,7 +38,8 @@
               <div class="kt-subheader__search event-select">
                 <multiselect v-model="searchSelectedEvents" :options="events" :multiple="true" track-by="id"
                              label="name"
-                             placeholder="Select events..."></multiselect>
+                             placeholder="Select events...">
+                </multiselect>
               </div>
             </div>
             <div class="col-md-auto col-sm-12 p-0">
@@ -108,7 +109,7 @@
               :hide-footer="true">
         <div class="modal-body">
           <div class="row">
-            <div class="col-6">
+            <div class="col-md-6 col-sm-12">
               <div class="row">
                 <div class="kt-portlet">
                   <div class="kt-portlet__head">
@@ -125,13 +126,14 @@
                     </div>
                   </div>
                   <div class="kt-portlet__body">
-                    <img :src="uploadedPhotos[uploadedPhotoPreviewName].address" v-if="uploadedPhotos[uploadedPhotoPreviewName]" class="size-auto"/>
+                    <img :src="uploadedPhotos[uploadedPhotoPreviewName].address"
+                         v-if="uploadedPhotos[uploadedPhotoPreviewName]" class="size-auto"/>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="col-6">
-              <div class="row ml-3">
+            <div class="col-md-6 col-sm-12">
+              <div class="row">
                 <div class="col">
                   <div class="row">
                     <div class="col">
@@ -201,20 +203,27 @@
                     <div class="col mt-2">
                       <multiselect v-model="selectedEvents" :options="events" :multiple="false" track-by="id"
                                    label="name"
-                                   placeholder="Select events..."></multiselect>
+                                   placeholder="Select events...">
+                      </multiselect>
                     </div>
                   </div>
                   <div class="row mt-2">
                     <div class="col">
                       <multiselect v-model="selectedTags" :options="tags" :multiple="true" track-by="id" label="name"
-                                   placeholder="Select tags..."></multiselect>
+                                   placeholder="Select tags..." :loading="tagIsLoading" :taggable="true" tag-placeholder="Add this as new tag"
+                                   @tag="addTag">
+                      </multiselect>
                     </div>
                   </div>
                   <div class="row mt-2">
                     <div class="col">
                       <multiselect v-model="selectedPeople" :options="people" :multiple="true" track-by="id"
                                    label="name"
-                                   placeholder="Select people..."></multiselect>
+                                   placeholder="Select people..." 
+                                   :taggable="true"
+                                   :loading="peopleIsLoading"
+                                   tag-placeholder="Add this as new people"
+                                   @tag="addPeople"></multiselect>
                     </div>
                   </div>
                 </div>
@@ -317,6 +326,8 @@
   import Multiselect from 'vue-multiselect'
   import UtilMixin from "../mixins/UtilMixin";
   import EventApi from "../../endpoint/EventApi";
+  import TagApi from "../../endpoint/TagApi";
+  import PeopleApi from "../../endpoint/PeopleApi";
   import PhotoApi from "../../endpoint/PhotoApi";
   import LogoPosition from "../model/LogoPosition"
 
@@ -336,6 +347,22 @@
       }, (resp) => {
         this.showMessage((resp.response && resp.response.data.detail) ||
             "Some error happened when trying to get events")
+      });
+
+      // Retrieve tag list
+      TagApi.get().then((resp) => {
+        this.tags = resp.data.results;
+      }, (resp) => {
+        this.showMessage((resp.response && resp.response.data.detail) ||
+            "Some error happened when trying to get tags")
+      });
+
+      // Retrieve people list
+      PeopleApi.get().then((resp) => {
+        this.people = resp.data.results;
+      }, (resp) => {
+        this.showMessage((resp.response && resp.response.data.detail) ||
+            "Some error happened when trying to get people")
       });
 
       // Retrieve photo list
@@ -379,7 +406,6 @@
         this.$refs.editPhotoModalRef.show();
       },
       uploadFiles: function () {
-
         for (let i = 0; i < this.$refs.selectedPhotosRef.files.length; i++) {
           let reader = new FileReader();
           let file = this.$refs.selectedPhotosRef.files[i];
@@ -390,6 +416,22 @@
           reader.readAsDataURL(file);
         }
       },
+      addTag: function (search) {
+        this.tagIsLoading = true;
+        TagApi.add({name: search}).then((resp) =>{
+          this.tags.push(resp.data);
+          this.selectedTags.push(resp.data);
+          this.tagIsLoading = false;
+        });
+      },
+      addPeople: function (search) {
+        this.peopleIsLoading = true;
+        PeopleApi.add({name: search}).then((resp) =>{
+          this.people.push(resp.data);
+          this.selectedPeople.push(resp.data);
+          this.peopleIsLoading = false;
+        });
+      }
     },
     data: function () {
       return {
@@ -409,8 +451,10 @@
         selectedEvents: [],
         selectedTags: [],
         tags: [],
+        tagIsLoading: false,
         selectedPeople: [],
         people: [],
+        peopleIsLoading: false,
         currentPage: 1,
         pageSize: 10
       }
@@ -560,4 +604,12 @@
     width: 100%;
   }
 
+  .img-thumbnail {
+    max-width: 50px;
+  }
+
+  img.img-thumbnail {
+    height: auto;
+    width: 50px;
+  }
 </style>
