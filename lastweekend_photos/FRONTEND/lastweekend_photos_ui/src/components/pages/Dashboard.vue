@@ -271,7 +271,7 @@
         selectedEvents: [],
         events: [],
         currentPage: 1,
-        pageSize: 10
+        pageSize: 9
       }
     },
     watch: {
@@ -317,7 +317,7 @@
 
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 
-<style>
+<style scoped>
 
   .nav-link.active, .nav-link:hover {
     color: #000000 !important;
@@ -345,59 +345,9 @@
     font-size: 1rem !important;
   }
 
-  .multiselect__tags {
-    min-height: 33px !important;
-    height: 33px !important;;
-    padding: 5px 40px 0 8px !important;;
-    background-color: #F2F3F7 !important;
-    border: 1px solid #ebedf2 !important;
-    border-radius: 4px !important;
-    display: flex !important;
-    flex-shrink: 1 !important;
-  }
-
-  .multiselect__tag {
-    background-color: #66cbfa !important;
-  }
-
-  .multiselect__input {
-    background-color: #F2F3F7 !important;
-  }
-
-  .multiselect__select {
-    top: 0 !important;
-    padding: 0 !important;
-  }
-
-  .multiselect__placeholder {
-    padding-top: 0 !important;
-  }
-
-  .multiselect__tags-wrap {
-    display: flex;
-    flex-flow: row nowrap;
-    width: 100%;
-  }
-
   .event-select {
     width: 70% !important;
     margin-top: 8px !important;
-  }
-
-  #kt_subheader_search_container .kt-subheader__main .kt-subheader__title {
-    margin-top: 5px !important;
-  }
-
-  .modal .modal-content .modal-header .close:before {
-    content: ""
-  }
-
-  .dropdown {
-    width: 100%;
-  }
-
-  .dropdown * {
-    width: 100%;
   }
 
 </style>

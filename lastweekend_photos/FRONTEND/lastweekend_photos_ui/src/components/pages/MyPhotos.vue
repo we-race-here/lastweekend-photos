@@ -72,7 +72,8 @@
                          class="btn btn-outline-success btn-sm btn-icon btn-icon-md mr-1">
                         <i class="flaticon-edit"></i>
                       </a>
-                      <a @click="removePhoto(photo)" class="btn btn-outline-danger btn-sm btn-icon btn-icon-md mr-1">
+                      <a @click="showConfirmDeleteModal(photo)"
+                         class="btn btn-outline-danger btn-sm btn-icon btn-icon-md mr-1">
                         <i class="flaticon-delete"></i>
                       </a>
                     </div>
@@ -106,6 +107,7 @@
               ref="addPhotoModalRef"
               id="addPhotoModal"
               title="Add new photo"
+              @hide="onAddPhotoModalHide"
               :hide-footer="true">
         <div class="modal-body">
           <div class="row">
@@ -114,80 +116,82 @@
                 <div class="kt-portlet">
                   <div class="kt-portlet__head">
                     <div class="kt-portlet__head-label">
-                      <h5>{{Object.keys(uploadedPhotos).length}} photo(s) selected</h5>
+                      <h5>{{selectedPhotos[0].name === unknownFileName ? 0 : selectedPhotos.length}} photo(s)
+                        selected</h5>
                     </div>
                     <div class="kt-portlet__head-toolbar">
                       <div class="kt-portlet__head-actions">
                         <div class="upload-btn-wrapper">
-                          <button class="btn btn-outline-brand btn-sm">Select photo(s)</button>
-                          <input type="file" ref="selectedPhotosRef" @change="uploadFiles" multiple accept="image/*"/>
+                          <button class="btn btn-outline-brand btn-sm">Select photo(s)
+                          </button>
+                          <input type="file" ref="selectedPhotosRef" @change="selectPhotos" multiple accept="image/*"/>
                         </div>
                       </div>
                     </div>
                   </div>
                   <div class="kt-portlet__body">
-                    <img :src="uploadedPhotos[uploadedPhotoPreviewName].address"
-                         v-if="uploadedPhotos[uploadedPhotoPreviewName]" class="size-auto"/>
+                    <img :src="selectedPhotos[selectedPhotoIndex].original_file"
+                         v-if="selectedPhotos[selectedPhotoIndex]" class="size-auto-fix"/>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="col-md-6 col-sm-12">
+            <div class="col-md-6 col-sm-12 pr-0">
               <div class="row">
                 <div class="col">
                   <div class="row">
                     <div class="col">
-                      <input type="text" class="form-control" id="uploadedPhotos[uploadedPhotoPreviewName].name"
+                      <input type="text" class="form-control" v-model="selectedPhotos[selectedPhotoIndex].title"
                              placeholder="Pick a name for your photo">
                     </div>
                   </div>
                   <div class="row mt-2">
                     <div class="col">
                       <textarea aria-multiline="true" class="form-control"
-                                id="uploadedPhotos[uploadedPhotoPreviewName].description"
+                                v-model="selectedPhotos[selectedPhotoIndex].description"
                                 placeholder="Add a description">
                       </textarea>
                     </div>
                   </div>
                   <div class="row mt-2">
                     <div class="col">
-                      <input type="text" class="form-control" id="uploadedPhotos[uploadedPhotoPreviewName].price"
+                      <input type="text" class="form-control" v-model="selectedPhotos[selectedPhotoIndex].price"
                              placeholder="Price">
                     </div>
                     <div class="col">
                       <div class="dropdown">
                         <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                          Choose logo position {{logoPosition}}
+                          Choose logo position {{selectedPhotos[selectedPhotoIndex].logo_position}}
                         </button>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" x-placement="top-start"
                              style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, -138px, 0px);">
                       <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
-                            @click="logoPosition='tl'"
+                            @click="selectedPhotos[selectedPhotoIndex].logo_position='tl'"
                       >Top Left</span>
                           <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
-                                @click="logoPosition='tc'"
+                                @click="selectedPhotos[selectedPhotoIndex].logo_position='tc'"
                           >Top Center</span>
                           <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
-                                @click="logoPosition='tr'"
+                                @click="selectedPhotos[selectedPhotoIndex].logo_position='tr'"
                           >Top Right</span>
                           <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
-                                @click="logoPosition='cl'"
+                                @click="selectedPhotos[selectedPhotoIndex].logo_position='cl'"
                           >Center Left</span>
                           <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
-                                @click="logoPosition='cc'"
+                                @click="selectedPhotos[selectedPhotoIndex].logo_position='cc'"
                           >Center Center</span>
                           <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
-                                @click="logoPosition='cr'"
+                                @click="selectedPhotos[selectedPhotoIndex].logo_position='cr'"
                           >Center Right</span>
                           <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
-                                @click="logoPosition='bl'"
+                                @click="selectedPhotos[selectedPhotoIndex].logo_position='bl'"
                           >Bottom Left</span>
                           <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
-                                @click="logoPosition='bc'"
+                                @click="selectedPhotos[selectedPhotoIndex].logo_position='bc'"
                           >Bottom Center</span>
                           <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
-                                @click="logoPosition='br'"
+                                @click="selectedPhotos[selectedPhotoIndex].logo_position='br'"
                           >Bottom Right</span>
                         </div>
                       </div>
@@ -195,13 +199,17 @@
                   </div>
                   <div class="row mt-2">
                     <div class="col">
-                      <input type="date" class="form-control" id="uploadedPhotos[uploadedPhotoPreviewName].date"
-                             placeholder="when do you pick this photo?">
+                      <dateTime placeholder="when do you pick this photo?"
+                                v-model="selectedPhotos[selectedPhotoIndex].date"
+                                :config="{ timepicker: false, format: 'YYYY/MM/DD' }"
+                                comparator="date"
+                      ></dateTime>
                     </div>
                   </div>
                   <div class="row">
                     <div class="col mt-2">
-                      <multiselect v-model="selectedEvents" :options="events" :multiple="false" track-by="id"
+                      <multiselect v-model="selectedPhotos[selectedPhotoIndex]._event" :options="events"
+                                   :multiple="false" track-by="id"
                                    label="name"
                                    placeholder="Select events...">
                       </multiselect>
@@ -209,17 +217,20 @@
                   </div>
                   <div class="row mt-2">
                     <div class="col">
-                      <multiselect v-model="selectedTags" :options="tags" :multiple="true" track-by="id" label="name"
-                                   placeholder="Select tags..." :loading="tagIsLoading" :taggable="true" tag-placeholder="Add this as new tag"
+                      <multiselect v-model="selectedPhotos[selectedPhotoIndex]._tags" :options="tags"
+                                   :multiple="true" track-by="id" label="name"
+                                   placeholder="Select tags..." :loading="tagIsLoading" :taggable="true"
+                                   tag-placeholder="Add this as new tag"
                                    @tag="addTag">
                       </multiselect>
                     </div>
                   </div>
                   <div class="row mt-2">
                     <div class="col">
-                      <multiselect v-model="selectedPeople" :options="people" :multiple="true" track-by="id"
+                      <multiselect v-model="selectedPhotos[selectedPhotoIndex]._peoples" :options="people"
+                                   :multiple="true" track-by="id"
                                    label="name"
-                                   placeholder="Select people..." 
+                                   placeholder="Select people..."
                                    :taggable="true"
                                    :loading="peopleIsLoading"
                                    tag-placeholder="Add this as new people"
@@ -230,23 +241,33 @@
               </div>
             </div>
           </div>
-          <div class="row">
-            <div class="col">
-              <b-container fluid class="p-4 bg-dark mt-2">
+          <div class="row mt-2" v-if="selectedPhotos[0].name !== unknownFileName">
+            <div class="col-auto navigation-arrow d-flex align-items-center"
+                 :class="{'navigation-arrow-hover': selectedPhotoIndex > 0}" @click="previousPhoto">
+              <i class="flaticon2-back"></i>
+            </div>
+            <div class="col p-0">
+              <b-container fluid class="p-4 bg-dark">
                 <b-row>
-                  <b-col v-for="index in 10" :key="(index - 1) + uploadedPhotoNavigationIndex">
-                    <b-img thumbnail fluid
-                           v-if="Object.keys(uploadedPhotos).length >= index + uploadedPhotoNavigationIndex"
-                           :src="uploadedPhotos[Object.keys(uploadedPhotos)[(index - 1) + uploadedPhotoNavigationIndex]].address"
-                           @click="uploadedPhotoPreviewName = Object.keys(uploadedPhotos)[(index - 1) + uploadedPhotoNavigationIndex]"></b-img>
+                  <b-col v-for="index in 10" :key="(index - 1) + selectedPhotoNavigationIndex">
+                    <b-img fluid
+                           v-bind:class="selectedPhotos[(index - 1) + selectedPhotoNavigationIndex].uploaded ? 'img-thumbnail-uploaded' : (selectedPhotoIndex === (index - 1) + selectedPhotoNavigationIndex ? 'img-thumbnail-viewed' : '')"
+                           v-if="selectedPhotos.length >= index + selectedPhotoNavigationIndex"
+                           :src="selectedPhotos[(index - 1) + selectedPhotoNavigationIndex].original_file"
+                           @click="selectedPhotoIndex = (index - 1) + selectedPhotoNavigationIndex"></b-img>
                   </b-col>
                 </b-row>
               </b-container>
             </div>
+            <div class="col-auto navigation-arrow d-flex align-items-center"
+                 :class="{'navigation-arrow-hover': selectedPhotoIndex < selectedPhotos.length - 1}"
+                 @click="nextPhoto">
+              <i class="flaticon2-next"></i>
+            </div>
           </div>
           <div class="row">
-            <div class="col">
-              <button class="btn btn-success btn-block btn-lg mt-3 mr-3">
+            <div class="col p-0">
+              <button class="btn btn-success btn-block btn-lg mt-3 mr-3" @click="uploadPhotos">
                 Upload
               </button>
             </div>
@@ -313,10 +334,38 @@
           <button class="btn btn-success">Save</button>&nbsp;
           <button class="btn btn-danger" @click="$refs.editPhotoModalRef.hide()">Close</button>
         </div>
-        <!-- /.modal-content -->
-        <!-- /.modal-dialog -->
       </b-modal>
 
+      <!-- Delete photo modal -->
+      <b-modal
+              centered
+              ref="confirmDeleteModalRef"
+              id="confirmDeleteModal"
+              :hide-header="true"
+      >
+        <p class="text-danger h6">Are you sure to delete this photo?</p>
+        <div slot="modal-footer" class="w-100">
+          <button
+                  type="button"
+                  class="btn btn-secondary float-left"
+                  @click="$refs.confirmDeleteModalRef.hide()"
+          >
+            <i class="la la-close"></i> Cancel
+          </button>
+          <button
+                  type="button"
+                  class="btn btn-danger float-right"
+                  :disabled="deletingPhoto"
+                  @click="deletePhoto"
+          >
+            <i
+                    :class="deletingPhoto ? 'la la-spin la-spinner' : 'la la-trash'"
+            ></i>
+            <span v-show="!deletingPhoto">Delete</span>
+            <span v-show="deletingPhoto">Deleting</span>
+          </button>
+        </div>
+      </b-modal>
     </div>
   </section>
 </template>
@@ -330,12 +379,14 @@
   import PeopleApi from "../../endpoint/PeopleApi";
   import PhotoApi from "../../endpoint/PhotoApi";
   import LogoPosition from "../model/LogoPosition"
+  import dateTime from "../libs/VueDatetimepicker";
 
   export default {
     name: "MyPhotos",
     components: {
       PageBar,
-      Multiselect
+      Multiselect,
+      dateTime
     },
     mixins: [
       UtilMixin
@@ -366,11 +417,11 @@
       });
 
       // Retrieve photo list
-      this.getPhotos(this.searchValue, this.currentPage, this.pageSize);
+      this.getPhotos(this.searchValue, this.searchSelectedEvents, this.currentPage, this.pageSize);
     },
     watch: {
       "searchSelectedEvents": function () {
-        this.getPhotos(this.searchSelectedEvents);
+        this.getPhotos(this.searchValue, this.searchSelectedEvents, this.currentPage, this.pageSize);
       },
       "searchValue": function () {
         // Debounce search request
@@ -378,62 +429,180 @@
           clearTimeout(this.previousSearchTimeout);
         }
         this.previousSearchTimeout = setTimeout(() => {
-          this.getPhotos(this.searchValue, this.currentPage, this.pageSize);
+          this.getPhotos(this.searchValue, this.searchSelectedEvents, this.currentPage, this.pageSize);
         }, 500)
       }
     },
     methods: {
-      getPhotos: function (searchValue, currentPage, pageSize) {
+      getPhotos: function (searchValue, selectedEvents, currentPage, pageSize) {
         let params = {'search': searchValue, 'page': currentPage, 'page_size': pageSize};
 
         // Create events id
-        if (this.selectedEvents.length > 0) {
+        if (selectedEvents.length > 0) {
           let ids = [];
-          for (let i = 0; i < this.selectedEvents.length; i++) {
-            ids.push(this.selectedEvents[i].id)
+          for (let i = 0; i < selectedEvents.length; i++) {
+            ids.push(selectedEvents[i].id)
           }
           params['event'] = ids;
         }
 
         PhotoApi.getMine(params).then((resp) => {
           this.photos = resp.data;
-        }, function () {
-
+        }, (resp) => {
+          this.showMessage((resp.response && resp.response.data.detail) ||
+              "Some error happened when trying to get my photo")
         })
       },
       openEditPhotoModal: function (photo) {
         this.selectedPhoto = photo;
         this.$refs.editPhotoModalRef.show();
       },
-      uploadFiles: function () {
+      selectPhotos: function () {
+        // push select photo into the selected photo array
         for (let i = 0; i < this.$refs.selectedPhotosRef.files.length; i++) {
           let reader = new FileReader();
           let file = this.$refs.selectedPhotosRef.files[i];
+
+          // Prevent duplicate file
+          let isDuplicate = false;
+          for (let j = 0; j < this.selectedPhotos.length; j++) {
+            if (this.selectedPhotos[j].name === file.name) {
+              isDuplicate = true;
+              continue;
+            }
+          }
+          if (isDuplicate) {
+            continue;
+          }
+
           reader.onload = e => {
             let newPhoto = e.target.result;
-            this.$set(this.uploadedPhotos, file.name, {address: newPhoto, uploaded: false});
+            this.selectedPhotos.push({
+              name: file.name,
+              original_file: newPhoto,
+              _event: {
+                name: "Select a event..."
+              },
+              _tags: [],
+              _peoples: [],
+              uploaded: false
+            });
+
+            if (this.selectedPhotos.length > 1 &&
+                this.selectedPhotos[0].name === this.unknownFileName) {
+              this.selectedPhotos.splice(0, 1);
+            }
           };
           reader.readAsDataURL(file);
+        }
+        this.$refs.selectedPhotosRef.value = "";
+      },
+      uploadPhotos: function () {
+        if (this.selectedPhotos[0].name === this.unknownFileName) {
+          this.showError("No photo selected");
+          return;
+        }
+
+        for (let i = 0; i < this.selectedPhotos.length; i++) {
+          let uploadPhoto = this.selectedPhotos[i];
+          if (uploadPhoto.uploaded) {
+            continue;
+          }
+          // Each photo only correspond to one event
+          uploadPhoto.event = uploadPhoto._event.id;
+
+          uploadPhoto.tags = [];
+          for (let j = 0; j < uploadPhoto._tags.length; j++) {
+            uploadPhoto.tags.push(uploadPhoto._tags[j].id);
+          }
+
+          uploadPhoto.peoples = [];
+          for (let j = 0; j < uploadPhoto._peoples.length; j++) {
+            uploadPhoto.peoples.push(uploadPhoto._peoples[j].id);
+          }
+
+          uploadPhoto.uploading = true;
+          PhotoApi.upload(uploadPhoto).then(() => {
+                uploadPhoto.uploading = false;
+                uploadPhoto.uploaded = true;
+                this.showSuccess(`The ${uploadPhoto.name} photo upload successfully`, 500);
+              }, () => {
+                this.showError(`Some error happened when trying to upload ${uploadPhoto.name} photo`, 500);
+              }
+          )
         }
       },
       addTag: function (search) {
         this.tagIsLoading = true;
-        TagApi.add({name: search}).then((resp) =>{
+        TagApi.add({name: search}).then((resp) => {
           this.tags.push(resp.data);
-          this.selectedTags.push(resp.data);
+          this.selectedPhotos[this.selectedPhotoIndex]._tags.push(resp.data);
           this.tagIsLoading = false;
         });
       },
       addPeople: function (search) {
         this.peopleIsLoading = true;
-        PeopleApi.add({name: search}).then((resp) =>{
+        PeopleApi.add({name: search}).then((resp) => {
           this.people.push(resp.data);
-          this.selectedPeople.push(resp.data);
+          this.selectedPhotos[this.selectedPhotoIndex]._peoples.push(resp.data);
           this.peopleIsLoading = false;
         });
+      },
+      onAddPhotoModalHide: function () {
+        this.selectedPhotos = [
+          {
+            name: this.unknownFileName,
+          }
+        ];
+        this.selectedPhotoIndex = 0;
+        this.selectedPhotoNavigationIndex = 0;
+        this.getPhotos(this.searchValue, this.searchSelectedEvents, this.currentPage, this.pageSize);
+      },
+      showConfirmDeleteModal: function (photo) {
+        this.selectedPhoto = photo;
+        this.$refs.confirmDeleteModalRef.show();
+      },
+      deletePhoto() {
+        this.deletingPhoto = true;
+        PhotoApi.delete(this.selectedPhoto).then(() => {
+          this.deletingPhoto = false;
+          this.$refs.confirmDeleteModalRef.hide();
+          this.photos.results.splice(
+              this.photos.results.indexOf(this.selectedPhoto),
+              1
+          );
+          this.getPhotos(this.searchValue, this.searchSelectedEvents, this.currentPage, this.pageSize);
+          this.showSuccess("The photo deleted", 1000);
+        }, (resp) => {
+          this.deletingPhoto = false;
+          this.showError(
+              (resp.response && resp.response.data.detail) ||
+              "Some error happened when trying to delete the photo", 1000
+          );
+
+        })
+      },
+      nextPhoto: function () {
+        if (this.selectedPhotoIndex >= this.selectedPhotos.length - 1) {
+          return
+        }
+        this.selectedPhotoIndex++;
+        if (this.selectedPhotoIndex >= 10) {
+          this.selectedPhotoNavigationIndex++;
+        }
+      },
+      previousPhoto: function () {
+        if (this.selectedPhotoIndex <= 0) {
+          return
+        }
+        this.selectedPhotoIndex--;
+        if (this.selectedPhotoIndex < this.selectedPhotoNavigationIndex) {
+          this.selectedPhotoNavigationIndex--;
+        }
       }
     },
     data: function () {
+      const unknownFileName = "__unknown__";
       return {
         searchValue: "",
         logoPosition: "",
@@ -445,18 +614,22 @@
         },
         searchSelectedEvents: [],
         events: [],
-        uploadedPhotos: {},
-        uploadedPhotoPreviewName: 0,
-        uploadedPhotoNavigationIndex: 0,
         selectedEvents: [],
-        selectedTags: [],
+        unknownFileName: unknownFileName,
+        selectedPhotos: [
+          {
+            name: unknownFileName,
+          }
+        ],
+        selectedPhotoIndex: 0,
+        selectedPhotoNavigationIndex: 0,
         tags: [],
         tagIsLoading: false,
-        selectedPeople: [],
         people: [],
         peopleIsLoading: false,
         currentPage: 1,
-        pageSize: 10
+        pageSize: 12,
+        deletingPhoto: false
       }
     }
   }
@@ -470,40 +643,6 @@
     font-size: 1rem !important;
   }
 
-  .multiselect__tags {
-    min-height: 33px !important;
-    height: 33px !important;;
-    padding: 5px 40px 0 8px !important;;
-    background-color: #F2F3F7 !important;
-    border: 1px solid #ebedf2 !important;
-    border-radius: 4px !important;
-    display: flex !important;
-    flex-shrink: 1 !important;
-  }
-
-  .multiselect__tag {
-    background-color: #66cbfa !important;
-  }
-
-  .multiselect__input {
-    background-color: #F2F3F7 !important;
-  }
-
-  .multiselect__select {
-    top: 0 !important;
-    padding: 0 !important;
-  }
-
-  .multiselect__placeholder {
-    padding-top: 0 !important;
-  }
-
-  .multiselect__tags-wrap {
-    display: flex;
-    flex-flow: row nowrap;
-    width: 100%;
-  }
-
   .event-select {
     width: 70% !important;
     margin-top: 8px !important;
@@ -511,10 +650,6 @@
 
   #kt_subheader_search_container .kt-subheader__main .kt-subheader__title {
     margin-top: 5px !important;
-  }
-
-  .modal .modal-content .modal-header .close:before {
-    content: ""
   }
 
   .large-icon {
@@ -526,9 +661,9 @@
     height: auto;
   }
 
-  .size-auto-1 {
-    width: auto;
-    height: auto;
+  .size-auto-fix {
+    width: 320px;
+    height: 300px;
   }
 
   .kt-subheader__main {
@@ -604,12 +739,27 @@
     width: 100%;
   }
 
-  .img-thumbnail {
+  .img-thumbnail-viewed {
     max-width: 50px;
+    width: 50px;
+    border: 3px dotted #dee2e6;
+    height: auto;
   }
 
-  img.img-thumbnail {
-    height: auto;
+  .img-thumbnail-uploaded {
+    max-width: 50px;
     width: 50px;
+    border: 3px dotted #11e604;
+    height: auto;
   }
+
+  .navigation-arrow {
+    font-size: 28px;
+    background-color: #343a40
+  }
+
+  .navigation-arrow-hover:hover {
+    cursor: pointer;
+  }
+
 </style>

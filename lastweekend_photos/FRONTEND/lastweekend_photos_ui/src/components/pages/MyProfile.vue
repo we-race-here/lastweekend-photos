@@ -348,7 +348,6 @@
 </template>
 
 <script>
-  import $ from "jquery";
   import UtilMixin from "../mixins/UtilMixin";
   import VueDatetimepicker from "../libs/VueDatetimepicker";
   import LoadingOverlayableMixin from "../mixins/LoadingOverlayableMixin";

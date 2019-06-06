@@ -189,8 +189,8 @@ class PhotoPeopleSerializer(DynamicFieldsSerializerMixin, serializers.ModelSeria
 
 
 class PhotoSerializer(DynamicFieldsSerializerMixin, serializers.ModelSerializer):
-    tags = NestedPhotoTagSerializer(read_only=True, many=True)
-    peoples = NestedPhotoPeopleSerializer(read_only=True, many=True)
+    _tags = NestedPhotoTagSerializer(read_only=True, many=True)
+    _peoples = NestedPhotoPeopleSerializer(read_only=True, many=True)
     _owner = NestedUserSerializer(read_only=True, source='owner')
     _event = NestedEventSerializer(read_only=True, source='event')
     original_file = Base64ImageField(required=False, write_only=True, allow_null=False)
