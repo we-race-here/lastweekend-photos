@@ -14,6 +14,8 @@ import SessionApi from "./endpoint/SessionApi"
 import "./filters";
 import { version as AppVersion } from "../package.json";
 
+require("vue-multiselect/dist/vue-multiselect.min.css");
+
 Vue.use(BootstrapVue);
 
 Vue.prototype.$eventsBus = new Vue();
