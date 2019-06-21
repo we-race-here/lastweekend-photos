@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'bootstrap4',
     'django_filters',
+    'storages',
     'rest_framework',
     'rest_framework_tracking',
     'phonenumber_field',
@@ -193,6 +194,26 @@ LOGIN_URL = '/login'
 LOGIN_REDIRECT_URL = '/ui-panel'
 
 
+# AWS s3 storage
+AWS_ACCESS_KEY_ID = '<AWS_ACCESS_KEY_ID>'
+AWS_SECRET_ACCESS_KEY = '<AWS_SECRET_ACCESS_KEY>'
+AWS_STORAGE_BUCKET_NAME = 'lastweekend-photos'
+AWS_S3_FILE_OVERWRITE = True
+AWS_DEFAULT_ACL = None
+AWS_BUCKET_ACL = None
+AWS_AUTO_CREATE_BUCKET = True
+AWS_QUERYSTRING_AUTH = True
+AWS_QUERYSTRING_EXPIRE = 3600
+AWS_S3_REGION_NAME = None
+AWS_S3_SIGNATURE_VERSION = None
+AWS_MEDIA_LOCATION = 'media'
+# DEFAULT_FILE_STORAGE = 'lastweekend_photos.helpers.utils.S3MediaStorage'
+DEFAULT_FILE_STORAGE = 'lastweekend_photos.helpers.utils.OverwriteFileSystemStorage'
+
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
+}
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
@@ -272,4 +293,7 @@ PAGINATION_DEFAULT_PAGINATION = 15
 PAGINATION_MAX_SIZE = 200
 PHOTO_LOW_RES_SCALE = 1280
 PHOTO_PREVIEW_RES_SCALE = 420
+PHOTO_LOGO_WIDTH = PHOTO_LOW_RES_SCALE // 8
+PHOTO_LOGO_X_MARGIN = 5
+PHOTO_LOGO_Y_MARGIN = 5
 

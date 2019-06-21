@@ -4,7 +4,7 @@ from rest_framework import serializers
 from django.contrib.auth.models import Group, Permission
 from django.core import exceptions as django_exceptions
 
-from apps.photo_gallery.models import User, Photographer, Sponsor, Photo, PhotoTag, PhotoPeople, Event
+from apps.photo_gallery.models import User, Photographer, Sponsor, Photo, PhotoTag, PhotoPeople, Event, PhotoAds
 from lastweekend_photos.helpers.utils import DynamicFieldsSerializerMixin, Base64ImageField
 
 
@@ -224,3 +224,10 @@ class PhotoLowResFileSerializer(DynamicFieldsSerializerMixin, serializers.ModelS
     class Meta:
         model = Photo
         fields = ('low_res_file',)
+
+
+class PhotoLowResFileWithAdsSerializer(DynamicFieldsSerializerMixin, serializers.ModelSerializer):
+
+    class Meta:
+        model = PhotoAds
+        fields = ('file',)

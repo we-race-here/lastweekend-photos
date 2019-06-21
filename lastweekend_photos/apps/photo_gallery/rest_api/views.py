@@ -1,3 +1,5 @@
+import random
+
 import django_filters
 import simplejson as json
 from django.conf import settings
@@ -13,11 +15,11 @@ from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly, IsA
 from rest_framework.response import Response
 from reversion.models import Version
 
-from apps.photo_gallery.models import Event, Photo, PhotoTag, PhotoPeople
+from apps.photo_gallery.models import Event, Photo, PhotoTag, PhotoPeople, PhotoAds, Sponsor
 from apps.photo_gallery.rest_api.filters import EventFilter, PhotoFilter, PhotoTagFilter, PhotoPeopleFilter
 from apps.photo_gallery.rest_api.serializers import SessionSerializer, UserSessionSerializer, UserProfileSerializer, \
     SetPasswordSerializer, EventSerializer, PhotoSerializer, PhotoOriginalFileSerializer, PhotoLowResFileSerializer, \
-    PhotoTagSerializer, PhotoPeopleSerializer
+    PhotoTagSerializer, PhotoPeopleSerializer, PhotoLowResFileWithAdsSerializer
 from lastweekend_photos.helpers.utils import ExtendedOrderingFilterBackend, CustomLoggingMixin as LoggingMixin, \
     IsOwnerOrReadOnlyPermission, IsPhotographerOrReadOnlyPermission
 
@@ -228,12 +230,28 @@ class PhotoView(LoggingMixin, HistoricalViewMixin, viewsets.ModelViewSet):
                             status=status.HTTP_403_FORBIDDEN)
         return Response(PhotoOriginalFileSerializer(photo, context={'request': request}).data)
 
+    def get_random_sponsor(self, event):
+        # event_sponsors = event.sponsors.values_list('id', flat=True)
+        sponsors = Sponsor.objects.all().exclude(id__in=event.sponsors.all())
+        count = sponsors.count()
+        if count > 0:
+            random_index = random.randint(0, count - 1)
+            return sponsors[random_index]
+
     @action(detail=True, methods=['GET'])
     def low_res_file(self, request, *args, **kwargs):
+        valid_ads_positions = dict(Photo.LOGO_POSITION_CHOICES)
+        ads_position = request.query_params.get('ads_position') or Photo.LOGO_POSITION_BR
+        if ads_position not in valid_ads_positions:
+            return Response({'detail': 'Invalid ads_position param "{}"'.format(ads_position)})
+
         photo = self.get_object()
         user = self.get_current_user(request)
-        # TODO: we should paste the ads logos on image and then save and send link to user
-        return Response(PhotoLowResFileSerializer(photo, context={'request': request}).data)
+
+        # TODO: we should have an intelligent mechanism to choose ads_sponsor based credit of sponsor
+        ads_sponsor = self.get_random_sponsor(photo.event)
+        photo_ads, _created = PhotoAds.objects.get_or_create(photo=photo, ads_sponsor=ads_sponsor, ads_position=ads_position)
+        return Response(PhotoLowResFileWithAdsSerializer(photo_ads, context={'request': request}).data)
 
     @action(detail=False, methods=['GET'])
     def my(self, request, *args, **kwargs):

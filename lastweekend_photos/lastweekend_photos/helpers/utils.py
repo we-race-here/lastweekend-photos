@@ -4,19 +4,23 @@ import datetime
 import decimal
 import functools
 import inspect
+import os
 import random
 import string
 import traceback
 import uuid
 
+from PIL import Image
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied, RequestDataTooBig
 from django.core.files.base import ContentFile
+from django.core.files.storage import FileSystemStorage
 from django.core.files.uploadedfile import UploadedFile
 from django.db import IntegrityError
 from django.db.models import ProtectedError
 from django.http import JsonResponse
 from django.shortcuts import render
+from django.utils import timezone
 from django_filters import OrderingFilter
 from django_filters.constants import EMPTY_VALUES
 from rest_framework import status, serializers, permissions
@@ -34,6 +38,8 @@ from django.utils.safestring import mark_safe
 from django.core.mail.backends.filebased import EmailBackend
 from django.contrib.auth.mixins import PermissionRequiredMixin as \
     DjangoPermissionRequiredMixin
+from six import BytesIO
+from storages.backends.s3boto3 import S3Boto3Storage
 
 print = functools.partial(print, flush=True)
 
@@ -316,6 +322,15 @@ def random_id(n=8, no_upper=False, no_lower=False, no_digit=False):
     return ''.join([rand.choice(chars) for _ in range(n)])
 
 
+def get_random_upload_path(upload_dir, filename, include_date=False):
+    ext = filename.split('.')[-1]
+    randid = random_id(n=8)
+    filename = "{0}-{1}.{2}".format(uuid.uuid4(), randid, ext)
+    if include_date:
+        filename = '{}-{}'.format(timezone.now().strftime('%Y%m%d%H%M%S'), filename)
+    return os.path.join(upload_dir, filename)
+
+
 def send_sms(message, to, from_=None, fail_silently=False):
     from_ = from_ or settings.SMS_DEFAULT_FROM_PHONE
     if isinstance(to, str):
@@ -343,6 +358,23 @@ def ex_reverse(viewname, **kwargs):
     scheme = '{}://'.format(scheme) if scheme else ''
 
     return '{0}{1}{2}'.format(scheme, host, rel_path)
+
+
+class S3MediaStorage(S3Boto3Storage):
+    location = settings.AWS_MEDIA_LOCATION
+
+
+class OverwriteFileSystemStorage(FileSystemStorage):
+
+    def get_available_name(self, name, max_length=None):
+        """
+        Returns a filename that's free on the target storage system, and
+        available for new content to be written to.
+        """
+        # If the filename already exists, remove it as if it was a true file system
+        if self.exists(name):
+            os.remove(os.path.join(settings.MEDIA_ROOT, name))
+        return name
 
 
 class NotSet(object):
@@ -632,3 +664,73 @@ class IsSponsorOrReadOnlyPermission(IsSponsorPermission):
         if request.method in permissions.SAFE_METHODS:
             return True
         return super().has_permission(request, view)
+
+
+def resize_photo(origin_field, resized_field, scale=100):
+    new_name, new_extension = os.path.splitext(origin_field.name)
+    new_extension = new_extension.lower()
+
+    new_filename = new_name + '_size{}'.format(scale) + new_extension
+
+    if new_extension in ['.jpg', '.jpeg']:
+        FTYPE = 'JPEG'
+    elif new_extension == '.gif':
+        FTYPE = 'GIF'
+    elif new_extension == '.png':
+        FTYPE = 'PNG'
+    else:
+        raise Exception('Not supported format "{}"'.format(new_extension))
+
+    image = Image.open(origin_field).copy()
+    new_size = (scale, scale)
+    x, y = image.size
+
+    if x > scale and y > scale:
+        if x > y:
+            ratio = max(y / scale, 1)
+            new_size = (int(max(x / ratio, 1)), scale)
+        elif x < y:
+            ratio = max(x / scale, 1)
+            new_size = (scale, int(max(y / ratio, 1)))
+        image.thumbnail(new_size, Image.ANTIALIAS)
+
+    # Save resizednail to in-memory file as StringIO
+    temp_resized = BytesIO()
+    image.save(temp_resized, FTYPE)
+    temp_resized.seek(0)
+
+    # set save=False, otherwise it will run in an infinite loop
+    resized_field.save(new_filename, ContentFile(temp_resized.read()), save=False)
+    temp_resized.close()
+
+    return True
+
+
+def paste_logos(photo, logo_fields, position='br', logo_width=100, x_margin=5, y_margin=5):
+    w, h = photo.size
+    logos_count = len(logo_fields)
+    logo_width_with_margin = logo_width + x_margin
+    x_right = w - logos_count * logo_width_with_margin
+    x_center = x_right // 2
+    y_center = h // 2
+    y_bottom = h - y_margin
+    position_dirs = {
+        'tl': {'x': x_margin, 'y': y_margin},
+        'tc': {'x': x_center, 'y': y_margin},
+        'tr': {'x': x_right, 'y': y_margin},
+        'cl': {'x': x_margin, 'y': y_center},
+        'cc': {'x': x_center, 'y': y_center},
+        'cr': {'x': x_right, 'y': y_center},
+        'bl': {'x': x_margin, 'y': y_bottom, 'y_offset': -1},
+        'bc': {'x': x_center, 'y': y_bottom, 'y_offset': -1},
+        'br': {'x': x_right, 'y': y_bottom, 'y_offset': -1},
+    }
+    pos_dir = position_dirs[position]
+    x, y, y_offset = pos_dir['x'], pos_dir['y'], pos_dir.get('y_offset', 0)
+    for logo in logo_fields:
+        logo_thumb = Image.open(logo)
+        logo_thumb.thumbnail((logo_width, logo_thumb.size[1]), Image.ANTIALIAS)
+        logo_thumb = logo_thumb.convert("RGBA")
+        logo_w, logo_h = logo_thumb.size
+        photo.paste(logo_thumb, (x, y + y_offset * logo_h), mask=logo_thumb)
+        x += logo_width_with_margin
