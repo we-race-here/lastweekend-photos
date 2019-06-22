@@ -197,7 +197,8 @@ LOGIN_REDIRECT_URL = '/ui-panel'
 # AWS s3 storage
 AWS_ACCESS_KEY_ID = '<AWS_ACCESS_KEY_ID>'
 AWS_SECRET_ACCESS_KEY = '<AWS_SECRET_ACCESS_KEY>'
-AWS_STORAGE_BUCKET_NAME = 'lastweekend-photos'
+AWS_STORAGE_BUCKET_NAME = '<AWS_STORAGE_BUCKET_NAME>'
+AWS_PUBLIC_STORAGE_BUCKET_NAME = '<AWS_PUBLIC_STORAGE_BUCKET_NAME>'
 AWS_S3_FILE_OVERWRITE = True
 AWS_DEFAULT_ACL = None
 AWS_BUCKET_ACL = None
@@ -208,7 +209,9 @@ AWS_S3_REGION_NAME = None
 AWS_S3_SIGNATURE_VERSION = None
 AWS_MEDIA_LOCATION = 'media'
 # DEFAULT_FILE_STORAGE = 'lastweekend_photos.helpers.utils.S3MediaStorage'
+# PUBLIC_FILE_STORAGE = 'lastweekend_photos.helpers.utils.S3PublicMediaStorage'
 DEFAULT_FILE_STORAGE = 'lastweekend_photos.helpers.utils.OverwriteFileSystemStorage'
+PUBLIC_FILE_STORAGE = 'lastweekend_photos.helpers.utils.OverwriteFileSystemStorage'
 
 AWS_S3_OBJECT_PARAMETERS = {
     'CacheControl': 'max-age=86400',

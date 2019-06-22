@@ -364,6 +364,14 @@ class S3MediaStorage(S3Boto3Storage):
     location = settings.AWS_MEDIA_LOCATION
 
 
+class S3PublicMediaStorage(S3Boto3Storage):
+    location = settings.AWS_MEDIA_LOCATION
+    querystring_auth = False
+    bucket_name = settings.AWS_PUBLIC_STORAGE_BUCKET_NAME
+    default_acl = 'public-read'
+    bucket_acl = default_acl
+
+
 class OverwriteFileSystemStorage(FileSystemStorage):
 
     def get_available_name(self, name, max_length=None):

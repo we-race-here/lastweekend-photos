@@ -3,8 +3,10 @@ import os
 from PIL import Image
 from django.conf import settings
 from django.core.files.base import ContentFile
+from django.core.files.storage import get_storage_class
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils.functional import LazyObject
 from phonenumber_field.modelfields import PhoneNumberField
 from six import BytesIO
 
@@ -40,6 +42,14 @@ def photo_ads_file_path_func(instance, filename):
     if instance.id:
         return os.path.join(*dirpath, os.path.split(filename)[-1])
     return get_random_upload_path(os.path.join(*dirpath), filename)
+
+
+class PublicStorage(LazyObject):
+    def _setup(self):
+        self._wrapped = get_storage_class(settings.PUBLIC_FILE_STORAGE)()
+
+
+public_storage = PublicStorage()
 
 
 class User(AbstractUser):
@@ -173,7 +183,8 @@ class Photo(models.Model):
     peoples = models.ManyToManyField(PhotoPeople, blank=True)
     original_file = models.ImageField(upload_to=photo_original_file_path_func)
     low_res_file = models.ImageField(upload_to=photo_low_res_file_path_func, editable=False)
-    preview_file = models.ImageField(upload_to=photo_preview_file_path_func, editable=False)
+    preview_file = models.ImageField(upload_to=photo_preview_file_path_func, editable=False,
+                                     storage=public_storage)
     logo_position = models.CharField(max_length=2, choices=LOGO_POSITION_CHOICES, default=LOGO_POSITION_BR)
     price = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
     downloads = models.PositiveIntegerField(default=0)
@@ -205,7 +216,7 @@ class PhotoAds(models.Model):
     photo = models.ForeignKey(Photo, on_delete=models.PROTECT, related_name='photo_ads')
     ads_sponsor = models.ForeignKey(Sponsor, on_delete=models.SET_NULL, null=True, related_name='photo_ads')
     ads_position = models.CharField(max_length=2, choices=Photo.LOGO_POSITION_CHOICES)
-    file = models.ImageField(upload_to=photo_ads_file_path_func, editable=False)
+    file = models.ImageField(upload_to=photo_ads_file_path_func, editable=False, storage=public_storage)
     create_datetime = models.DateTimeField(auto_now_add=True)
     update_datetime = models.DateTimeField(auto_now=True)
 
