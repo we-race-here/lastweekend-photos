@@ -179,47 +179,24 @@
                   <div class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      Choose logo position {{logoPosition}}
+                      Logo position: {{ logoPosition? logoPositionMap[logoPosition].title: '(Default: Bottom-Right)'}}
                     </button>
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" x-placement="top-start"
                          style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, -138px, 0px);">
-                      <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
-                            @click="logoPosition='tl'"
-                      >Top Left</span>
-                      <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
-                            @click="logoPosition='tc'"
-                      >Top Center</span>
-                      <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
-                            @click="logoPosition='tr'"
-                      >Top Right</span>
-                      <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
-                            @click="logoPosition='cl'"
-                      >Center Left</span>
-                      <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
-                            @click="logoPosition='cc'"
-                      >Center Center</span>
-                      <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
-                            @click="logoPosition='cr'"
-                      >Center Right</span>
-                      <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
-                            @click="logoPosition='bl'"
-                      >Bottom Left</span>
-                      <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
-                            @click="logoPosition='bc'"
-                      >Bottom Center</span>
-                      <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
-                            @click="logoPosition='br'"
-                      >Bottom Right</span>
+                      <span v-for="p in logoPositionOptions" class="dropdown-item" data-toggle="kt-tooltip"
+                            data-placement="left" @click="logoPosition=p.value">
+                        {{ p.title }}
+                      </span>
                     </div>
                   </div>
                 </div>
                 <div class="row mt-4">
-                  <button class="btn btn-secondary btn-block btn-lg mt-2" disabled>
+                  <button type="button" class="btn btn-secondary btn-block btn-lg mt-2" disabled>
                     Download original file
                   </button>
                 </div>
                 <div class="row mt-4">
-                  <button class="btn btn-success btn-block btn-lg mt-2">Download for free (with Logo)</button>
+                  <button type="button" @click="downloadWithLogoFile" class="btn btn-success btn-block btn-lg mt-2">Download for free (with Logo)</button>
                 </div>
               </div>
             </div>
@@ -237,6 +214,9 @@
   import Multiselect from 'vue-multiselect'
   import UtilMixin from "../mixins/UtilMixin";
   import LogoPosition from "../model/LogoPosition"
+  import {
+    LOGO_POSITION_OPTIONS, LOGO_POSITION_MAP
+  } from "../../Constants";
 
   export default {
     components: {
@@ -260,6 +240,8 @@
     },
     data: function () {
       return {
+        logoPositionOptions: LOGO_POSITION_OPTIONS,
+        logoPositionMap: LOGO_POSITION_MAP,
         searchValue: "",
         logoPosition: "",
         previousSearchTimeout: LogoPosition.BottomRight,
@@ -289,6 +271,15 @@
       }
     },
     methods: {
+      downloadWithLogoFile: function() {
+        var self = this;
+        PhotoApi.getLowResFile(this.selectedPhoto, {ads_position: this.logoPosition}).then((resp) => {
+          self.selectedPhoto.low_res_file = resp.data.file;
+          self.download2(this.noCacheUrl(resp.data.file));
+        }, function (error) {
+          self.showDefaultServerError(error);
+        })
+      },
       getPhotos: function (searchValue, currentPage, pageSize) {
         let params = {'search': searchValue, 'page': currentPage, 'page_size': pageSize};
 

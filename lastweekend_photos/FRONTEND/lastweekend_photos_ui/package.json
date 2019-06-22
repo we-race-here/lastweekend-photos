@@ -1,6 +1,6 @@
 {
   "name": "lastweekend_photos_ui",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",

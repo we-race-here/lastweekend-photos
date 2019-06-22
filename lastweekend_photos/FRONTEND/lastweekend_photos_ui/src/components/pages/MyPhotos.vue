@@ -163,37 +163,16 @@
                       <div class="dropdown">
                         <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                          Choose logo position {{selectedPhotos[selectedPhotoIndex].logo_position}}
+                          Logo position: {{ selectedPhotos[selectedPhotoIndex].logo_position? logoPositionMap[selectedPhotos[selectedPhotoIndex].logo_position].title: '(Default: Bottom-Right)'}}
                         </button>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" x-placement="top-start"
                              style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, -138px, 0px);">
-                      <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
-                            @click="selectedPhotos[selectedPhotoIndex].logo_position='tl'"
-                      >Top Left</span>
-                          <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
-                                @click="selectedPhotos[selectedPhotoIndex].logo_position='tc'"
-                          >Top Center</span>
-                          <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
-                                @click="selectedPhotos[selectedPhotoIndex].logo_position='tr'"
-                          >Top Right</span>
-                          <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
-                                @click="selectedPhotos[selectedPhotoIndex].logo_position='cl'"
-                          >Center Left</span>
-                          <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
-                                @click="selectedPhotos[selectedPhotoIndex].logo_position='cc'"
-                          >Center Center</span>
-                          <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
-                                @click="selectedPhotos[selectedPhotoIndex].logo_position='cr'"
-                          >Center Right</span>
-                          <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
-                                @click="selectedPhotos[selectedPhotoIndex].logo_position='bl'"
-                          >Bottom Left</span>
-                          <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
-                                @click="selectedPhotos[selectedPhotoIndex].logo_position='bc'"
-                          >Bottom Center</span>
-                          <span class="dropdown-item" data-toggle="kt-tooltip" title="" data-placement="left"
-                                @click="selectedPhotos[selectedPhotoIndex].logo_position='br'"
-                          >Bottom Right</span>
+
+                          <span v-for="p in logoPositionOptions" class="dropdown-item" data-toggle="kt-tooltip"
+                                data-placement="left"
+                                @click="onClickLogoPosition(p.value)">
+                            {{ p.title }}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -379,8 +358,10 @@
   import TagApi from "../../endpoint/TagApi";
   import PeopleApi from "../../endpoint/PeopleApi";
   import PhotoApi from "../../endpoint/PhotoApi";
-  import LogoPosition from "../model/LogoPosition"
   import dateTime from "../libs/VueDatetimepicker";
+  import {
+    LOGO_POSITION_OPTIONS, LOGO_POSITION_MAP
+  } from "../../Constants";
 
   export default {
     name: "MyPhotos",
@@ -435,6 +416,9 @@
       }
     },
     methods: {
+      onClickLogoPosition: function(position) {
+        this.$set(this.selectedPhotos[this.selectedPhotoIndex], 'logo_position', position);
+      },
       getPhotos: function (searchValue, selectedEvents, currentPage, pageSize) {
         let params = {'search': searchValue, 'page': currentPage, 'page_size': pageSize};
 
@@ -606,8 +590,9 @@
       const unknownFileName = "__unknown__";
       return {
         searchValue: "",
-        logoPosition: "",
-        previousSearchTimeout: LogoPosition.BottomRight,
+        logoPositionOptions: LOGO_POSITION_OPTIONS,
+        logoPositionMap: LOGO_POSITION_MAP,
+        previousSearchTimeout: null,
         selectedPhoto: {},
         photos: {
           pagination: {},
@@ -620,6 +605,7 @@
         selectedPhotos: [
           {
             name: unknownFileName,
+            logo_position: 'br'
           }
         ],
         selectedPhotoIndex: 0,
