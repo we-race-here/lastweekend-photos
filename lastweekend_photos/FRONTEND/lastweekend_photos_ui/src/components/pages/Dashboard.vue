@@ -86,11 +86,11 @@
                               </div>
                               <div class="kt-portlet__head-toolbar">
                                 <div class="kt-portlet__head-actions">
-                                  <a @click="openDownloadPhotoModal(photo)"
+                                  <button type="button" @click="openDownloadPhotoModal(photo)"
                                      class="btn btn-outline-success btn-sm btn-icon btn-icon-md mr-1">
                                     <i class="flaticon-download"></i>
-                                  </a>
-                                  <a href="#" class="btn btn-outline-danger btn-sm btn-icon btn-icon-md mr-1">
+                                  </button>
+                                  <a href="javascript:" class="btn btn-outline-danger btn-sm btn-icon btn-icon-md mr-1">
                                     <i class="flaticon-star"></i>
                                   </a>
                                 </div>

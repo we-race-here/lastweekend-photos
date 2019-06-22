@@ -163,7 +163,7 @@ class CustomLoggingMixin(LoggingMixin):
         'current_password', 'new_password', 're_new_password'
     }
     skipped_fields = {
-        'image', 'photo', 'avatar', 'photo_thumb'
+        'image', 'photo', 'avatar', 'photo_thumb', 'avatar', 'file', 'original_file', 'low_res_file', 'preview_file'
     }
 
     def handle_exception(self, exc):

@@ -21,19 +21,19 @@
                 <input type="text" class="form-control" placeholder="Search..." id="generalSearch"
                        v-model="searchValue">
                 <span class="kt-input-icon__icon kt-input-icon__icon--right">
-                            <span>
-                                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                                     width="24px" height="24px" viewBox="0 0 24 24" version="1.1" class="kt-svg-icon">
-    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <rect id="bound" x="0" y="0" width="24" height="24"></rect>
-        <path d="M14.2928932,16.7071068 C13.9023689,16.3165825 13.9023689,15.6834175 14.2928932,15.2928932 C14.6834175,14.9023689 15.3165825,14.9023689 15.7071068,15.2928932 L19.7071068,19.2928932 C20.0976311,19.6834175 20.0976311,20.3165825 19.7071068,20.7071068 C19.3165825,21.0976311 18.6834175,21.0976311 18.2928932,20.7071068 L14.2928932,16.7071068 Z"
-              id="Path-2" fill="#000000" fill-rule="nonzero" opacity="0.3"></path>
-        <path d="M11,16 C13.7614237,16 16,13.7614237 16,11 C16,8.23857625 13.7614237,6 11,6 C8.23857625,6 6,8.23857625 6,11 C6,13.7614237 8.23857625,16 11,16 Z M11,18 C7.13400675,18 4,14.8659932 4,11 C4,7.13400675 7.13400675,4 11,4 C14.8659932,4 18,7.13400675 18,11 C18,14.8659932 14.8659932,18 11,18 Z"
-              id="Path" fill="#000000" fill-rule="nonzero"></path>
-    </g>
-</svg>                                <!--<i class="flaticon2-search-1"></i>-->
-                            </span>
-                        </span>
+                  <span>
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                         width="24px" height="24px" viewBox="0 0 24 24" version="1.1" class="kt-svg-icon">
+                      <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                          <rect id="bound" x="0" y="0" width="24" height="24"></rect>
+                          <path d="M14.2928932,16.7071068 C13.9023689,16.3165825 13.9023689,15.6834175 14.2928932,15.2928932 C14.6834175,14.9023689 15.3165825,14.9023689 15.7071068,15.2928932 L19.7071068,19.2928932 C20.0976311,19.6834175 20.0976311,20.3165825 19.7071068,20.7071068 C19.3165825,21.0976311 18.6834175,21.0976311 18.2928932,20.7071068 L14.2928932,16.7071068 Z"
+                                id="Path-2" fill="#000000" fill-rule="nonzero" opacity="0.3"></path>
+                          <path d="M11,16 C13.7614237,16 16,13.7614237 16,11 C16,8.23857625 13.7614237,6 11,6 C8.23857625,6 6,8.23857625 6,11 C6,13.7614237 8.23857625,16 11,16 Z M11,18 C7.13400675,18 4,14.8659932 4,11 C4,7.13400675 7.13400675,4 11,4 C14.8659932,4 18,7.13400675 18,11 C18,14.8659932 14.8659932,18 11,18 Z"
+                                id="Path" fill="#000000" fill-rule="nonzero"></path>
+                      </g>
+                    </svg>                                <!--<i class="flaticon2-search-1"></i>-->
+                  </span>
+                </span>
               </div>
               <div class="kt-subheader__search event-select">
                 <multiselect v-model="searchSelectedEvents" :options="events" :multiple="true" track-by="id"
@@ -43,9 +43,10 @@
               </div>
             </div>
             <div class="col-md-auto col-sm-12 p-0">
-              <a class="btn btn-outline-brand btn-sm" @click="$refs.addPhotoModalRef.show()">
+              <button type="button" class="btn btn-outline-brand btn-sm" @click="$refs.addPhotoModalRef.show()">
+                <i class="flaticon2-plus"></i>
                 Add photo
-              </a>
+              </button>
             </div>
           </div>
         </div>
@@ -68,14 +69,14 @@
                   </div>
                   <div class="kt-portlet__head-toolbar">
                     <div class="kt-portlet__head-actions">
-                      <a @click="openEditPhotoModal(photo)"
+                      <button type="button" @click="openEditPhotoModal(photo)"
                          class="btn btn-outline-success btn-sm btn-icon btn-icon-md mr-1">
                         <i class="flaticon-edit"></i>
-                      </a>
-                      <a @click="showConfirmDeleteModal(photo)"
+                      </button>
+                      <button type="button" @click="showConfirmDeleteModal(photo)"
                          class="btn btn-outline-danger btn-sm btn-icon btn-icon-md mr-1">
                         <i class="flaticon-delete"></i>
-                      </a>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -525,7 +526,7 @@
           PhotoApi.upload(uploadPhoto).then(() => {
                 uploadPhoto.uploading = false;
                 uploadPhoto.uploaded = true;
-                this.showSuccess(`The ${uploadPhoto.name} photo upload successfully`, 500);
+                this.showSuccess(`The ${uploadPhoto.name} photo upload successfully`, 5000);
               }, () => {
                 this.showError(`Some error happened when trying to upload ${uploadPhoto.name} photo`, 500);
               }

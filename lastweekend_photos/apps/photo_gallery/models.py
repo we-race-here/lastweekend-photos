@@ -213,7 +213,7 @@ class Photo(models.Model):
 
 class PhotoAds(models.Model):
 
-    photo = models.ForeignKey(Photo, on_delete=models.PROTECT, related_name='photo_ads')
+    photo = models.ForeignKey(Photo, on_delete=models.CASCADE, related_name='photo_ads')
     ads_sponsor = models.ForeignKey(Sponsor, on_delete=models.SET_NULL, null=True, related_name='photo_ads')
     ads_position = models.CharField(max_length=2, choices=Photo.LOGO_POSITION_CHOICES)
     file = models.ImageField(upload_to=photo_ads_file_path_func, editable=False, storage=public_storage)
