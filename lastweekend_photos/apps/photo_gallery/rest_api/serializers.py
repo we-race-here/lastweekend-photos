@@ -74,6 +74,7 @@ class PhotographerProfileSerializer(DynamicFieldsSerializerMixin, serializers.Mo
 
 
 class SponsorProfileSerializer(DynamicFieldsSerializerMixin, serializers.ModelSerializer):
+    logo = Base64ImageField(required=False, allow_null=True)
     class Meta:
         model = Sponsor
         fields = '__all__'

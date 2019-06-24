@@ -6,6 +6,9 @@
     padding-top: 25px !important;
     padding-bottom: 25px !important;
   }
+  .my-profile img.thumbnail-photo.logo-thumbnail {
+    height: 100px;
+  }
 </style>
 
 <template>
@@ -48,7 +51,7 @@
               <div class="kt-section kt-section--first">
                 <div class="kt-section__body">
                   <div class="form-group kt-form__group row">
-                    <div class="col-md-2"></div>
+                    <label class="col-md-2 col-form-label">Avatar</label>
                     <div class="col-md-6">
                       <div class="kt-card-profile__pic-wrapper">
                         <img class="img-thumbnail thumbnail-photo"
@@ -77,25 +80,25 @@
                     </div>
                   </div>
                   <div class="form-group kt-form__group row">
-                    <label class="col-md-2 col-form-label">Username:</label>
+                    <label class="col-md-2 col-form-label">Username</label>
                     <div class="col-md-6">
                       <input type="text" class="form-control" disabled :value="profile.username"/>
                     </div>
                   </div>
                   <div class="form-group kt-form__group row">
-                    <label class="col-md-2 col-form-label">Email:</label>
+                    <label class="col-md-2 col-form-label">Email</label>
                     <div class="col-md-6">
                       <input type="email" class="form-control" disabled :value="profile.email"/>
                     </div>
                   </div>
                   <div class="form-group kt-form__group row">
-                    <label class="col-md-2 col-form-label">First Name:</label>
+                    <label class="col-md-2 col-form-label">First Name</label>
                     <div class="col-md-6">
                       <input type="text" class="form-control" placeholder="First Name" v-model="profile.first_name">
                     </div>
                   </div>
                   <div class="form-group kt-form__group row">
-                    <label class="col-md-2 col-form-label">Last Name:</label>
+                    <label class="col-md-2 col-form-label">Last Name</label>
                     <div class="col-md-6">
                       <input type="text" class="form-control" placeholder="Last Name" v-model="profile.last_name">
                     </div>
@@ -116,7 +119,7 @@
                     </div>
                   </div>
                   <div class="form-group kt-form__group row">
-                    <label class="col-md-2 col-form-label">Gender:</label>
+                    <label class="col-md-2 col-form-label">Gender</label>
                     <div class="col-md-6">
                       <div class="kt-radio-inline">
                         <label class="kt-radio kt-radio--brand" v-for="g in genderOptions" :key="g.value">
@@ -234,6 +237,35 @@
                           <span></span>
                         </label>
                       </span>
+                    </div>
+                  </div>
+                  <div class="form-group kt-form__group row">
+                    <label class="col-md-2 col-form-label">Sponsor Logo</label>
+                    <div class="col-md-6">
+                      <div class="kt-card-profile__pic-wrapper">
+                        <img class="img-thumbnail thumbnail-photo logo-thumbnail"
+                             :src="sponsorLogoChosenFileData || profile.sponsor.logo || `${$publicPath}resources/images/logo_blank.png`"
+                             alt="">
+                      </div>
+                      <div>
+                        <button v-if="profile.sponsor.logo" type="button" title="Delete Logo"
+                                class="btn btn-sm btn-danger btn-icon kt-margin-r-5"
+                                :disabled="savingProfile" @click="profile.sponsor.logo=null">
+                          <i class="la la-trash"></i>
+                        </button>
+                        <label class="btn btn-primary btn-sm kt-margin-0 kt-margin-r-5 pointer-cursor btn-icon"
+                               title="Choose Sponsor Logo Image" :disabled="savingProfile">
+                          <span class="la la-pencil"></span>
+                          <input type="file" id="sponsor_logo_image" name="sponsor_logo_image" accept="image/jpeg, image/png"
+                                 class="kt-hidden" @change="onChangeSponsorLogoFile">
+                        </label>
+                        <span v-if="sponsorLogoChosenFile">{{ sponsorLogoChosenFile.name }}
+                          <a href="javascript:" @click="clearChosenSponsorLogo"
+                             title="Clear chosen image"><span
+                                  class="la la-close"></span></a>
+                        </span>
+                        <span v-if="!sponsorLogoChosenFile" class="text-muted">No Image Chosen</span>
+                      </div>
                     </div>
                   </div>
                   <div class="form-group kt-form__group row">
@@ -372,7 +404,8 @@
       return {
         profileChosenFile: null,
         profileChosenFileData: null,
-        deletingAvatar: false,
+        sponsorLogoChosenFile: null,
+        sponsorLogoChosenFileData: null,
         savingProfile: false,
         changingPassword: false,
         genderOptions: GENDER_OPTIONS,
@@ -414,6 +447,11 @@
         this.profileChosenFileData = null;
         $("#profile_image").val("");
       },
+      clearChosenSponsorLogo: function () {
+        this.sponsorLogoChosenFile = null;
+        this.sponsorLogoChosenFileData = null;
+        $("#sponsor_logo_image").val("");
+      },
       onChangeProfileFile: function (event) {
         if (event.target.files.length > 0) {
           this.profileChosenFile = event.target.files[0];
@@ -425,6 +463,18 @@
           };
           r.readAsDataURL(f);
 
+        }
+      },
+      onChangeSponsorLogoFile: function (event) {
+        if (event.target.files.length > 0) {
+          this.sponsorLogoChosenFile = event.target.files[0];
+          var f = this.sponsorLogoChosenFile,
+              self = this,
+              r = new FileReader();
+          r.onloadend = function (e) {
+            self.sponsorLogoChosenFileData = e.target.result;
+          };
+          r.readAsDataURL(f);
         }
       },
       getProfilePostData: function (profileType) {
@@ -448,6 +498,11 @@
         } else if (profileType === "sponsor") {
           postData["sponsor"] = this.profile.sponsor || {};
           postData["is_sponsor"] = this.profile.is_sponsor === true;
+          if (this.sponsorLogoChosenFileData) {
+            postData.sponsor.logo = this.sponsorLogoChosenFileData;
+          } else if (postData.sponsor.logo !== null) {
+            delete postData.sponsor.logo;
+          }
         }
         return postData;
       },
