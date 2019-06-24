@@ -2,13 +2,13 @@ import axios from "axios";
 import {Config} from "../Config";
 import EventBus from "../event-bus";
 import {UI_VERSION_HEADER_NAME} from "../Constants";
-import Vue from "vue";
+import { version as AppVersion } from "../../package.json";
 import Qs from "qs";
 import UtilMixin from "../components/mixins/UtilMixin";
 
 function checkMismatchVersion(response) {
   let newVersion = response.headers[UI_VERSION_HEADER_NAME];
-  if (newVersion && newVersion !== Vue.$appVersion) {
+  if (newVersion && newVersion !== AppVersion) {
     EventBus.$emit("ui:mismatch-version", newVersion);
   }
 }
