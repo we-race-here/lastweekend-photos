@@ -105,16 +105,6 @@
   width: 100%;
 }
 
-/*.dropdown * {
-  width: 100%;
-}
-
-.nav-link.active, .nav-link:hover {
-  color: #000000 !important;
-  border-color: #000000 !important;
-}
-*/
-
 .nav-tabs.nav-tabs-line.nav-tabs-line-brand.nav-tabs-line-2x {
   border: none !important;;
 }
@@ -130,4 +120,10 @@
 
 .kt-subheader__main {
   width: 100%;
+}
+
+.blockMsg {
+  left: 50% !important;
+  top: 10px !important;
+  margin-left: -50px !important;
 }

@@ -157,6 +157,7 @@
   import PhotoApi from "../../endpoint/PhotoApi";
   import Multiselect from 'vue-multiselect'
   import UtilMixin from "../mixins/UtilMixin";
+  import LoadingOverlayableMixin from "../mixins/LoadingOverlayableMixin";
   import LogoPosition from "../model/LogoPosition"
   import {
     LOGO_POSITION_OPTIONS, LOGO_POSITION_MAP
@@ -168,7 +169,7 @@
       Multiselect,
     },
     mixins: [
-      UtilMixin
+      UtilMixin, LoadingOverlayableMixin
     ],
     created: function () {
       // Retrieve event list
@@ -238,11 +239,12 @@
           }
           params['event'] = ids;
         }
-
+        this.loadingOverlay = true;
         PhotoApi.getAll(params).then((resp) => {
+          this.loadingOverlay = false;
           this.photos = resp.data;
-        }, function () {
-
+        }, (resp) => {
+          this.loadingOverlay = false;
         })
       },
       openDownloadPhotoModal: function (photo) {

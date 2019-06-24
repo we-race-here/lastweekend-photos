@@ -346,6 +346,7 @@
   import PageBar from "../partials/PageBar";
   import Multiselect from 'vue-multiselect'
   import UtilMixin from "../mixins/UtilMixin";
+  import LoadingOverlayableMixin from "../mixins/LoadingOverlayableMixin";
   import EventApi from "../../endpoint/EventApi";
   import TagApi from "../../endpoint/TagApi";
   import PeopleApi from "../../endpoint/PeopleApi";
@@ -363,7 +364,7 @@
       dateTime
     },
     mixins: [
-      UtilMixin
+      UtilMixin, LoadingOverlayableMixin
     ],
     created: function () {
       // Retrieve event list
@@ -422,10 +423,12 @@
           }
           params['event'] = ids;
         }
-
+        this.loadingOverlay = true;
         PhotoApi.getMine(params).then((resp) => {
           this.photos = resp.data;
+          this.loadingOverlay = false;
         }, (resp) => {
+          this.loadingOverlay = true;
           this.showMessage((resp.response && resp.response.data.detail) ||
               "Some error happened when trying to get my photo")
         })
