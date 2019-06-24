@@ -10,6 +10,7 @@ import App from "./App";
 import UtilMixin from "./components/mixins/UtilMixin";
 import "./validators";
 import SessionApi from "./endpoint/SessionApi"
+import EventBus from "./event-bus";
 
 import "./filters";
 import { version as AppVersion } from "../package.json";
@@ -18,7 +19,7 @@ require("vue-multiselect/dist/vue-multiselect.min.css");
 
 Vue.use(BootstrapVue);
 
-Vue.prototype.$eventsBus = new Vue();
+Vue.prototype.$eventsBus = EventBus;
 
 /****************************************
  ****************** App *****************
