@@ -15,11 +15,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='photo',
             name='preview_file',
-            field=models.ImageField(editable=False, storage=lastweekend_photos.helpers.utils.OverwriteFileSystemStorage(), upload_to=apps.photo_gallery.models.photo_preview_file_path_func),
+            field=models.ImageField(editable=False, storage=apps.photo_gallery.models.public_storage, upload_to=apps.photo_gallery.models.photo_preview_file_path_func),
         ),
         migrations.AlterField(
             model_name='photoads',
             name='file',
-            field=models.ImageField(editable=False, storage=lastweekend_photos.helpers.utils.OverwriteFileSystemStorage(), upload_to=apps.photo_gallery.models.photo_ads_file_path_func),
+            field=models.ImageField(editable=False, storage=apps.photo_gallery.models.public_storage, upload_to=apps.photo_gallery.models.photo_ads_file_path_func),
         ),
     ]

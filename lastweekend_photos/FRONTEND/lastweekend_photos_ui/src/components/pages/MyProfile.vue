@@ -1,13 +1,20 @@
-<style scoped>
+<style>
+  .my-profile .nav-tabs > li.nav-item {
+    margin-right: 30px !important;
+  }
+  .my-profile .nav-tabs > li.nav-item > .nav-link {
+    padding-top: 25px !important;
+    padding-bottom: 25px !important;
+  }
 </style>
 
 <template>
   <div>
     <page-bar></page-bar>
-    <div class="kt-portlet kt-portlet--tabs">
+    <div class="kt-portlet kt-portlet--tabs my-profile">
       <div class="kt-portlet__head">
         <div class="kt-portlet__head-toolbar">
-          <ul class="nav nav-tabs nav-tabs-line nav-tabs-line-brand nav-tabs-line-2x nav-tabs-line-right nav-tabs-bold"
+          <ul class="nav nav-tabs nav-tabs-space-xl nav-tabs-line nav-tabs-bold nav-tabs-line-3x nav-tabs-line-brand"
               role="tablist">
             <li class="nav-item">
               <a class="nav-link active" data-toggle="tab" href="#myprofile_1_tab_content" role="tab">
@@ -126,7 +133,7 @@
                   <div class="row">
                     <div class="col-md-2"></div>
                     <div class="col-md-6">
-                      <button type="submit" name="submitBtn" class="btn btn-success kt-margin-r-5"
+                      <button type="submit" name="submitBtn" class="btn btn-success btn-spinner kt-margin-r-5"
                               :disabled="errors.any() || savingProfile">
                         <i :class="savingProfile? 'la la-spin la-spinner':'la la-save'"></i>
                         <span v-show="!savingProfile">Save</span>
@@ -201,7 +208,7 @@
                   <div class="row">
                     <div class="col-md-2"></div>
                     <div class="col-md-6">
-                      <button type="submit" name="submitBtn" class="btn btn-success kt-margin-r-5"
+                      <button type="submit" name="submitBtn" class="btn btn-success btn-spinner kt-margin-r-5"
                               :disabled="errors.any() || savingProfile">
                         <i :class="savingProfile? 'la la-spin la-spinner':'la la-save'"></i>
                         <span v-show="!savingProfile">Save</span>
@@ -281,7 +288,7 @@
                   <div class="row">
                     <div class="col-md-2"></div>
                     <div class="col-md-6">
-                      <button type="submit" name="submitBtn" class="btn btn-success kt-margin-r-5"
+                      <button type="submit" name="submitBtn" class="btn btn-success btn-spinner kt-margin-r-5"
                               :disabled="errors.any() || savingProfile">
                         <i :class="savingProfile? 'la la-spin la-spinner':'la la-save'"></i>
                         <span v-show="!savingProfile">Save</span>
@@ -328,7 +335,7 @@
                   <div class="row">
                     <div class="col-md-2"></div>
                     <div class="col-md-6">
-                      <button type="submit" name="submitBtn" class="btn btn-success kt-margin-r-5"
+                      <button type="submit" name="submitBtn" class="btn btn-success btn-spinner kt-margin-r-5"
                               :disabled="!userPassword.new_password || !passwordMatched || changingPassword">
                         <i :class="changingPassword? 'la la-spin la-spinner':'la la-key'"></i>
                         <span v-show="!changingPassword">Change Password</span>
@@ -354,6 +361,7 @@
   import PageBar from "../partials/PageBar";
   import {GENDER_OPTIONS} from "../../Constants";
   import ProfileApi from "../../endpoint/ProfileApi"
+  import $ from "jquery";
 
   const moment = window.moment;
 

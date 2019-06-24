@@ -1,3 +1,7 @@
+.btn.btn-spinner i {
+  margin-right: 0.5rem !important;
+  padding-right: unset !important;
+}
 .kt-page--loading2 * {
   -webkit-transition: none !important;
   transition: none !important;
