@@ -22,13 +22,13 @@ sudo pip install gunicorn
 sudo pip install virtualenv
 
 # setup project
-NAME="lastweekend_photos"
-GITURL=https://github.com/we-race-here/lastweekend-photos.git
+NAME="wrh_photos"
+GITURL=https://github.com/we-race-here/wrh-photos.git
 ROOTDIR=/opt/webapps
 PROJECTDIR=${ROOTDIR}/${NAME}
 DJANGODIR=${PROJECTDIR}/${NAME}
 ENVDIR=${PROJECTDIR}/env
-DJANGO_SETTINGS_MODULE=lastweekend_photos.settings.main
+DJANGO_SETTINGS_MODULE=wrh_photos.settings.main
 USER=appuser                                      # the user to run as
 GROUP=appuser                                     # the group to run as
 
@@ -50,7 +50,7 @@ if [ -d "$DJANGODIR" ]; then
 else
     git clone --recursive ${GITURL} -b ${BRANCH} ${DJANGODIR}
 fi
-cp ${DJANGODIR}/lastweekend_photos/lastweekend_photos/settings/external_config_sample.py ${PROJECTDIR}/etc/external_config.py
+cp ${DJANGODIR}/wrh_photos/wrh_photos/settings/external_config_sample.py ${PROJECTDIR}/etc/external_config.py
 
 virtualenv -p python3 ${ENVDIR}
 source ${ENVDIR}/bin/activate
@@ -66,7 +66,7 @@ chmod +x ${ENVDIR}/bin/gunicorn_start.sh
 cd ${DJANGODIR}
 pip install -r requirements.txt
 pip install django-gunicorn
-cd ${DJANGODIR}/lastweekend_photos
+cd ${DJANGODIR}/wrh_photos
 python manage.py migrate --settings=${DJANGO_SETTINGS_MODULE} --noinput
 python manage.py collectstatic --settings=${DJANGO_SETTINGS_MODULE} --noinput
 sudo service supervisor restart

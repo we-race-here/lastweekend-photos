@@ -5,13 +5,13 @@ if [ -n "$1" ]; then
     BRANCH=$1
 fi
 
-NAME="lastweekend_photos"
-GITURL=https://github.com/we-race-here/lastweekend-photos.git
+NAME="wrh_photos"
+GITURL=https://github.com/we-race-here/wrh-photos.git
 ROOTDIR=/opt/webapps
 PROJECTDIR=${ROOTDIR}/${NAME}
 DJANGODIR=${PROJECTDIR}/${NAME}
 ENVDIR=${PROJECTDIR}/env
-DJANGO_SETTINGS_MODULE=lastweekend_photos.settings.main
+DJANGO_SETTINGS_MODULE=wrh_photos.settings.main
 
 echo "+++ Deploying $NAME: BRANCH=$BRANCH PROJECTDIR=$PROJECTDIR ..."
 
@@ -39,7 +39,7 @@ source ${ENVDIR}/bin/activate
 cd ${DJANGODIR}
 pip install -r requirements.txt
 pip install django-gunicorn
-cd ${DJANGODIR}/lastweekend_photos
+cd ${DJANGODIR}/wrh_photos
 python manage.py migrate --settings=${DJANGO_SETTINGS_MODULE} --noinput
 python manage.py collectstatic --settings=${DJANGO_SETTINGS_MODULE} --noinput
 sudo supervisorctl start ${NAME}

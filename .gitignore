@@ -82,7 +82,7 @@ target/
 www/
 */*/settings/external_config*.py
 */*/settings/local.py
-lastweekend_photos/media/
+wrh_photos/media/
 
 # celery beat schedule file
 celerybeat-schedule
