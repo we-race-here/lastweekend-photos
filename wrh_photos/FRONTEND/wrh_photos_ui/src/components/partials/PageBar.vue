@@ -1,14 +1,13 @@
 <style scoped>
   .kt-subheader {
-    background-color: #fff;
-    padding: 0;
-    padding-bottom: 20px;
-    margin-bottom: 20px;
     margin-left: -25px;
     margin-right: -25px;
-    margin-top: -25px;
-    padding-top: 19px;
+    background-color: #fff;
+    padding-bottom: 10px;
+    padding-top: 10px;
     padding-left: 25px;
+    margin-top: 2px;
+    margin-bottom: 15px;
   }
 </style>
 

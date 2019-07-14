@@ -1,47 +1,49 @@
 <template>
   <section>
     <page-bar></page-bar>
-    <div class="kt-subheader kt-grid__item" id="kt_subheader_search_container">
-      <div class="kt-subheader__main">
-        <div class="container-fluid">
-          <div class="row justify-content-md-center align-items-center">
-            <div class="col-auto p-0">
-              <h3 class="kt-subheader__title">
-                My Photos
-              </h3>
-            </div>
-            <div class="col-auto mt-1 p-0">
-              <span class="kt-subheader__separator kt-subheader__separator--v"></span>
-            </div>
-            <div class="col-auto mt-1 p-0">
-              <span class="kt-subheader__desc" id="kt_subheader_total">{{photos.pagination.total}} Total</span>
-            </div>
-            <div class="col-md-6 col-sm-12 p-0 mr-auto kt-subheader__group" id="kt_subheader_search">
-              <div class="kt-input-icon kt-input-icon--right kt-subheader__search mr-3">
-                <input type="text" class="form-control" placeholder="Search..." id="generalSearch"
-                       v-model="searchValue">
-                <span class="kt-input-icon__icon kt-input-icon__icon--right">
-                  <span><i class="flaticon2-search-1"></i></span>
-                </span>
+    <div class="kt-portlet">
+      <div class="kt-portlet__head">
+        <div class="kt-subheader kt-grid__item" id="kt_subheader_search_container">
+          <div class="kt-subheader__main">
+            <div class="container-fluid">
+              <div class="row justify-content-md-center align-items-center">
+                <div class="col-auto">
+                  <h3 class="kt-subheader__title">
+                    My Photos
+                  </h3>
+                </div>
+                <div class="col-auto mt-1 p-0">
+                  <span class="kt-subheader__separator kt-subheader__separator--v"></span>
+                </div>
+                <div class="col-auto mt-1 p-0">
+                  <span class="kt-subheader__desc" id="kt_subheader_total">{{photos.pagination.total}} Total</span>
+                </div>
+                <div class="col-md-6 col-sm-12 p-0 mr-auto kt-subheader__group" id="kt_subheader_search">
+                  <div class="kt-input-icon kt-input-icon--right kt-subheader__search mr-3">
+                    <input type="text" class="form-control" placeholder="Search..." id="generalSearch"
+                           v-model="searchValue">
+                    <span class="kt-input-icon__icon kt-input-icon__icon--right">
+                      <span><i class="flaticon2-search-1"></i></span>
+                    </span>
+                  </div>
+                  <div class="kt-subheader__search event-select">
+                    <multiselect v-model="searchSelectedEvents" :options="events" :multiple="true" track-by="id"
+                                 label="name"
+                                 placeholder="Select events...">
+                    </multiselect>
+                  </div>
+                </div>
+                <div class="col-md-auto col-sm-12 p-0">
+                  <button type="button" class="btn btn-outline-brand btn-sm" @click="$refs.addPhotoModalRef.show()">
+                    <i class="flaticon2-plus"></i>
+                    Add photo
+                  </button>
+                </div>
               </div>
-              <div class="kt-subheader__search event-select">
-                <multiselect v-model="searchSelectedEvents" :options="events" :multiple="true" track-by="id"
-                             label="name"
-                             placeholder="Select events...">
-                </multiselect>
-              </div>
-            </div>
-            <div class="col-md-auto col-sm-12 p-0">
-              <button type="button" class="btn btn-outline-brand btn-sm" @click="$refs.addPhotoModalRef.show()">
-                <i class="flaticon2-plus"></i>
-                Add photo
-              </button>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    <div class="kt-portlet">
       <div class="kt-portlet__body">
         <div class="container-fluid mr-3 ml-3">
           <div class="row">
@@ -646,7 +648,7 @@
     height: 300px;
   }
 
-  .kt-subheader__main {
+  #kt_subheader_search_container {
     width: 100%;
   }
 

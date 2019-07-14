@@ -20,7 +20,7 @@
 				<div class="kt-grid__item kt-grid__item--fluid kt-grid kt-grid--hor kt-wrapper" id="kt_wrapper">
           <main-header></main-header>
 					<div class="kt-grid__item kt-grid__item--fluid kt-grid kt-grid--hor">
-            <div class="kt-content kt-grid__item kt-grid__item--fluid">
+            <div class="kt-container  kt-container--fluid  kt-grid__item kt-grid__item--fluid">
               <keep-alive include="EventList">
                 <router-view></router-view>
               </keep-alive>
