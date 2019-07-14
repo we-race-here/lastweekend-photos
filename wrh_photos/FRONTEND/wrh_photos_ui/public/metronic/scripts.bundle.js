@@ -1,4 +1,338 @@
 "use strict";
+
+/**
+ * @class KApp
+ */
+
+var KTApp = function() {
+    /** @type {object} colors State colors **/
+    var colors = {};
+
+    var initTooltip = function(el) {
+        var skin = el.data('skin') ? 'tooltip-' + el.data('skin') : '';
+        var width = el.data('width') == 'auto' ? 'tooltop-auto-width' : '';
+        var triggerValue = el.data('trigger') ? el.data('trigger') : 'hover';
+        var placement = el.data('placement') ? el.data('placement') : 'left';
+
+        el.tooltip({
+            trigger: triggerValue,
+            template: '<div class="tooltip ' + skin + ' ' + width + '" role="tooltip">\
+                <div class="arrow"></div>\
+                <div class="tooltip-inner"></div>\
+            </div>'
+        });
+    }
+
+    var initTooltips = function() {
+        // init bootstrap tooltips
+        $('[data-toggle="kt-tooltip"]').each(function() {
+            initTooltip($(this));
+        });
+    }
+
+    var initPopover = function(el) {
+        var skin = el.data('skin') ? 'popover-' + el.data('skin') : '';
+        var triggerValue = el.data('trigger') ? el.data('trigger') : 'hover';
+
+        el.popover({
+            trigger: triggerValue,
+            template: '\
+            <div class="popover ' + skin + '" role="tooltip">\
+                <div class="arrow"></div>\
+                <h3 class="popover-header"></h3>\
+                <div class="popover-body"></div>\
+            </div>'
+        });
+    }
+
+    var initPopovers = function() {
+        // init bootstrap popover
+        $('[data-toggle="kt-popover"]').each(function() {
+            initPopover($(this));
+        });
+    }
+
+    var initFileInput = function() {
+        // init bootstrap popover
+        $('.custom-file-input').on('change', function() {
+            var fileName = $(this).val();
+            $(this).next('.custom-file-label').addClass("selected").html(fileName);
+        });
+    }
+
+    var initPortlet = function(el, options) {
+        // init portlet tools
+        var el = $(el);
+        var portlet = new KTPortlet(el[0], options);
+    }
+
+    var initPortlets = function() {
+        // init portlet tools
+        $('[data-ktportlet="true"]').each(function() {
+            var el = $(this);
+
+            if (el.data('data-ktportlet-initialized') !== true) {
+                initPortlet(el, {});
+                el.data('data-ktportlet-initialized', true);
+            }
+        });
+    }
+
+    var initScroll = function() {
+        $('[data-scroll="true"]').each(function() {
+            var el = $(this);
+            KTUtil.scrollInit(this, {
+                mobileNativeScroll: true,
+                handleWindowResize: true,
+                rememberPosition: (el.data('remember-position') == 'true' ? true : false),
+                height: function() {
+                    if (KTUtil.isInResponsiveRange('tablet-and-mobile') && el.data('mobile-height')) {
+                        return el.data('mobile-height');
+                    } else {
+                        return el.data('height');
+                    }
+                }
+            });
+        });
+    }
+
+    var initAlerts = function() {
+        // init bootstrap popover
+        $('body').on('click', '[data-close=alert]', function() {
+            $(this).closest('.alert').hide();
+        });
+    }
+
+    var initSticky = function() {
+        var sticky = new Sticky('[data-sticky="true"]');
+    }
+
+    var initAbsoluteDropdown = function(context) {
+        var dropdownMenu;
+
+        if (!context) {
+            return;
+        }
+
+        $('body').on('show.bs.dropdown', context, function(e) {
+        	dropdownMenu = $(e.target).find('.dropdown-menu');
+        	$('body').append(dropdownMenu.detach());
+        	dropdownMenu.css('display', 'block');
+        	dropdownMenu.position({
+        		'my': 'right top',
+        		'at': 'right bottom',
+        		'of': $(e.relatedTarget),
+        	});
+        }).on('hide.bs.dropdown', context, function(e) {
+        	$(e.target).append(dropdownMenu.detach());
+        	dropdownMenu.hide();
+        });
+    }
+
+    var initAbsoluteDropdowns = function() {
+        $('body').on('show.bs.dropdown', function(e) {
+            if ( $(e.target).find("[data-attach='body']").length === 0) {
+                return;
+            }
+
+            var dropdownMenu = $(e.target).find('.dropdown-menu');
+            
+            $('body').append(dropdownMenu.detach());
+            dropdownMenu.css('display', 'block');
+            dropdownMenu.position({
+                'my': 'right top',
+                'at': 'right bottom',
+                'of': $(e.relatedTarget)
+            });
+        });
+
+        $('body').on('hide.bs.dropdown', function(e) {
+            if ( $(e.target).find("[data-attach='body']").length === 0) {
+                return;
+            }
+
+            var dropdownMenu = $(e.target).find('.dropdown-menu');
+            
+            $(e.target).append(dropdownMenu.detach());
+            dropdownMenu.hide();
+        });
+    }
+
+    return {
+        init: function(options) {
+            if (options && options.colors) {
+                colors = options.colors;
+            }
+
+            KTApp.initComponents();
+        },
+
+        initComponents: function() {
+            initScroll();
+            initTooltips();
+            initPopovers();
+            initAlerts();
+            initPortlets();
+            initFileInput();
+            initSticky();
+            initAbsoluteDropdowns();
+        },
+
+        initTooltips: function() {
+            initTooltips();
+        },
+
+        initTooltip: function(el) {
+            initTooltip(el);
+        },
+
+        initPopovers: function() {
+            initPopovers();
+        },
+
+        initPopover: function(el) {
+            initPopover(el);
+        },
+
+        initPortlet: function(el, options) {
+            initPortlet(el, options);
+        },
+
+        initPortlets: function() {
+            initPortlets();
+        },
+
+        initSticky: function() {
+            initSticky();
+        },
+
+        initAbsoluteDropdown: function(context) {
+            initAbsoluteDropdown(context);
+        },
+
+        block: function(target, options) {
+            var el = $(target);
+
+            options = $.extend(true, {
+                opacity: 0.05,
+                overlayColor: '#000000',
+                type: '',
+                size: '',
+                state: 'brand',
+                centerX: true,
+                centerY: true,
+                message: '',
+                shadow: true,
+                width: 'auto'
+            }, options);
+
+            var html;
+            var version = options.type ? 'kt-spinner--' + options.type : '';
+            var state = options.state ? 'kt-spinner--' + options.state : '';
+            var size = options.size ? 'kt-spinner--' + options.size : '';
+            var spinner = '<div class="kt-spinner ' + version + ' ' + state + ' ' + size + '"></div';
+
+            if (options.message && options.message.length > 0) {
+                var classes = 'blockui ' + (options.shadow === false ? 'blockui' : '');
+
+                html = '<div class="' + classes + '"><span>' + options.message + '</span><span>' + spinner + '</span></div>';
+
+                var el = document.createElement('div');
+                KTUtil.get('body').prepend(el);
+                KTUtil.addClass(el, classes);
+                el.innerHTML = '<span>' + options.message + '</span><span>' + spinner + '</span>';
+                options.width = KTUtil.actualWidth(el) + 10;
+                KTUtil.remove(el);
+
+                if (target == 'body') {
+                    html = '<div class="' + classes + '" style="margin-left:-' + (options.width / 2) + 'px;"><span>' + options.message + '</span><span>' + spinner + '</span></div>';
+                }
+            } else {
+                html = spinner;
+            }
+
+            var params = {
+                message: html,
+                centerY: options.centerY,
+                centerX: options.centerX,
+                css: {
+                    top: '30%',
+                    left: '50%',
+                    border: '0',
+                    padding: '0',
+                    backgroundColor: 'none',
+                    width: options.width
+                },
+                overlayCSS: {
+                    backgroundColor: options.overlayColor,
+                    opacity: options.opacity,
+                    cursor: 'wait',
+                    zIndex: '10'
+                },
+                onUnblock: function() {
+                    if (el && el[0]) {
+                        KTUtil.css(el[0], 'position', '');
+                        KTUtil.css(el[0], 'zoom', '');
+                    }
+                }
+            };
+
+            if (target == 'body') {
+                params.css.top = '50%';
+                $.blockUI(params);
+            } else {
+                var el = $(target);
+                el.block(params);
+            }
+        },
+
+        unblock: function(target) {
+            if (target && target != 'body') {
+                $(target).unblock();
+            } else {
+                $.unblockUI();
+            }
+        },
+
+        blockPage: function(options) {
+            return KTApp.block('body', options);
+        },
+
+        unblockPage: function() {
+            return KTApp.unblock('body');
+        },
+
+        progress: function(target, options) {
+            var skin = (options && options.skin) ? options.skin : 'light';
+            var alignment = (options && options.alignment) ? options.alignment : 'right';
+            var size = (options && options.size) ? 'kt-spinner--' + options.size : '';
+            var classes = 'kt-spinner ' + 'kt-spinner--' + skin + ' kt-spinner--' + alignment + ' kt-spinner--' + size; 
+
+            KTApp.unprogress(target);
+
+            $(target).addClass(classes);
+            $(target).data('progress-classes', classes);
+        },
+
+        unprogress: function(target) {
+            $(target).removeClass($(target).data('progress-classes'));
+        },
+
+        getStateColor: function(name) {
+            return colors["state"][name];
+        },
+
+        getBaseColor: function(type, level) {
+            return colors["base"][type][level - 1];
+        }
+    };
+}();
+
+// Initialize KTApp class on document ready
+$(document).ready(function() {
+    KTApp.init(KTAppOptions);
+});
+"use strict";
 /**
  * @class KTUtil  base utilize class that privides helper functions
  */
@@ -118,7 +452,6 @@ window.KTUtilElementDataStoreID = 0;
 window.KTUtilDelegatedEventHandlers = {};
 
 var KTUtil = function() {
-
     var resizeHandlers = [];
 
     /** @type {object} breakpoints The device width breakpoints **/
@@ -698,27 +1031,39 @@ var KTUtil = function() {
             return referenceNode.parentNode.insertBefore(el, referenceNode.nextSibling);
         },
 
-        parents: function(el, query) {
-            function collectionHas(a, b) { //helper function (see below)
-                for (var i = 0, len = a.length; i < len; i++) {
-                    if (a[i] == b) return true;
-                }
-
-                return false;
+        parents: function(elem, selector) {
+            // Element.matches() polyfill
+            if (!Element.prototype.matches) {
+                Element.prototype.matches =
+                    Element.prototype.matchesSelector ||
+                    Element.prototype.mozMatchesSelector ||
+                    Element.prototype.msMatchesSelector ||
+                    Element.prototype.oMatchesSelector ||
+                    Element.prototype.webkitMatchesSelector ||
+                    function(s) {
+                        var matches = (this.document || this.ownerDocument).querySelectorAll(s),
+                            i = matches.length;
+                        while (--i >= 0 && matches.item(i) !== this) {}
+                        return i > -1;
+                    };
             }
 
-            function findParentBySelector(el, selector) {
-                var all = document.querySelectorAll(selector);
-                var cur = el.parentNode;
+            // Set up a parent array
+            var parents = [];
 
-                while (cur && !collectionHas(all, cur)) { //keep going up until you find a match
-                    cur = cur.parentNode; //go up
+            // Push each parent element to the array
+            for ( ; elem && elem !== document; elem = elem.parentNode ) {
+                if (selector) {
+                    if (elem.matches(selector)) {
+                        parents.push(elem);
+                    }
+                    continue;
                 }
-
-                return cur; //will return null if not found
+                parents.push(elem);
             }
 
-            return findParentBySelector(el, query);
+            // Return our parent array
+            return parents;
         },
 
         children: function(el, selector, log) {
@@ -1135,11 +1480,15 @@ var KTUtil = function() {
         },
 
         show: function(el, display) {
-            el.style.display = (display ? display : 'block');
+            if (typeof el !== 'undefined') {
+                el.style.display = (display ? display : 'block');
+            }
         },
 
         hide: function(el) {
-            el.style.display = 'none';
+            if (typeof el !== 'undefined') {
+                el.style.display = 'none';
+            }
         },
 
         addEvent: function(el, type, handler, one) {
@@ -1406,6 +1755,8 @@ var KTUtil = function() {
             return (KTUtil.attr(KTUtil.get('html'), 'direction') == 'rtl');
         },
 
+        // 
+
         // Scroller
         scrollInit: function(element, options) {
             if(!element) return;
@@ -1421,7 +1772,7 @@ var KTUtil = function() {
                 }
 
                 // Destroy scroll on table and mobile modes
-                if (options.disableForMobile && KTUtil.isInResponsiveRange('tablet-and-mobile')) {
+                if ((options.mobileNativeScroll || options.disableForMobile) && KTUtil.isInResponsiveRange('tablet-and-mobile')) {
                     if (ps = KTUtil.data(element).get('ps')) {
                         if (options.resetHeightOnDestroy) {
                             KTUtil.css(element, 'height', 'auto');
@@ -1446,9 +1797,14 @@ var KTUtil = function() {
                     KTUtil.css(element, 'height', height + 'px');
                 }
 
+                if (options.desktopNativeScroll) {
+                    KTUtil.css(element, 'overflow', 'auto');
+                    return;
+                }
+                
+                // Init scroll
                 KTUtil.css(element, 'overflow', 'hidden');
 
-                // Init scroll
                 if (ps = KTUtil.data(element).get('ps')) {
                     ps.update();
                 } else {
@@ -1456,13 +1812,30 @@ var KTUtil = function() {
                     ps = new PerfectScrollbar(element, {
                         wheelSpeed: 0.5,
                         swipeEasing: true,
-                        wheelPropagation: false,
+                        wheelPropagation: (options.windowScroll === false ? false : true),
                         minScrollbarLength: 40,
                         maxScrollbarLength: 300, 
                         suppressScrollX: KTUtil.attr(element, 'data-scroll-x') != 'true' ? true : false
                     });
 
                     KTUtil.data(element).set('ps', ps);
+                }
+
+                // Remember scroll position in cookie
+                var uid = KTUtil.attr(element, 'id');
+
+                if (options.rememberPosition === true && Cookies && uid) {
+                    if (Cookies.get(uid)) {
+                        var pos = parseInt(Cookies.get(uid));
+
+                        if (pos > 0) {
+                            element.scrollTop = pos;
+                        }
+                    } 
+
+                    element.addEventListener('ps-scroll-y', function() {
+                        Cookies.set(uid, element.scrollTop);
+                    });                                      
                 }
             }
 
@@ -1519,314 +1892,3142 @@ KTUtil.ready(function() {
 });
 
 // CSS3 Transitions only after page load(.kt-page-loading class added to body tag and remove with JS on page load)
-window.onload = function() {
+window.onload = function() {    
     KTUtil.removeClass(KTUtil.get('body'), 'kt-page--loading');
 }
-"use strict";
+// plugin setup
+var KTAvatar = function(elementId, options) {
+    // Main object
+    var the = this;
+    var init = false;
 
-/**
- * @class KApp
- */
+    // Get element object
+    var element = KTUtil.get(elementId);
+    var body = KTUtil.get('body');
 
-var KTApp = function() {
-    /** @type {object} colors State colors **/
-    var colors = {};
-
-    var initTooltip = function(el) {
-        var skin = el.data('skin') ? 'tooltip-' + el.data('skin') : '';
-        var width = el.data('width') == 'auto' ? 'tooltop-auto-width' : '';
-        var triggerValue = el.data('trigger') ? el.data('trigger') : 'hover';
-        var placement = el.data('placement') ? el.data('placement') : 'left';
-
-        el.tooltip({
-            trigger: triggerValue,
-            template: '<div class="tooltip ' + skin + ' ' + width + '" role="tooltip">\
-                <div class="arrow"></div>\
-                <div class="tooltip-inner"></div>\
-            </div>'
-        });
+    if (!element) {
+        return; 
     }
 
-    var initTooltips = function() {
-        // init bootstrap tooltips
-        $('[data-toggle="kt-tooltip"]').each(function() {
-            initTooltip($(this));
-        });
-    }
+    // Default options
+    var defaultOptions = {
+    };
 
-    var initPopover = function(el) {
-        var skin = el.data('skin') ? 'popover-' + el.data('skin') : '';
-        var triggerValue = el.data('trigger') ? el.data('trigger') : 'hover';
+    ////////////////////////////
+    // ** Private Methods  ** //
+    ////////////////////////////
 
-        el.popover({
-            trigger: triggerValue,
-            template: '\
-            <div class="popover ' + skin + '" role="tooltip">\
-                <div class="arrow"></div>\
-                <h3 class="popover-header"></h3>\
-                <div class="popover-body"></div>\
-            </div>'
-        });
-    }
+    var Plugin = {
+        /**
+         * Construct
+         */
 
-    var initPopovers = function() {
-        // init bootstrap popover
-        $('[data-toggle="kt-popover"]').each(function() {
-            initPopover($(this));
-        });
-    }
+        construct: function(options) {
+            if (KTUtil.data(element).has('avatar')) {
+                the = KTUtil.data(element).get('avatar');
+            } else {
+                // reset menu
+                Plugin.init(options);
 
-    var initFileInput = function() {
-        // init bootstrap popover
-        $('.custom-file-input').on('change', function() {
-            var fileName = $(this).val();
-            $(this).next('.custom-file-label').addClass("selected").html(fileName);
-        });
-    }
+                // build menu
+                Plugin.build();
 
-    var initPortlet = function(el, options) {
-        // init portlet tools
-        var el = $(el);
-        var portlet = new KTPortlet(el[0], options);
-    }
-
-    var initPortlets = function() {
-        // init portlet tools
-        $('[data-ktportlet="true"]').each(function() {
-            var el = $(this);
-
-            if (el.data('data-ktportlet-initialized') !== true) {
-                initPortlet(el, {});
-                el.data('data-ktportlet-initialized', true);
+                KTUtil.data(element).set('avatar', the);
             }
-        });
-    }
 
-    var initScroll = function() {
-        $('[data-scroll="true"]').each(function() {
-            var el = $(this);
-            KTUtil.scrollInit(this, {
-                disableForMobile: true,
-                handleWindowResize: true,
-                height: function() {
-                    if (KTUtil.isInResponsiveRange('tablet-and-mobile') && el.data('mobile-height')) {
-                        return el.data('mobile-height');
-                    } else {
-                        return el.data('height');
-                    }
-                }
-            });
-        });
-    }
+            return the;
+        },
 
-    var initAlerts = function() {
-        // init bootstrap popover
-        $('body').on('click', '[data-close=alert]', function() {
-            $(this).closest('.alert').hide();
-        });
-    }
-
-    var initSticky = function() {
-        var sticky = new Sticky('[data-sticky="true"]');
-    }
-
-    var initAbsoluteDropdown = function(dropdown) {
-        var dropdownMenu;
-
-        if (!dropdown) {
-            return;
-        }
-
-        dropdown.on('show.bs.dropdown', function(e) {
-            dropdownMenu = $(e.target).find('.dropdown-menu');
-            $('body').append(dropdownMenu.detach());
-            dropdownMenu.css('display', 'block');
-            dropdownMenu.position({
-                'my': 'right top',
-                'at': 'right bottom',
-                'of': $(e.relatedTarget)
-            });
-        });
-
-        dropdown.on('hide.bs.dropdown', function(e) {
-            $(e.target).append(dropdownMenu.detach());
-            dropdownMenu.hide();
-        });
-    }
-
-    return {
+        /**
+         * Init avatar
+         */
         init: function(options) {
-            if (options && options.colors) {
-                colors = options.colors;
-            }
+            the.element = element;
+            the.events = [];
 
-            KTApp.initComponents();
+            the.input = KTUtil.find(element, 'input[type="file"]');
+            the.holder = KTUtil.find(element, '.kt-avatar__holder');
+            the.cancel = KTUtil.find(element, '.kt-avatar__cancel');
+            the.src = KTUtil.css(the.holder, 'backgroundImage');
+
+            // merge default and user defined options
+            the.options = KTUtil.deepExtend({}, defaultOptions, options);
         },
 
-        initComponents: function() {
-            initScroll();
-            initTooltips();
-            initPopovers();
-            initAlerts();
-            initPortlets();
-            initFileInput();
-            initSticky();
+        /**
+         * Build Form Wizard
+         */
+        build: function() {
+            // Handle avatar change
+            KTUtil.addEvent(the.input, 'change', function(e) {
+                e.preventDefault();
+
+	            if (the.input && the.input.files && the.input.files[0]) {
+	                var reader = new FileReader();
+	                reader.onload = function(e) {
+	                    KTUtil.css(the.holder, 'background-image', 'url('+e.target.result +')');
+	                }
+	                reader.readAsDataURL(the.input.files[0]);
+
+	                KTUtil.addClass(the.element, 'kt-avatar--changed');
+	            }
+            });
+
+            // Handle avatar cancel
+            KTUtil.addEvent(the.cancel, 'click', function(e) {
+                e.preventDefault();
+
+	            KTUtil.removeClass(the.element, 'kt-avatar--changed');
+	            KTUtil.css(the.holder, 'background-image', the.src);
+	            the.input.value = "";
+            });
         },
 
-        initTooltips: function() {
-            initTooltips();
-        },
-
-        initTooltip: function(el) {
-            initTooltip(el);
-        },
-
-        initPopovers: function() {
-            initPopovers();
-        },
-
-        initPopover: function(el) {
-            initPopover(el);
-        },
-
-        initPortlet: function(el, options) {
-            initPortlet(el, options);
-        },
-
-        initPortlets: function() {
-            initPortlets();
-        },
-
-        initSticky: function() {
-            initSticky();
-        },
-
-        initAbsoluteDropdown: function(dropdown) {
-            initAbsoluteDropdown(dropdown);
-        },
-
-        block: function(target, options) {
-            var el = $(target);
-
-            options = $.extend(true, {
-                opacity: 0.03,
-                overlayColor: '#000000',
-                type: '',
-                size: '',
-                state: 'brand',
-                centerX: true,
-                centerY: true,
-                message: '',
-                shadow: true,
-                width: 'auto'
-            }, options);
-
-            var html;
-            var version = options.type ? 'kt-spinner--' + options.type : '';
-            var state = options.state ? 'kt-spinner--' + options.state : '';
-            var size = options.size ? 'kt-spinner--' + options.size : '';
-            var spinner = '<div class="kt-spinner ' + version + ' ' + state + ' ' + size + '"></div';
-
-            if (options.message && options.message.length > 0) {
-                var classes = 'blockui ' + (options.shadow === false ? 'blockui' : '');
-
-                html = '<div class="' + classes + '"><span>' + options.message + '</span><span>' + spinner + '</span></div>';
-
-                var el = document.createElement('div');
-                KTUtil.get('body').prepend(el);
-                KTUtil.addClass(el, classes);
-                el.innerHTML = '<span>' + options.message + '</span><span>' + spinner + '</span>';
-                options.width = KTUtil.actualWidth(el) + 10;
-                KTUtil.remove(el);
-
-                if (target == 'body') {
-                    html = '<div class="' + classes + '" style="margin-left:-' + (options.width / 2) + 'px;"><span>' + options.message + '</span><span>' + spinner + '</span></div>';
-                }
-            } else {
-                html = spinner;
-            }
-
-            var params = {
-                message: html,
-                centerY: options.centerY,
-                centerX: options.centerX,
-                css: {
-                    top: '30%',
-                    left: '50%',
-                    border: '0',
-                    padding: '0',
-                    backgroundColor: 'none',
-                    width: options.width
-                },
-                overlayCSS: {
-                    backgroundColor: options.overlayColor,
-                    opacity: options.opacity,
-                    cursor: 'wait',
-                    zIndex: '10'
-                },
-                onUnblock: function() {
-                    if (el && el[0]) {
-                        KTUtil.css(el[0], 'position', '');
-                        KTUtil.css(el[0], 'zoom', '');
+        /**
+         * Trigger events
+         */
+        eventTrigger: function(name) {
+            //KTUtil.triggerCustomEvent(name);
+            for (var i = 0; i < the.events.length; i++) {
+                var event = the.events[i];
+                if (event.name == name) {
+                    if (event.one == true) {
+                        if (event.fired == false) {
+                            the.events[i].fired = true;
+                            event.handler.call(this, the);
+                        }
+                    } else {
+                        event.handler.call(this, the);
                     }
                 }
-            };
-
-            if (target == 'body') {
-                params.css.top = '50%';
-                $.blockUI(params);
-            } else {
-                var el = $(target);
-                el.block(params);
             }
         },
 
-        unblock: function(target) {
-            if (target && target != 'body') {
-                $(target).unblock();
-            } else {
-                $.unblockUI();
-            }
-        },
+        addEvent: function(name, handler, one) {
+            the.events.push({
+                name: name,
+                handler: handler,
+                one: one,
+                fired: false
+            });
 
-        blockPage: function(options) {
-            return KTApp.block('body', options);
-        },
-
-        unblockPage: function() {
-            return KTApp.unblock('body');
-        },
-
-        progress: function(target, options) {
-            var skin = (options && options.skin) ? options.skin : 'light';
-            var alignment = (options && options.alignment) ? options.alignment : 'right';
-            var size = (options && options.size) ? 'kt-spinner--' + options.size : '';
-            var classes = 'kt-spinner ' + 'kt-spinner--' + skin + ' kt-spinner--' + alignment + ' kt-spinner--' + size; 
-
-            KTApp.unprogress(target);
-
-            $(target).addClass(classes);
-            $(target).data('progress-classes', classes);
-        },
-
-        unprogress: function(target) {
-            $(target).removeClass($(target).data('progress-classes'));
-        },
-
-        getStateColor: function(name) {
-            return colors["state"][name];
-        },
-
-        getBaseColor: function(type, level) {
-            return colors["base"][type][level - 1];
+            return the;
         }
     };
-}();
 
-// Initialize KTApp class on document ready
-$(document).ready(function() {
-    KTApp.init(KTAppOptions);
+    //////////////////////////
+    // ** Public Methods ** //
+    //////////////////////////
+
+    /**
+     * Set default options 
+     */
+
+    the.setDefaults = function(options) {
+        defaultOptions = options;
+    };
+    
+    /**
+     * Attach event
+     */
+    the.on = function(name, handler) {
+        return Plugin.addEvent(name, handler);
+    };
+
+    /**
+     * Attach event that will be fired once
+     */
+    the.one = function(name, handler) {
+        return Plugin.addEvent(name, handler, true);
+    };
+
+    // Construct plugin
+    Plugin.construct.apply(the, [options]);
+
+    return the;
+};
+"use strict";
+
+// plugin setup
+var KTDialog = function(options) {
+    // Main object
+    var the = this;
+
+    // Get element object
+    var element;
+    var body = KTUtil.get('body');  
+
+    // Default options
+    var defaultOptions = {
+        'placement' : 'top center',
+        'type'  : 'loader',
+        'width' : 100,
+        'state' : 'default',
+        'message' : 'Loading...' 
+    };    
+
+    ////////////////////////////
+    // ** Private Methods  ** //
+    ////////////////////////////
+
+    var Plugin = {
+        /**
+         * Construct
+         */
+
+        construct: function(options) {
+            Plugin.init(options);
+
+            return the;
+        },
+
+        /**
+         * Handles subtoggle click toggle
+         */
+        init: function(options) {
+            the.events = [];
+
+            // merge default and user defined options
+            the.options = KTUtil.deepExtend({}, defaultOptions, options);
+
+            the.state = false;
+        },
+
+        /**
+         * Show dialog
+         */
+        show: function() {
+            Plugin.eventTrigger('show');
+
+            element = document.createElement("DIV");
+            KTUtil.setHTML(element, the.options.message);
+            
+            KTUtil.addClass(element, 'kt-dialog kt-dialog--shown');
+            KTUtil.addClass(element, 'kt-dialog--' + the.options.state);
+            KTUtil.addClass(element, 'kt-dialog--' + the.options.type); 
+
+            if (the.options.placement == 'top center') {
+                KTUtil.addClass(element, 'kt-dialog--top-center');
+            }
+
+            body.appendChild(element);
+
+            the.state = 'shown';
+
+            Plugin.eventTrigger('shown');
+
+            return the;
+        },
+
+        /**
+         * Hide dialog
+         */
+        hide: function() {
+            if (element) {
+                Plugin.eventTrigger('hide');
+
+                element.remove();
+                the.state = 'hidden';
+
+                Plugin.eventTrigger('hidden');
+            }
+
+            return the;
+        },
+
+        /**
+         * Trigger events
+         */
+        eventTrigger: function(name) {
+            for (var i = 0; i < the.events.length; i++) {
+                var event = the.events[i];
+
+                if (event.name == name) {
+                    if (event.one == true) {
+                        if (event.fired == false) {
+                            the.events[i].fired = true;                            
+                            event.handler.call(this, the);
+                        }
+                    } else {
+                        event.handler.call(this, the);
+                    }
+                }
+            }
+        },
+
+        addEvent: function(name, handler, one) {
+            the.events.push({
+                name: name,
+                handler: handler,
+                one: one,
+                fired: false
+            });
+
+            return the;
+        }
+    };
+
+    //////////////////////////
+    // ** Public Methods ** //
+    //////////////////////////
+
+    /**
+     * Set default options 
+     */
+
+    the.setDefaults = function(options) {
+        defaultOptions = options;
+    };
+
+    /**
+     * Check shown state 
+     */
+    the.shown = function() {
+        return the.state == 'shown';
+    };
+
+    /**
+     * Check hidden state 
+     */
+    the.hidden = function() {
+        return the.state == 'hidden';
+    };
+
+    /**
+     * Show dialog 
+     */
+    the.show = function() {
+        return Plugin.show();
+    };
+
+    /**
+     * Hide dialog
+     */
+    the.hide = function() {
+        return Plugin.hide();
+    };
+
+    /**
+     * Attach event
+     * @returns {KTToggle}
+     */
+    the.on = function(name, handler) {
+        return Plugin.addEvent(name, handler);
+    };
+
+    /**
+     * Attach event that will be fired once
+     * @returns {KTToggle}
+     */
+    the.one = function(name, handler) {
+        return Plugin.addEvent(name, handler, true);
+    };
+
+    // Construct plugin
+    Plugin.construct.apply(the, [options]);
+
+    return the;
+};
+"use strict";
+var KTHeader = function(elementId, options) {
+    // Main object
+    var the = this;
+    var init = false;
+
+    // Get element object
+    var element = KTUtil.get(elementId);
+    var body = KTUtil.get('body');
+
+    if (element === undefined) {
+        return;
+    }
+
+    // Default options
+    var defaultOptions = {
+        classic: false,
+        offset: {
+            mobile: 150,
+            desktop: 200
+        },
+        minimize: {
+            mobile: false,
+            desktop: false
+        }
+    };
+
+    ////////////////////////////
+    // ** Private Methods  ** //
+    ////////////////////////////
+
+    var Plugin = {
+        /**
+         * Run plugin
+         * @returns {KTHeader}
+         */
+        construct: function(options) {
+            if (KTUtil.data(element).has('header')) {
+                the = KTUtil.data(element).get('header');
+            } else {
+                // reset header
+                Plugin.init(options);
+
+                // build header
+                Plugin.build();
+
+                KTUtil.data(element).set('header', the);
+            }
+
+            return the;
+        },
+
+        /**
+         * Handles subheader click toggle
+         * @returns {KTHeader}
+         */
+        init: function(options) {
+            the.events = [];
+
+            // merge default and user defined options
+            the.options = KTUtil.deepExtend({}, defaultOptions, options);
+        },
+
+        /**
+         * Reset header
+         * @returns {KTHeader}
+         */
+        build: function() {
+            var lastScrollTop = 0;
+            var eventTriggerState = true;
+            var viewportHeight = KTUtil.getViewPort().height;
+
+            if (the.options.minimize.mobile === false && the.options.minimize.desktop === false) {
+                return;
+            }
+
+            window.addEventListener('scroll', function() {
+                var offset = 0, on, off, st;
+
+                if (KTUtil.isInResponsiveRange('desktop')) {
+                    offset = the.options.offset.desktop;
+                    on = the.options.minimize.desktop.on;
+                    off = the.options.minimize.desktop.off;
+                } else if (KTUtil.isInResponsiveRange('tablet-and-mobile')) {
+                    offset = the.options.offset.mobile;
+                    on = the.options.minimize.mobile.on;
+                    off = the.options.minimize.mobile.off;
+                }
+
+                st = window.pageYOffset;
+
+                if (
+                    (KTUtil.isInResponsiveRange('tablet-and-mobile') && the.options.classic && the.options.classic.mobile) ||
+                    (KTUtil.isInResponsiveRange('desktop') && the.options.classic && the.options.classic.desktop)
+
+                ) {
+                    if (st > offset) { // down scroll mode
+                        KTUtil.addClass(body, on);
+                        KTUtil.removeClass(body, off);
+                        
+                        if (eventTriggerState) {
+                            Plugin.eventTrigger('minimizeOn', the);
+                            eventTriggerState = false;
+                        }
+                    } else { // back scroll mode
+                        KTUtil.addClass(body, off);
+                        KTUtil.removeClass(body, on);
+
+                        if (eventTriggerState == false) {
+                            Plugin.eventTrigger('minimizeOff', the);
+                            eventTriggerState = true; 
+                        }
+                    }
+                } else {
+                    if (st > offset && lastScrollTop < st) { // down scroll mode
+                        KTUtil.addClass(body, on);
+                        KTUtil.removeClass(body, off);
+
+                        if (eventTriggerState) {
+                            Plugin.eventTrigger('minimizeOn', the);
+                            eventTriggerState = false;
+                        }
+                    } else { // back scroll mode
+                        KTUtil.addClass(body, off);
+                        KTUtil.removeClass(body, on);
+
+                        if (eventTriggerState == false) {
+                            Plugin.eventTrigger('minimizeOff', the);
+                            eventTriggerState = true;
+                        }
+                    }
+
+                    lastScrollTop = st;
+                }
+            });
+        },
+
+        /**
+         * Trigger events
+         */
+        eventTrigger: function(name, args) {
+            for (var i = 0; i < the.events.length; i++) {
+                var event = the.events[i];
+                if (event.name == name) {
+                    if (event.one == true) {
+                        if (event.fired == false) {
+                            the.events[i].fired = true;
+                            event.handler.call(this, the, args);
+                        }
+                    } else {
+                        event.handler.call(this, the, args);
+                    }
+                }
+            }
+        },
+
+        addEvent: function(name, handler, one) {
+            the.events.push({
+                name: name,
+                handler: handler,
+                one: one,
+                fired: false
+            });
+        }
+    };
+
+    //////////////////////////
+    // ** Public Methods ** //
+    //////////////////////////
+
+    /**
+     * Set default options 
+     */
+
+    the.setDefaults = function(options) {
+        defaultOptions = options;
+    };
+
+    /**
+     * Register event
+     */
+    the.on = function(name, handler) {
+        return Plugin.addEvent(name, handler);
+    };
+
+    ///////////////////////////////
+    // ** Plugin Construction ** //
+    ///////////////////////////////
+
+    // Run plugin
+    Plugin.construct.apply(the, [options]);
+
+    // Init done
+    init = true;
+
+    // Return plugin instance
+    return the;
+};
+"use strict";
+var KTMenu = function(elementId, options) {
+    // Main object
+    var the = this;
+    var init = false;
+
+    // Get element object
+    var element = KTUtil.get(elementId);
+    var body = KTUtil.get('body');  
+
+    if (!element) {
+        return;
+    }
+
+    // Default options
+    var defaultOptions = {       
+        // scrollable area with Perfect Scroll
+        scroll: {
+            rememberPosition: false
+        },
+        
+        // accordion submenu mode
+        accordion: {
+            slideSpeed: 200, // accordion toggle slide speed in milliseconds
+            autoScroll: false, // enable auto scrolling(focus) to the clicked menu item
+            autoScrollSpeed: 1200,
+            expandAll: true // allow having multiple expanded accordions in the menu
+        },
+
+        // dropdown submenu mode
+        dropdown: {
+            timeout: 500 // timeout in milliseconds to show and hide the hoverable submenu dropdown
+        }
+    };
+
+    ////////////////////////////
+    // ** Private Methods  ** //
+    ////////////////////////////
+
+    var Plugin = {
+        /**
+         * Run plugin
+         * @returns {KTMenu}
+         */
+        construct: function(options) {
+            if (KTUtil.data(element).has('menu')) {
+                the = KTUtil.data(element).get('menu');
+            } else {
+                // reset menu
+                Plugin.init(options);
+
+                // reset menu
+                Plugin.reset();
+
+                // build menu
+                Plugin.build();
+
+                KTUtil.data(element).set('menu', the);
+            }
+
+            return the;
+        },
+
+        /**
+         * Handles submenu click toggle
+         * @returns {KTMenu}
+         */
+        init: function(options) {
+            the.events = [];
+
+            the.eventHandlers = {};
+
+            // merge default and user defined options
+            the.options = KTUtil.deepExtend({}, defaultOptions, options);
+
+            // pause menu
+            the.pauseDropdownHoverTime = 0;
+
+            the.uid = KTUtil.getUniqueID();
+        },
+
+        update: function(options) {
+            // merge default and user defined options
+            the.options = KTUtil.deepExtend({}, defaultOptions, options);
+
+            // pause menu
+            the.pauseDropdownHoverTime = 0;
+
+             // reset menu
+            Plugin.reset();
+
+            the.eventHandlers = {};
+
+            // build menu
+            Plugin.build();
+
+            KTUtil.data(element).set('menu', the);
+        },
+
+        reload: function() {
+             // reset menu
+            Plugin.reset();
+
+            // build menu
+            Plugin.build();
+
+            // reset submenu props
+            Plugin.resetSubmenuProps();
+        },
+
+        /**
+         * Reset menu
+         * @returns {KTMenu}
+         */
+        build: function() {
+            // General accordion submenu toggle
+            the.eventHandlers['event_1'] = KTUtil.on( element, '.kt-menu__toggle', 'click', Plugin.handleSubmenuAccordion);
+
+            // Dropdown mode(hoverable)
+            if (Plugin.getSubmenuMode() === 'dropdown' || Plugin.isConditionalSubmenuDropdown()) {
+                // dropdown submenu - hover toggle
+                the.eventHandlers['event_2'] = KTUtil.on( element, '[data-ktmenu-submenu-toggle="hover"]', 'mouseover', Plugin.handleSubmenuDrodownHoverEnter);
+                the.eventHandlers['event_3'] = KTUtil.on( element, '[data-ktmenu-submenu-toggle="hover"]', 'mouseout', Plugin.handleSubmenuDrodownHoverExit);
+
+                // dropdown submenu - click toggle
+                the.eventHandlers['event_4'] = KTUtil.on( element, '[data-ktmenu-submenu-toggle="click"] > .kt-menu__toggle, [data-ktmenu-submenu-toggle="click"] > .kt-menu__link .kt-menu__toggle', 'click', Plugin.handleSubmenuDropdownClick);
+                the.eventHandlers['event_5'] = KTUtil.on( element, '[data-ktmenu-submenu-toggle="tab"] > .kt-menu__toggle, [data-ktmenu-submenu-toggle="tab"] > .kt-menu__link .kt-menu__toggle', 'click', Plugin.handleSubmenuDropdownTabClick);
+            }
+
+            // handle link click
+            the.eventHandlers['event_6'] = KTUtil.on(element, '.kt-menu__item > .kt-menu__link:not(.kt-menu__toggle):not(.kt-menu__link--toggle-skip)', 'click', Plugin.handleLinkClick);
+
+            // Init scrollable menu
+            if (the.options.scroll && the.options.scroll.height) {
+                Plugin.scrollInit();
+            }
+        },
+
+        /**
+         * Reset menu
+         * @returns {KTMenu}
+         */
+        reset: function() { 
+            KTUtil.off( element, 'click', the.eventHandlers['event_1']);
+
+            // dropdown submenu - hover toggle
+            KTUtil.off( element, 'mouseover', the.eventHandlers['event_2']);
+            KTUtil.off( element, 'mouseout', the.eventHandlers['event_3']);
+
+            // dropdown submenu - click toggle
+            KTUtil.off( element, 'click', the.eventHandlers['event_4']);
+            KTUtil.off( element, 'click', the.eventHandlers['event_5']);
+            
+            // handle link click
+            KTUtil.off(element, 'click', the.eventHandlers['event_6']);
+        },
+
+        /**
+         * Init scroll menu
+         *
+        */
+        scrollInit: function() {
+            if ( the.options.scroll && the.options.scroll.height ) {
+                KTUtil.scrollDestroy(element);
+                KTUtil.scrollInit(element, {mobileNativeScroll: true, windowScroll: false, resetHeightOnDestroy: true, handleWindowResize: true, height: the.options.scroll.height, rememberPosition: the.options.scroll.rememberPosition});
+            } else {
+                KTUtil.scrollDestroy(element);
+            }           
+        },
+
+        /**
+         * Update scroll menu
+        */
+        scrollUpdate: function() {
+            if ( the.options.scroll && the.options.scroll.height ) {
+                KTUtil.scrollUpdate(element);
+            }
+        },
+
+        /**
+         * Scroll top
+        */
+        scrollTop: function() {
+            if ( the.options.scroll && the.options.scroll.height ) {
+                KTUtil.scrollTop(element);
+            }
+        },
+
+        /**
+         * Get submenu mode for current breakpoint and menu state
+         * @returns {KTMenu}
+         */
+        getSubmenuMode: function(el) {
+            if ( KTUtil.isInResponsiveRange('desktop') ) {
+                if (el && KTUtil.hasAttr(el, 'data-ktmenu-submenu-toggle') && KTUtil.attr(el, 'data-ktmenu-submenu-toggle') == 'hover') {
+                    return 'dropdown';
+                }
+
+                if ( KTUtil.isset(the.options.submenu, 'desktop.state.body') ) {
+                    if ( KTUtil.hasClasses(body, the.options.submenu.desktop.state.body) ) {
+                        return the.options.submenu.desktop.state.mode;
+                    } else {
+                        return the.options.submenu.desktop.default;
+                    }
+                } else if ( KTUtil.isset(the.options.submenu, 'desktop') ) {
+                    return the.options.submenu.desktop;
+                }
+            } else if ( KTUtil.isInResponsiveRange('tablet') && KTUtil.isset(the.options.submenu, 'tablet') ) {
+                return the.options.submenu.tablet;
+            } else if ( KTUtil.isInResponsiveRange('mobile') && KTUtil.isset(the.options.submenu, 'mobile') ) {
+                return the.options.submenu.mobile;
+            } else {
+                return false;
+            }
+        },
+
+        /**
+         * Get submenu mode for current breakpoint and menu state
+         * @returns {KTMenu}
+         */
+        isConditionalSubmenuDropdown: function() {
+            if ( KTUtil.isInResponsiveRange('desktop') && KTUtil.isset(the.options.submenu, 'desktop.state.body') ) {
+                return true;
+            } else {
+                return false;
+            }
+        },
+
+
+        /**
+         * Reset submenu attributes
+         * @returns {KTMenu}
+         */
+        resetSubmenuProps: function(e) {
+            var submenus = KTUtil.findAll(element, '.kt-menu__submenu');
+            if ( submenus ) {
+                for (var i = 0, len = submenus.length; i < len; i++) {
+                    KTUtil.css(submenus[0], 'display', '');
+                    KTUtil.css(submenus[0], 'overflow', '');                                        
+                }
+            }
+        },
+
+        /**
+         * Handles submenu hover toggle
+         * @returns {KTMenu}
+         */
+        handleSubmenuDrodownHoverEnter: function(e) {
+            if ( Plugin.getSubmenuMode(this) === 'accordion' ) {
+                return;
+            }
+
+            if ( the.resumeDropdownHover() === false ) {
+                return;
+            }
+
+            var item = this;
+
+            if ( item.getAttribute('data-hover') == '1' ) {
+                item.removeAttribute('data-hover');
+                clearTimeout( item.getAttribute('data-timeout') );
+                item.removeAttribute('data-timeout');
+                //Plugin.hideSubmenuDropdown(item, false);
+            }
+
+            // console.log('test!');
+
+            Plugin.showSubmenuDropdown(item);
+        },
+
+        /**
+         * Handles submenu hover toggle
+         * @returns {KTMenu}
+         */
+        handleSubmenuDrodownHoverExit: function(e) {
+            if ( the.resumeDropdownHover() === false ) {
+                return;
+            }
+
+            if ( Plugin.getSubmenuMode(this) === 'accordion' ) {
+                return;
+            }
+
+            var item = this;
+            var time = the.options.dropdown.timeout;
+
+            var timeout = setTimeout(function() {
+                if ( item.getAttribute('data-hover') == '1' ) {
+                    Plugin.hideSubmenuDropdown(item, true);
+                } 
+            }, time);
+
+            item.setAttribute('data-hover', '1');
+            item.setAttribute('data-timeout', timeout);  
+        },
+
+        /**
+         * Handles submenu click toggle
+         * @returns {KTMenu}
+         */
+        handleSubmenuDropdownClick: function(e) {
+            if ( Plugin.getSubmenuMode(this) === 'accordion' ) {
+                return;
+            }
+ 
+            var item = this.closest('.kt-menu__item');
+
+            if ( item.getAttribute('data-ktmenu-submenu-mode') == 'accordion' ) {
+                return;
+            }
+
+            if ( KTUtil.hasClass(item, 'kt-menu__item--hover') === false ) {
+                KTUtil.addClass(item, 'kt-menu__item--open-dropdown');
+                Plugin.showSubmenuDropdown(item);
+            } else {
+                KTUtil.removeClass(item, 'kt-menu__item--open-dropdown' );
+                Plugin.hideSubmenuDropdown(item, true);
+            }
+
+            e.preventDefault();
+        },
+
+        /**
+         * Handles tab click toggle
+         * @returns {KTMenu}
+         */
+        handleSubmenuDropdownTabClick: function(e) {
+            if (Plugin.getSubmenuMode(this) === 'accordion') {
+                return;
+            }
+
+            var item = this.closest('.kt-menu__item');
+
+            if (item.getAttribute('data-ktmenu-submenu-mode') == 'accordion') {
+                return;
+            }
+
+            if (KTUtil.hasClass(item, 'kt-menu__item--hover') == false) {
+                KTUtil.addClass(item, 'kt-menu__item--open-dropdown');
+                Plugin.showSubmenuDropdown(item);
+            }
+
+            e.preventDefault();
+        },
+
+        /**
+         * Handles link click
+         * @returns {KTMenu}
+         */
+        handleLinkClick: function(e) {
+            var submenu = this.closest('.kt-menu__item.kt-menu__item--submenu'); //
+
+            var result = Plugin.eventTrigger('linkClick', this, e);
+            if (result === false) {
+                return;
+            } 
+
+            if ( submenu && Plugin.getSubmenuMode(submenu) === 'dropdown' ) {
+                Plugin.hideSubmenuDropdowns();
+            }
+        },
+
+        /**
+         * Handles submenu dropdown close on link click
+         * @returns {KTMenu}
+         */
+        handleSubmenuDropdownClose: function(e, el) {
+            // exit if its not submenu dropdown mode
+            if (Plugin.getSubmenuMode(el) === 'accordion') {
+                return;
+            }
+
+            var shown = element.querySelectorAll('.kt-menu__item.kt-menu__item--submenu.kt-menu__item--hover:not(.kt-menu__item--tabs)');
+
+            // check if currently clicked link's parent item ha
+            if (shown.length > 0 && KTUtil.hasClass(el, 'kt-menu__toggle') === false && el.querySelectorAll('.kt-menu__toggle').length === 0) {
+                // close opened dropdown menus
+                for (var i = 0, len = shown.length; i < len; i++) {
+                    Plugin.hideSubmenuDropdown(shown[0], true);
+                }
+            }
+        },
+
+        /**
+         * helper functions
+         * @returns {KTMenu}
+         */
+        handleSubmenuAccordion: function(e, el) {
+            var query;
+            var item = el ? el : this;
+
+            if ( Plugin.getSubmenuMode(el) === 'dropdown' && (query = item.closest('.kt-menu__item') ) ) {
+                if (query.getAttribute('data-ktmenu-submenu-mode') != 'accordion' ) {
+                    e.preventDefault();
+                    return;
+                }
+            }
+
+            var li = item.closest('.kt-menu__item');
+            var submenu = KTUtil.child(li, '.kt-menu__submenu, .kt-menu__inner');
+
+            if (KTUtil.hasClass(item.closest('.kt-menu__item'), 'kt-menu__item--open-always')) {
+                return;
+            }
+
+            if ( li && submenu ) {
+                e.preventDefault();
+                var speed = the.options.accordion.slideSpeed;
+                var hasClosables = false;
+
+                if ( KTUtil.hasClass(li, 'kt-menu__item--open') === false ) {
+                    // hide other accordions                    
+                    if ( the.options.accordion.expandAll === false ) {
+                        var subnav = item.closest('.kt-menu__nav, .kt-menu__subnav');
+                        var closables = KTUtil.children(subnav, '.kt-menu__item.kt-menu__item--open.kt-menu__item--submenu:not(.kt-menu__item--here):not(.kt-menu__item--open-always)');
+
+                        if ( subnav && closables ) {
+                            for (var i = 0, len = closables.length; i < len; i++) {
+                                var el_ = closables[0];
+                                var submenu_ = KTUtil.child(el_, '.kt-menu__submenu');
+                                if ( submenu_ ) {
+                                    KTUtil.slideUp(submenu_, speed, function() {
+                                        Plugin.scrollUpdate();
+                                        KTUtil.removeClass(el_, 'kt-menu__item--open');
+                                    });                    
+                                }
+                            }
+                        }
+                    }
+
+                    KTUtil.slideDown(submenu, speed, function() {
+                        Plugin.scrollToItem(item);
+                        Plugin.scrollUpdate();
+                        
+                        Plugin.eventTrigger('submenuToggle', submenu, e);
+                    });
+                
+                    KTUtil.addClass(li, 'kt-menu__item--open');
+
+                } else {
+                    KTUtil.slideUp(submenu, speed, function() {
+                        Plugin.scrollToItem(item);
+                        Plugin.eventTrigger('submenuToggle', submenu, e);
+                    });
+
+                    KTUtil.removeClass(li, 'kt-menu__item--open');
+                }
+            }
+        },
+
+        /**
+         * scroll to item function
+         * @returns {KTMenu}
+         */
+        scrollToItem: function(item) {
+            // handle auto scroll for accordion submenus
+            if ( KTUtil.isInResponsiveRange('desktop') && the.options.accordion.autoScroll && element.getAttribute('data-ktmenu-scroll') !== '1' ) {
+                KTUtil.scrollTo(item, the.options.accordion.autoScrollSpeed);
+            }
+        },
+
+        /**
+         * Hide submenu dropdown
+         * @returns {KTMenu}
+         */
+        hideSubmenuDropdown: function(item, classAlso) {
+            // remove submenu activation class
+            if ( classAlso ) {
+                KTUtil.removeClass(item, 'kt-menu__item--hover');
+                KTUtil.removeClass(item, 'kt-menu__item--active-tab');
+            }
+
+            // clear timeout
+            item.removeAttribute('data-hover');
+
+            if ( item.getAttribute('data-ktmenu-dropdown-toggle-class') ) {
+                KTUtil.removeClass(body, item.getAttribute('data-ktmenu-dropdown-toggle-class'));
+            }
+
+            var timeout = item.getAttribute('data-timeout');
+            item.removeAttribute('data-timeout');
+            clearTimeout(timeout);
+        },
+
+        /**
+         * Hide submenu dropdowns
+         * @returns {KTMenu}
+         */
+        hideSubmenuDropdowns: function() {
+            var items;
+            if ( items = element.querySelectorAll('.kt-menu__item--submenu.kt-menu__item--hover:not(.kt-menu__item--tabs):not([data-ktmenu-submenu-toggle="tab"])') ) {
+                for (var j = 0, cnt = items.length; j < cnt; j++) {
+                    Plugin.hideSubmenuDropdown(items[j], true);
+                }
+            }
+        },
+
+        /**
+         * helper functions
+         * @returns {KTMenu}
+         */
+        showSubmenuDropdown: function(item) {
+            // close active submenus
+            var list = element.querySelectorAll('.kt-menu__item--submenu.kt-menu__item--hover, .kt-menu__item--submenu.kt-menu__item--active-tab');
+
+            if ( list ) {
+                for (var i = 0, len = list.length; i < len; i++) {
+                    var el = list[i];
+                    if ( item !== el && el.contains(item) === false && item.contains(el) === false ) {
+                        Plugin.hideSubmenuDropdown(el, true);
+                    }
+                }
+            } 
+
+            // add submenu activation class
+            KTUtil.addClass(item, 'kt-menu__item--hover');
+            
+            if ( item.getAttribute('data-ktmenu-dropdown-toggle-class') ) {
+                KTUtil.addClass(body, item.getAttribute('data-ktmenu-dropdown-toggle-class'));
+            }
+        },
+
+        /**
+         * Handles submenu slide toggle
+         * @returns {KTMenu}
+         */
+        createSubmenuDropdownClickDropoff: function(el) {
+            var query;
+            var zIndex = (query = KTUtil.child(el, '.kt-menu__submenu') ? KTUtil.css(query, 'z-index') : 0) - 1;
+
+            var dropoff = document.createElement('<div class="kt-menu__dropoff" style="background: transparent; position: fixed; top: 0; bottom: 0; left: 0; right: 0; z-index: ' + zIndex + '"></div>');
+
+            body.appendChild(dropoff);
+
+            KTUtil.addEvent(dropoff, 'click', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                KTUtil.remove(this);
+                Plugin.hideSubmenuDropdown(el, true);
+            });
+        },
+
+        /**
+         * Handles submenu hover toggle
+         * @returns {KTMenu}
+         */
+        pauseDropdownHover: function(time) {
+            var date = new Date();
+
+            the.pauseDropdownHoverTime = date.getTime() + time;
+        },
+
+        /**
+         * Handles submenu hover toggle
+         * @returns {KTMenu}
+         */
+        resumeDropdownHover: function() {
+            var date = new Date();
+
+            return (date.getTime() > the.pauseDropdownHoverTime ? true : false);
+        },
+
+        /**
+         * Reset menu's current active item
+         * @returns {KTMenu}
+         */
+        resetActiveItem: function(item) {
+            var list;
+            var parents;
+
+            list = element.querySelectorAll('.kt-menu__item--active');
+            
+            for (var i = 0, len = list.length; i < len; i++) {
+                var el = list[0];
+                KTUtil.removeClass(el, 'kt-menu__item--active');
+                KTUtil.hide( KTUtil.child(el, '.kt-menu__submenu') );
+                parents = KTUtil.parents(el, '.kt-menu__item--submenu') || [];
+
+                for (var i_ = 0, len_ = parents.length; i_ < len_; i_++) {
+                    var el_ = parents[i];
+                    KTUtil.removeClass(el_, 'kt-menu__item--open');
+                    KTUtil.hide( KTUtil.child(el_, '.kt-menu__submenu') );
+                }
+            }
+
+            // close open submenus
+            if ( the.options.accordion.expandAll === false ) {
+                if ( list = element.querySelectorAll('.kt-menu__item--open') ) {
+                    for (var i = 0, len = list.length; i < len; i++) {
+                        KTUtil.removeClass(parents[0], 'kt-menu__item--open');
+                    }
+                }
+            }
+        },
+
+        /**
+         * Sets menu's active item
+         * @returns {KTMenu}
+         */
+        setActiveItem: function(item) {
+            // reset current active item
+            Plugin.resetActiveItem();
+
+            var parents = KTUtil.parents(item, '.kt-menu__item--submenu') || [];
+            for (var i = 0, len = parents.length; i < len; i++) {
+                KTUtil.addClass(KTUtil.get(parents[i]), 'kt-menu__item--open');
+            }
+
+            KTUtil.addClass(KTUtil.get(item), 'kt-menu__item--active');
+        },
+
+        /**
+         * Returns page breadcrumbs for the menu's active item
+         * @returns {KTMenu}
+         */
+        getBreadcrumbs: function(item) {
+            var query;
+            var breadcrumbs = [];
+            var link = KTUtil.child(item, '.kt-menu__link');
+
+            breadcrumbs.push({
+                text: (query = KTUtil.child(link, '.kt-menu__link-text') ? query.innerHTML : ''),
+                title: link.getAttribute('title'),
+                href: link.getAttribute('href')
+            });
+
+            var parents = KTUtil.parents(item, '.kt-menu__item--submenu');
+            for (var i = 0, len = parents.length; i < len; i++) {
+                var submenuLink = KTUtil.child(parents[i], '.kt-menu__link');
+
+                breadcrumbs.push({
+                    text: (query = KTUtil.child(submenuLink, '.kt-menu__link-text') ? query.innerHTML : ''),
+                    title: submenuLink.getAttribute('title'),
+                    href: submenuLink.getAttribute('href')
+                });
+            }
+
+            return  breadcrumbs.reverse();
+        },
+
+        /**
+         * Returns page title for the menu's active item
+         * @returns {KTMenu}
+         */
+        getPageTitle: function(item) {
+            var query;
+
+            return (query = KTUtil.child(item, '.kt-menu__link-text') ? query.innerHTML : '');
+        },
+
+        /**
+         * Trigger events
+         */
+        eventTrigger: function(name, target, e) {
+            for (var i = 0; i < the.events.length; i++ ) {
+                var event = the.events[i];
+                if ( event.name == name ) {
+                    if ( event.one == true ) {
+                        if ( event.fired == false ) {
+                            the.events[i].fired = true;
+                            return event.handler.call(this, target, e);
+                        }
+                    } else {
+                        return event.handler.call(this, target, e);
+                    }
+                }
+            }
+        },
+
+        addEvent: function(name, handler, one) {
+            the.events.push({
+                name: name,
+                handler: handler,
+                one: one,
+                fired: false
+            });
+        },
+
+        removeEvent: function(name) {
+            if (the.events[name]) {
+                delete the.events[name];
+            }
+        }
+    };
+
+    //////////////////////////
+    // ** Public Methods ** //
+    //////////////////////////
+
+    /**
+     * Set default options 
+     */
+
+    the.setDefaults = function(options) {
+        defaultOptions = options;
+    };
+
+    /**
+     * Update scroll
+     */
+    the.scrollUpdate = function() {
+        return Plugin.scrollUpdate();
+    };
+
+    /**
+     * Re-init scroll
+     */
+    the.scrollReInit = function() {
+        return Plugin.scrollInit();
+    };
+
+    /**
+     * Scroll top
+     */
+    the.scrollTop = function() {
+        return Plugin.scrollTop();
+    };
+
+    /**
+     * Set active menu item
+     */
+    the.setActiveItem = function(item) {
+        return Plugin.setActiveItem(item);
+    };
+
+    the.reload = function() {
+        return Plugin.reload();
+    };
+
+    the.update = function(options) {
+        return Plugin.update(options);
+    };
+
+    /**
+     * Set breadcrumb for menu item
+     */
+    the.getBreadcrumbs = function(item) {
+        return Plugin.getBreadcrumbs(item);
+    };
+
+    /**
+     * Set page title for menu item
+     */
+    the.getPageTitle = function(item) {
+        return Plugin.getPageTitle(item);
+    };
+
+    /**
+     * Get submenu mode
+     */
+    the.getSubmenuMode = function(el) {
+        return Plugin.getSubmenuMode(el);
+    };
+
+    /**
+     * Hide dropdown
+     * @returns {Object}
+     */
+    the.hideDropdown = function(item) {
+        Plugin.hideSubmenuDropdown(item, true);
+    };
+
+    /**
+     * Hide dropdowns
+     * @returns {Object}
+     */
+    the.hideDropdowns = function() {
+        Plugin.hideSubmenuDropdowns();
+    };
+
+    /**
+     * Disable menu for given time
+     * @returns {Object}
+     */
+    the.pauseDropdownHover = function(time) {
+        Plugin.pauseDropdownHover(time);
+    };
+
+    /**
+     * Disable menu for given time
+     * @returns {Object}
+     */
+    the.resumeDropdownHover = function() {
+        return Plugin.resumeDropdownHover();
+    };
+
+    /**
+     * Register event
+     */
+    the.on = function(name, handler) {
+        return Plugin.addEvent(name, handler);
+    };
+
+    the.off = function(name) {
+        return Plugin.removeEvent(name);
+    };
+
+    the.one = function(name, handler) {
+        return Plugin.addEvent(name, handler, true);
+    };
+
+    ///////////////////////////////
+    // ** Plugin Construction ** //
+    ///////////////////////////////
+
+    // Run plugin
+    Plugin.construct.apply(the, [options]);
+
+    // Handle plugin on window resize
+    KTUtil.addResizeHandler(function() {
+        if (init) {
+            the.reload();
+        }  
+    });
+
+    // Init done
+    init = true;
+
+    // Return plugin instance
+    return the;
+};
+
+// Plugin global lazy initialization
+document.addEventListener("click", function (e) {
+    var body = KTUtil.get('body');
+    var query;
+    if ( query = body.querySelectorAll('.kt-menu__nav .kt-menu__item.kt-menu__item--submenu.kt-menu__item--hover:not(.kt-menu__item--tabs)[data-ktmenu-submenu-toggle="click"]') ) {
+        for (var i = 0, len = query.length; i < len; i++) {
+            var element = query[i].closest('.kt-menu__nav').parentNode;
+
+            if ( element ) {
+                var the = KTUtil.data(element).get('menu');
+
+                if ( !the ) {
+                    break;
+                }
+
+                if ( !the || the.getSubmenuMode() !== 'dropdown' ) {
+                    break;
+                }
+
+                if ( e.target !== element && element.contains(e.target) === false ) {
+                    the.hideDropdowns();
+                }
+            }            
+        }
+    } 
 });
+"use strict";
+var KTOffcanvas = function(elementId, options) {
+    // Main object
+    var the = this;
+    var init = false;
+
+    // Get element object
+    var element = KTUtil.get(elementId);
+    var body = KTUtil.get('body');
+
+    if (!element) {
+        return;
+    }
+
+    // Default options
+    var defaultOptions = {};
+
+    ////////////////////////////
+    // ** Private Methods  ** //
+    ////////////////////////////
+
+    var Plugin = {
+        construct: function(options) {
+            if (KTUtil.data(element).has('offcanvas')) {
+                the = KTUtil.data(element).get('offcanvas');
+            } else {
+                // reset offcanvas
+                Plugin.init(options);
+                
+                // build offcanvas
+                Plugin.build();
+
+                KTUtil.data(element).set('offcanvas', the);
+            }
+
+            return the;
+        },
+
+        init: function(options) {
+            the.events = [];
+
+            // merge default and user defined options
+            the.options = KTUtil.deepExtend({}, defaultOptions, options);
+            the.overlay;
+
+            the.classBase = the.options.baseClass;
+            the.classShown = the.classBase + '--on';
+            the.classOverlay = the.classBase + '-overlay';
+
+            the.state = KTUtil.hasClass(element, the.classShown) ? 'shown' : 'hidden';
+        },
+
+        build: function() {
+            // offcanvas toggle
+            if (the.options.toggleBy) {
+                if (typeof the.options.toggleBy === 'string') { 
+                    KTUtil.addEvent( the.options.toggleBy, 'click', function(e) {
+                        e.preventDefault();
+                        Plugin.toggle();
+                    }); 
+                } else if (the.options.toggleBy && the.options.toggleBy[0]) {
+                    if (the.options.toggleBy[0].target) {
+                        for (var i in the.options.toggleBy) { 
+                            KTUtil.addEvent( the.options.toggleBy[i].target, 'click', function(e) {
+                                e.preventDefault();
+                                Plugin.toggle();
+                            }); 
+                        }
+                    } else {
+                        for (var i in the.options.toggleBy) { 
+                            KTUtil.addEvent( the.options.toggleBy[i], 'click', function(e) {
+                                e.preventDefault();
+                                Plugin.toggle();
+                            }); 
+                        }
+                    }
+                    
+                } else if (the.options.toggleBy && the.options.toggleBy.target) {
+                    KTUtil.addEvent( the.options.toggleBy.target, 'click', function(e) {
+                        e.preventDefault();
+                        Plugin.toggle();
+                    }); 
+                } 
+            }
+
+            // offcanvas close
+            var closeBy = KTUtil.get(the.options.closeBy);
+            if (closeBy) {
+                KTUtil.addEvent(closeBy, 'click', function(e) {
+                    e.preventDefault();
+                    Plugin.hide();
+                });
+            }
+
+            // Window resize
+            KTUtil.addResizeHandler(function() {
+                if (parseInt(KTUtil.css(element, 'left')) >= 0 || parseInt(KTUtil.css(element, 'right') >= 0) || KTUtil.css(element, 'position') != 'fixed') {
+                    KTUtil.css(element, 'opacity', '1');
+                }
+            });
+        },
+
+        isShown: function(target) {
+            return (the.state == 'shown' ? true : false);
+        },
+
+        toggle: function() {;
+            Plugin.eventTrigger('toggle'); 
+
+            if (the.state == 'shown') {
+                Plugin.hide(this);
+            } else {
+                Plugin.show(this);
+            }
+        },
+
+        show: function(target) {
+            if (the.state == 'shown') {
+                return;
+            }
+
+            Plugin.eventTrigger('beforeShow');
+
+            Plugin.togglerClass(target, 'show');
+
+            // Offcanvas panel
+            KTUtil.addClass(body, the.classShown);
+            KTUtil.addClass(element, the.classShown);
+            KTUtil.css(element, 'opacity', '1');
+
+            the.state = 'shown';
+
+            if (the.options.overlay) {
+                the.overlay = KTUtil.insertAfter(document.createElement('DIV') , element );
+                KTUtil.addClass(the.overlay, the.classOverlay);
+                KTUtil.addEvent(the.overlay, 'click', function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    Plugin.hide(target);       
+                });
+            }
+
+            Plugin.eventTrigger('afterShow');
+        },
+
+        hide: function(target) {
+            if (the.state == 'hidden') {
+                return;
+            }
+
+            Plugin.eventTrigger('beforeHide');
+
+            Plugin.togglerClass(target, 'hide');
+
+            KTUtil.removeClass(body, the.classShown);
+            KTUtil.removeClass(element, the.classShown);
+
+            the.state = 'hidden';
+
+            if (the.options.overlay && the.overlay) {
+                KTUtil.remove(the.overlay);
+            }
+
+            KTUtil.transitionEnd(element, function() {
+                KTUtil.css(element, 'opacity', '0');
+            });
+
+            Plugin.eventTrigger('afterHide');
+        },
+
+        togglerClass: function(target, mode) {
+            // Toggler
+            var id = KTUtil.attr(target, 'id');
+            var toggleBy;
+
+            if (the.options.toggleBy && the.options.toggleBy[0] && the.options.toggleBy[0].target) {
+                for (var i in the.options.toggleBy) {
+                    if (the.options.toggleBy[i].target === id) {
+                        toggleBy = the.options.toggleBy[i];
+                    }        
+                }
+            } else if (the.options.toggleBy && the.options.toggleBy.target) {
+                toggleBy = the.options.toggleBy;
+            }
+
+            if (toggleBy) {                
+                var el = KTUtil.get(toggleBy.target);
+                
+                if (mode === 'show') {
+                    KTUtil.addClass(el, toggleBy.state);
+                }
+
+                if (mode === 'hide') {
+                    KTUtil.removeClass(el, toggleBy.state);
+                }
+            }
+        },
+
+        eventTrigger: function(name, args) {
+            for (var i = 0; i < the.events.length; i++) {
+                var event = the.events[i];
+                if (event.name == name) {
+                    if (event.one == true) {
+                        if (event.fired == false) {
+                            the.events[i].fired = true;
+                            event.handler.call(this, the, args);
+                        }
+                    } else {
+                        event.handler.call(this, the, args);
+                    }
+                }
+            }
+        },
+
+        addEvent: function(name, handler, one) {
+            the.events.push({
+                name: name,
+                handler: handler,
+                one: one,
+                fired: false
+            });
+        }
+    };
+
+    //////////////////////////
+    // ** Public Methods ** //
+    //////////////////////////
+    the.setDefaults = function(options) {
+        defaultOptions = options;
+    };
+
+    the.isShown = function() {
+        return Plugin.isShown();
+    };
+
+    the.hide = function() {
+        return Plugin.hide();
+    };
+
+    the.show = function() {
+        return Plugin.show();
+    };
+
+    the.on = function(name, handler) {
+        return Plugin.addEvent(name, handler);
+    };
+
+    the.one = function(name, handler) {
+        return Plugin.addEvent(name, handler, true);
+    };
+
+    ///////////////////////////////
+    // ** Plugin Construction ** //
+    ///////////////////////////////
+
+    // Run plugin
+    Plugin.construct.apply(the, [options]);
+
+    // Init done
+    init = true;
+
+    // Return plugin instance
+    return the;
+};
+"use strict";
+// plugin setup
+var KTPortlet = function(elementId, options) {
+    // Main object
+    var the = this;
+    var init = false;
+
+    // Get element object
+    var element = KTUtil.get(elementId);
+    var body = KTUtil.get('body');
+
+    if (!element) {
+        return;
+    }
+
+    // Default options
+    var defaultOptions = {
+        bodyToggleSpeed: 400,
+        tooltips: true,
+        tools: {
+            toggle: {
+                collapse: 'Collapse',
+                expand: 'Expand'
+            },
+            reload: 'Reload',
+            remove: 'Remove',
+            fullscreen: {
+                on: 'Fullscreen',
+                off: 'Exit Fullscreen'
+            }
+        },
+        sticky: {
+            offset: 300,
+            zIndex: 101
+        }
+    };
+
+    ////////////////////////////
+    // ** Private Methods  ** //
+    ////////////////////////////
+
+    var Plugin = {
+        /**
+         * Construct
+         */
+
+        construct: function(options) {
+            if (KTUtil.data(element).has('portlet')) {
+                the = KTUtil.data(element).get('portlet');
+            } else {
+                // reset menu
+                Plugin.init(options);
+
+                // build menu
+                Plugin.build();
+
+                KTUtil.data(element).set('portlet', the);
+            }
+
+            return the;
+        },
+
+        /**
+         * Init portlet
+         */
+        init: function(options) {
+            the.element = element;
+            the.events = [];
+
+            // merge default and user defined options
+            the.options = KTUtil.deepExtend({}, defaultOptions, options);
+            the.head = KTUtil.child(element, '.kt-portlet__head');
+            the.foot = KTUtil.child(element, '.kt-portlet__foot');
+
+            if (KTUtil.child(element, '.kt-portlet__body')) {
+                the.body = KTUtil.child(element, '.kt-portlet__body');
+            } else if (KTUtil.child(element, '.kt-form')) {
+                the.body = KTUtil.child(element, '.kt-form');
+            }
+        },
+
+        /**
+         * Build Form Wizard
+         */
+        build: function() {
+            // Remove
+            var remove = KTUtil.find(the.head, '[data-ktportlet-tool=remove]');
+            if (remove) {
+                KTUtil.addEvent(remove, 'click', function(e) {
+                    e.preventDefault();
+                    Plugin.remove();
+                });
+            }
+
+            // Reload
+            var reload = KTUtil.find(the.head, '[data-ktportlet-tool=reload]');
+            if (reload) {
+                KTUtil.addEvent(reload, 'click', function(e) {
+                    e.preventDefault();
+                    Plugin.reload();
+                });
+            }
+
+            // Toggle
+            var toggle = KTUtil.find(the.head, '[data-ktportlet-tool=toggle]');
+            if (toggle) {
+                KTUtil.addEvent(toggle, 'click', function(e) {
+                    e.preventDefault();
+                    Plugin.toggle();
+                });
+            }
+
+            //== Fullscreen
+            var fullscreen = KTUtil.find(the.head, '[data-ktportlet-tool=fullscreen]');
+            if (fullscreen) {
+                KTUtil.addEvent(fullscreen, 'click', function(e) {
+                    e.preventDefault();
+                    Plugin.fullscreen();
+                });
+            }
+
+            Plugin.setupTooltips();
+        },
+
+        /**
+         * Enable stickt mode
+         */
+        initSticky: function() {
+            var lastScrollTop = 0;
+            var offset = the.options.sticky.offset;
+
+            if (!the.head) {
+                return;
+            }
+
+	        window.addEventListener('scroll', Plugin.onScrollSticky);
+        },
+
+	    /**
+	     * Window scroll handle event for sticky portlet
+	     */
+	    onScrollSticky: function(e) {
+		    var offset = the.options.sticky.offset;
+		    if(isNaN(offset)) return;
+
+		    var st = document.documentElement.scrollTop;
+
+		    if (st >= offset && KTUtil.hasClass(body, 'kt-portlet--sticky') === false) {
+			    Plugin.eventTrigger('stickyOn');
+
+			    KTUtil.addClass(body, 'kt-portlet--sticky');
+			    KTUtil.addClass(element, 'kt-portlet--sticky');
+
+			    Plugin.updateSticky();
+
+		    } else if ((st*1.5) <= offset && KTUtil.hasClass(body, 'kt-portlet--sticky')) {
+			    // back scroll mode
+			    Plugin.eventTrigger('stickyOff');
+
+			    KTUtil.removeClass(body, 'kt-portlet--sticky');
+			    KTUtil.removeClass(element, 'kt-portlet--sticky');
+
+			    Plugin.resetSticky();
+		    }
+	    },
+
+        updateSticky: function() {
+            if (!the.head) {
+                return;
+            }
+
+            var top;
+
+            if (KTUtil.hasClass(body, 'kt-portlet--sticky')) {
+                if (the.options.sticky.position.top instanceof Function) {
+                    top = parseInt(the.options.sticky.position.top.call(this, the));
+                } else {
+                    top = parseInt(the.options.sticky.position.top);
+                }
+
+                var left;
+                if (the.options.sticky.position.left instanceof Function) {
+                    left = parseInt(the.options.sticky.position.left.call(this, the));
+                } else {
+                    left = parseInt(the.options.sticky.position.left);
+                }
+
+                var right;
+                if (the.options.sticky.position.right instanceof Function) {
+                    right = parseInt(the.options.sticky.position.right.call(this, the));
+                } else {
+                    right = parseInt(the.options.sticky.position.right);
+                }
+
+                KTUtil.css(the.head, 'z-index', the.options.sticky.zIndex);
+                KTUtil.css(the.head, 'top', top + 'px');
+                KTUtil.css(the.head, 'left', left + 'px');
+                KTUtil.css(the.head, 'right', right + 'px');
+            }
+        },
+
+        resetSticky: function() {
+            if (!the.head) {
+                return;
+            }
+
+            if (KTUtil.hasClass(body, 'kt-portlet--sticky') === false) {
+                KTUtil.css(the.head, 'z-index', '');
+                KTUtil.css(the.head, 'top', '');
+                KTUtil.css(the.head, 'left', '');
+                KTUtil.css(the.head, 'right', '');
+            }
+        },
+
+        /**
+         * Remove portlet
+         */
+        remove: function() {
+            if (Plugin.eventTrigger('beforeRemove') === false) {
+                return;
+            }
+
+            if (KTUtil.hasClass(body, 'kt-portlet--fullscreen') && KTUtil.hasClass(element, 'kt-portlet--fullscreen')) {
+                Plugin.fullscreen('off');
+            }
+
+            Plugin.removeTooltips();
+
+            KTUtil.remove(element);
+
+            Plugin.eventTrigger('afterRemove');
+        },
+
+        /**
+         * Set content
+         */
+        setContent: function(html) {
+            if (html) {
+                the.body.innerHTML = html;
+            }
+        },
+
+        /**
+         * Get body
+         */
+        getBody: function() {
+            return the.body;
+        },
+
+        /**
+         * Get self
+         */
+        getSelf: function() {
+            return element;
+        },
+
+        /**
+         * Setup tooltips
+         */
+        setupTooltips: function() {
+            if (the.options.tooltips) {
+                var collapsed = KTUtil.hasClass(element, 'kt-portlet--collapse') || KTUtil.hasClass(element, 'kt-portlet--collapsed');
+                var fullscreenOn = KTUtil.hasClass(body, 'kt-portlet--fullscreen') && KTUtil.hasClass(element, 'kt-portlet--fullscreen');
+
+                //== Remove
+                var remove = KTUtil.find(the.head, '[data-ktportlet-tool=remove]');
+                if (remove) {
+                    var placement = (fullscreenOn ? 'bottom' : 'top');
+                    var tip = new Tooltip(remove, {
+                        title: the.options.tools.remove,
+                        placement: placement,
+                        offset: (fullscreenOn ? '0,10px,0,0' : '0,5px'),
+                        trigger: 'hover',
+                        template: '<div class="tooltip tooltip-portlet tooltip bs-tooltip-' + placement + '" role="tooltip">\
+                            <div class="tooltip-arrow arrow"></div>\
+                            <div class="tooltip-inner"></div>\
+                        </div>'
+                    });
+
+                    KTUtil.data(remove).set('tooltip', tip);
+                }
+
+                //== Reload
+                var reload = KTUtil.find(the.head, '[data-ktportlet-tool=reload]');
+                if (reload) {
+                    var placement = (fullscreenOn ? 'bottom' : 'top');
+                    var tip = new Tooltip(reload, {
+                        title: the.options.tools.reload,
+                        placement: placement,
+                        offset: (fullscreenOn ? '0,10px,0,0' : '0,5px'),
+                        trigger: 'hover',
+                        template: '<div class="tooltip tooltip-portlet tooltip bs-tooltip-' + placement + '" role="tooltip">\
+                            <div class="tooltip-arrow arrow"></div>\
+                            <div class="tooltip-inner"></div>\
+                        </div>'
+                    });
+
+                    KTUtil.data(reload).set('tooltip', tip);
+                }
+
+                //== Toggle
+                var toggle = KTUtil.find(the.head, '[data-ktportlet-tool=toggle]');
+                if (toggle) {
+                    var placement = (fullscreenOn ? 'bottom' : 'top');
+                    var tip = new Tooltip(toggle, {
+                        title: (collapsed ? the.options.tools.toggle.expand : the.options.tools.toggle.collapse),
+                        placement: placement,
+                        offset: (fullscreenOn ? '0,10px,0,0' : '0,5px'),
+                        trigger: 'hover',
+                        template: '<div class="tooltip tooltip-portlet tooltip bs-tooltip-' + placement + '" role="tooltip">\
+                            <div class="tooltip-arrow arrow"></div>\
+                            <div class="tooltip-inner"></div>\
+                        </div>'
+                    });
+
+                    KTUtil.data(toggle).set('tooltip', tip);
+                }
+
+                //== Fullscreen
+                var fullscreen = KTUtil.find(the.head, '[data-ktportlet-tool=fullscreen]');
+                if (fullscreen) {
+                    var placement = (fullscreenOn ? 'bottom' : 'top');
+                    var tip = new Tooltip(fullscreen, {
+                        title: (fullscreenOn ? the.options.tools.fullscreen.off : the.options.tools.fullscreen.on),
+                        placement: placement,
+                        offset: (fullscreenOn ? '0,10px,0,0' : '0,5px'),
+                        trigger: 'hover',
+                        template: '<div class="tooltip tooltip-portlet tooltip bs-tooltip-' + placement + '" role="tooltip">\
+                            <div class="tooltip-arrow arrow"></div>\
+                            <div class="tooltip-inner"></div>\
+                        </div>'
+                    });
+
+                    KTUtil.data(fullscreen).set('tooltip', tip);
+                }
+            }
+        },
+
+        /**
+         * Setup tooltips
+         */
+        removeTooltips: function() {
+            if (the.options.tooltips) {
+                //== Remove
+                var remove = KTUtil.find(the.head, '[data-ktportlet-tool=remove]');
+                if (remove && KTUtil.data(remove).has('tooltip')) {
+                    KTUtil.data(remove).get('tooltip').dispose();
+                }
+
+                //== Reload
+                var reload = KTUtil.find(the.head, '[data-ktportlet-tool=reload]');
+                if (reload && KTUtil.data(reload).has('tooltip')) {
+                    KTUtil.data(reload).get('tooltip').dispose();
+                }
+
+                //== Toggle
+                var toggle = KTUtil.find(the.head, '[data-ktportlet-tool=toggle]');
+                if (toggle && KTUtil.data(toggle).has('tooltip')) {
+                    KTUtil.data(toggle).get('tooltip').dispose();
+                }
+
+                //== Fullscreen
+                var fullscreen = KTUtil.find(the.head, '[data-ktportlet-tool=fullscreen]');
+                if (fullscreen && KTUtil.data(fullscreen).has('tooltip')) {
+                    KTUtil.data(fullscreen).get('tooltip').dispose();
+                }
+            }
+        },
+
+        /**
+         * Reload
+         */
+        reload: function() {
+            Plugin.eventTrigger('reload');
+        },
+
+        /**
+         * Toggle
+         */
+        toggle: function() {
+            if (KTUtil.hasClass(element, 'kt-portlet--collapse') || KTUtil.hasClass(element, 'kt-portlet--collapsed')) {
+                Plugin.expand();
+            } else {
+                Plugin.collapse();
+            }
+        },
+
+        /**
+         * Collapse
+         */
+        collapse: function() {
+            if (Plugin.eventTrigger('beforeCollapse') === false) {
+                return;
+            }
+
+            KTUtil.slideUp(the.body, the.options.bodyToggleSpeed, function() {
+                Plugin.eventTrigger('afterCollapse');
+            });
+
+            KTUtil.addClass(element, 'kt-portlet--collapse');
+
+            var toggle = KTUtil.find(the.head, '[data-ktportlet-tool=toggle]');
+            if (toggle && KTUtil.data(toggle).has('tooltip')) {
+                KTUtil.data(toggle).get('tooltip').updateTitleContent(the.options.tools.toggle.expand);
+            }
+        },
+
+        /**
+         * Expand
+         */
+        expand: function() {
+            if (Plugin.eventTrigger('beforeExpand') === false) {
+                return;
+            }
+
+            KTUtil.slideDown(the.body, the.options.bodyToggleSpeed, function() {
+                Plugin.eventTrigger('afterExpand');
+            });
+
+            KTUtil.removeClass(element, 'kt-portlet--collapse');
+            KTUtil.removeClass(element, 'kt-portlet--collapsed');
+
+            var toggle = KTUtil.find(the.head, '[data-ktportlet-tool=toggle]');
+            if (toggle && KTUtil.data(toggle).has('tooltip')) {
+                KTUtil.data(toggle).get('tooltip').updateTitleContent(the.options.tools.toggle.collapse);
+            }
+        },
+
+        /**
+         * fullscreen
+         */
+        fullscreen: function(mode) {
+            var d = {};
+            var speed = 300;
+
+            if (mode === 'off' || (KTUtil.hasClass(body, 'kt-portlet--fullscreen') && KTUtil.hasClass(element, 'kt-portlet--fullscreen'))) {
+                Plugin.eventTrigger('beforeFullscreenOff');
+
+                KTUtil.removeClass(body, 'kt-portlet--fullscreen');
+                KTUtil.removeClass(element, 'kt-portlet--fullscreen');
+
+                Plugin.removeTooltips();
+                Plugin.setupTooltips();
+
+                if (the.foot) {
+                    KTUtil.css(the.body, 'margin-bottom', '');
+                    KTUtil.css(the.foot, 'margin-top', '');
+                }
+
+                Plugin.eventTrigger('afterFullscreenOff');
+            } else {
+                Plugin.eventTrigger('beforeFullscreenOn');
+
+                KTUtil.addClass(element, 'kt-portlet--fullscreen');
+                KTUtil.addClass(body, 'kt-portlet--fullscreen');
+
+                Plugin.removeTooltips();
+                Plugin.setupTooltips();
+
+
+                if (the.foot) {
+                    var height1 = parseInt(KTUtil.css(the.foot, 'height'));
+                    var height2 = parseInt(KTUtil.css(the.foot, 'height')) + parseInt(KTUtil.css(the.head, 'height'));
+                    KTUtil.css(the.body, 'margin-bottom', height1 + 'px');
+                    KTUtil.css(the.foot, 'margin-top', '-' + height2 + 'px');
+                }
+
+                Plugin.eventTrigger('afterFullscreenOn');
+            }
+        },
+
+        /**
+         * Trigger events
+         */
+        eventTrigger: function(name) {
+            //KTUtil.triggerCustomEvent(name);
+            for (var i = 0; i < the.events.length; i++) {
+                var event = the.events[i];
+                if (event.name == name) {
+                    if (event.one == true) {
+                        if (event.fired == false) {
+                            the.events[i].fired = true;
+                            event.handler.call(this, the);
+                        }
+                    } else {
+                        event.handler.call(this, the);
+                    }
+                }
+            }
+        },
+
+        addEvent: function(name, handler, one) {
+            the.events.push({
+                name: name,
+                handler: handler,
+                one: one,
+                fired: false
+            });
+
+            return the;
+        }
+    };
+
+    //////////////////////////
+    // ** Public Methods ** //
+    //////////////////////////
+
+    /**
+     * Set default options
+     */
+
+    the.setDefaults = function(options) {
+        defaultOptions = options;
+    };
+
+    /**
+     * Remove portlet
+     * @returns {KTPortlet}
+     */
+    the.remove = function() {
+        return Plugin.remove(html);
+    };
+
+    /**
+     * Remove portlet
+     * @returns {KTPortlet}
+     */
+    the.initSticky = function() {
+        return Plugin.initSticky();
+    };
+
+    /**
+     * Remove portlet
+     * @returns {KTPortlet}
+     */
+    the.updateSticky = function() {
+        return Plugin.updateSticky();
+    };
+
+    /**
+     * Remove portlet
+     * @returns {KTPortlet}
+     */
+    the.resetSticky = function() {
+        return Plugin.resetSticky();
+    };
+
+	/**
+	 * Destroy sticky portlet
+	 */
+	the.destroySticky = function() {
+		Plugin.resetSticky();
+		window.removeEventListener('scroll', Plugin.onScrollSticky);
+	};
+
+    /**
+     * Reload portlet
+     * @returns {KTPortlet}
+     */
+    the.reload = function() {
+        return Plugin.reload();
+    };
+
+    /**
+     * Set portlet content
+     * @returns {KTPortlet}
+     */
+    the.setContent = function(html) {
+        return Plugin.setContent(html);
+    };
+
+    /**
+     * Toggle portlet
+     * @returns {KTPortlet}
+     */
+    the.toggle = function() {
+        return Plugin.toggle();
+    };
+
+    /**
+     * Collapse portlet
+     * @returns {KTPortlet}
+     */
+    the.collapse = function() {
+        return Plugin.collapse();
+    };
+
+    /**
+     * Expand portlet
+     * @returns {KTPortlet}
+     */
+    the.expand = function() {
+        return Plugin.expand();
+    };
+
+    /**
+     * Fullscreen portlet
+     * @returns {MPortlet}
+     */
+    the.fullscreen = function() {
+        return Plugin.fullscreen('on');
+    };
+
+    /**
+     * Fullscreen portlet
+     * @returns {MPortlet}
+     */
+    the.unFullscreen = function() {
+        return Plugin.fullscreen('off');
+    };
+
+    /**
+     * Get portletbody
+     * @returns {jQuery}
+     */
+    the.getBody = function() {
+        return Plugin.getBody();
+    };
+
+    /**
+     * Get portletbody
+     * @returns {jQuery}
+     */
+    the.getSelf = function() {
+        return Plugin.getSelf();
+    };
+
+    /**
+     * Attach event
+     */
+    the.on = function(name, handler) {
+        return Plugin.addEvent(name, handler);
+    };
+
+    /**
+     * Attach event that will be fired once
+     */
+    the.one = function(name, handler) {
+        return Plugin.addEvent(name, handler, true);
+    };
+
+    // Construct plugin
+    Plugin.construct.apply(the, [options]);
+
+    return the;
+};
+"use strict";
+var KTScrolltop = function(elementId, options) {
+    // Main object
+    var the = this;
+    var init = false;
+
+    // Get element object
+    var element = KTUtil.get(elementId);
+    var body = KTUtil.get('body');
+
+    if (!element) {
+        return;
+    }
+
+    // Default options
+    var defaultOptions = {
+        offset: 300,
+        speed: 600,
+        toggleClass: 'kt-scrolltop--on'
+    };
+
+    ////////////////////////////
+    // ** Private Methods  ** //
+    ////////////////////////////
+
+    var Plugin = {
+        /**
+         * Run plugin
+         * @returns {mscrolltop}
+         */
+        construct: function(options) {
+            if (KTUtil.data(element).has('scrolltop')) {
+                the = KTUtil.data(element).get('scrolltop');
+            } else {
+                // reset scrolltop
+                Plugin.init(options);
+
+                // build scrolltop
+                Plugin.build();
+
+                KTUtil.data(element).set('scrolltop', the);
+            }
+
+            return the;
+        },
+
+        /**
+         * Handles subscrolltop click toggle
+         * @returns {mscrolltop}
+         */
+        init: function(options) {
+            the.events = [];
+
+            // merge default and user defined options
+            the.options = KTUtil.deepExtend({}, defaultOptions, options);
+        },
+
+        build: function() {
+            // handle window scroll
+            if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+                window.addEventListener('touchend', function() {
+                    Plugin.handle();
+                });
+
+                window.addEventListener('touchcancel', function() {
+                    Plugin.handle();
+                });
+
+                window.addEventListener('touchleave', function() {
+                    Plugin.handle();
+                });
+            } else {
+                window.addEventListener('scroll', function() { 
+                    Plugin.handle();
+                });
+            }
+
+            // handle button click 
+            KTUtil.addEvent(element, 'click', Plugin.scroll);
+        },
+
+        /**
+         * Handles scrolltop click scrollTop
+         */
+        handle: function() {
+            var pos = window.pageYOffset; // current vertical position
+            if (pos > the.options.offset) {
+                KTUtil.addClass(body, the.options.toggleClass);
+            } else {
+                KTUtil.removeClass(body, the.options.toggleClass);
+            }
+        },
+
+        /**
+         * Handles scrolltop click scrollTop
+         */
+        scroll: function(e) {
+            e.preventDefault();
+
+            KTUtil.scrollTop(0, the.options.speed);
+        },
+
+
+        /**
+         * Trigger events
+         */
+        eventTrigger: function(name, args) {
+            for (var i = 0; i < the.events.length; i++) {
+                var event = the.events[i];
+                if (event.name == name) {
+                    if (event.one == true) {
+                        if (event.fired == false) {
+                            the.events[i].fired = true;
+                            event.handler.call(this, the, args);
+                        }
+                    } else {
+                        event.handler.call(this, the, args);
+                    }
+                }
+            }
+        },
+
+        addEvent: function(name, handler, one) {
+            the.events.push({
+                name: name,
+                handler: handler,
+                one: one,
+                fired: false
+            });
+        }
+    };
+
+    //////////////////////////
+    // ** Public Methods ** //
+    //////////////////////////
+
+    /**
+     * Set default options 
+     */
+
+    the.setDefaults = function(options) {
+        defaultOptions = options;
+    };
+
+    /**
+     * Get subscrolltop mode
+     */
+    the.on = function(name, handler) {
+        return Plugin.addEvent(name, handler);
+    };
+
+    /**
+     * Set scrolltop content
+     * @returns {mscrolltop}
+     */
+    the.one = function(name, handler) {
+        return Plugin.addEvent(name, handler, true);
+    };
+
+    ///////////////////////////////
+    // ** Plugin Construction ** //
+    ///////////////////////////////
+
+    // Run plugin
+    Plugin.construct.apply(the, [options]);
+
+    // Init done
+    init = true;
+
+    // Return plugin instance
+    return the;
+};
+"use strict";
+
+// plugin setup
+var KTToggle = function(elementId, options) {
+    // Main object
+    var the = this;
+    var init = false;
+
+    // Get element object
+    var element = KTUtil.get(elementId);
+    var body = KTUtil.get('body');  
+
+    if (!element) {
+        return;
+    }
+
+    // Default options
+    var defaultOptions = {
+        togglerState: '',
+        targetState: ''
+    };    
+
+    ////////////////////////////
+    // ** Private Methods  ** //
+    ////////////////////////////
+
+    var Plugin = {
+        /**
+         * Construct
+         */
+
+        construct: function(options) {
+            if (KTUtil.data(element).has('toggle')) {
+                the = KTUtil.data(element).get('toggle');
+            } else {
+                // reset menu
+                Plugin.init(options);
+
+                // build menu
+                Plugin.build();
+
+                KTUtil.data(element).set('toggle', the);
+            }
+
+            return the;
+        },
+
+        /**
+         * Handles subtoggle click toggle
+         */
+        init: function(options) {
+            the.element = element;
+            the.events = [];
+
+            // merge default and user defined options
+            the.options = KTUtil.deepExtend({}, defaultOptions, options);
+
+            the.target = KTUtil.get(the.options.target);
+            the.targetState = the.options.targetState;
+            the.togglerState = the.options.togglerState;
+
+            the.state = KTUtil.hasClasses(the.target, the.targetState) ? 'on' : 'off';
+        },
+
+        /**
+         * Setup toggle
+         */
+        build: function() {
+            KTUtil.addEvent(element, 'mouseup', Plugin.toggle);
+        },
+        
+        /**
+         * Handles offcanvas click toggle
+         */
+        toggle: function(e) {
+            Plugin.eventTrigger('beforeToggle');
+
+            if (the.state == 'off') {
+                Plugin.toggleOn();
+            } else {
+                Plugin.toggleOff();
+            }
+
+            Plugin.eventTrigger('afterToggle');
+
+            e.preventDefault();
+
+            return the;
+        },
+
+        /**
+         * Handles toggle click toggle
+         */
+        toggleOn: function() {
+            Plugin.eventTrigger('beforeOn');
+
+            KTUtil.addClass(the.target, the.targetState);
+
+            if (the.togglerState) {
+                KTUtil.addClass(element, the.togglerState);
+            }
+
+            the.state = 'on';
+
+            Plugin.eventTrigger('afterOn');
+
+            Plugin.eventTrigger('toggle');
+
+            return the;
+        },
+
+        /**
+         * Handles toggle click toggle
+         */
+        toggleOff: function() {
+            Plugin.eventTrigger('beforeOff');
+
+            KTUtil.removeClass(the.target, the.targetState);
+
+            if (the.togglerState) {
+                KTUtil.removeClass(element, the.togglerState);
+            }
+
+            the.state = 'off';
+
+            Plugin.eventTrigger('afterOff');
+
+            Plugin.eventTrigger('toggle');
+
+            return the;
+        },
+
+        /**
+         * Trigger events
+         */
+        eventTrigger: function(name) {
+            for (var i = 0; i < the.events.length; i++) {
+                var event = the.events[i];
+
+                if (event.name == name) {
+                    if (event.one == true) {
+                        if (event.fired == false) {
+                            the.events[i].fired = true;                            
+                            event.handler.call(this, the);
+                        }
+                    } else {
+                        event.handler.call(this, the);
+                    }
+                }
+            }
+        },
+
+        addEvent: function(name, handler, one) {
+            the.events.push({
+                name: name,
+                handler: handler,
+                one: one,
+                fired: false
+            });
+
+            return the;
+        }
+    };
+
+    //////////////////////////
+    // ** Public Methods ** //
+    //////////////////////////
+
+    /**
+     * Set default options 
+     */
+
+    the.setDefaults = function(options) {
+        defaultOptions = options;
+    };
+
+    /**
+     * Get toggle state 
+     */
+    the.getState = function() {
+        return the.state;
+    };
+
+    /**
+     * Toggle 
+     */
+    the.toggle = function() {
+        return Plugin.toggle();
+    };
+
+    /**
+     * Toggle on 
+     */
+    the.toggleOn = function() {
+        return Plugin.toggleOn();
+    };
+
+    /**
+     * Toggle off 
+     */
+    the.toggleOff = function() {
+        return Plugin.toggleOff();
+    };
+
+    /**
+     * Attach event
+     * @returns {KTToggle}
+     */
+    the.on = function(name, handler) {
+        return Plugin.addEvent(name, handler);
+    };
+
+    /**
+     * Attach event that will be fired once
+     * @returns {KTToggle}
+     */
+    the.one = function(name, handler) {
+        return Plugin.addEvent(name, handler, true);
+    };
+
+    // Construct plugin
+    Plugin.construct.apply(the, [options]);
+
+    return the;
+};
+// plugin setup
+var KTWizard = function(elementId, options) {
+    // Main object
+    var the = this;
+    var init = false;
+
+    // Get element object
+    var element = KTUtil.get(elementId);
+    var body = KTUtil.get('body');
+
+    if (!element) {
+        return; 
+    }
+
+    // Default options
+    var defaultOptions = {
+        startStep: 1,
+        manualStepForward: false
+    };
+
+    ////////////////////////////
+    // ** Private Methods  ** //
+    ////////////////////////////
+
+    var Plugin = {
+        /**
+         * Construct
+         */
+
+        construct: function(options) {
+            if (KTUtil.data(element).has('wizard')) {
+                the = KTUtil.data(element).get('wizard');
+            } else {
+                // reset menu
+                Plugin.init(options);
+
+                // build menu
+                Plugin.build();
+
+                KTUtil.data(element).set('wizard', the);
+            }
+
+            return the;
+        },
+
+        /**
+         * Init wizard
+         */
+        init: function(options) {
+            the.element = element;
+            the.events = [];
+
+            // merge default and user defined options
+            the.options = KTUtil.deepExtend({}, defaultOptions, options);
+
+            // Elements
+            the.steps = KTUtil.findAll(element, '[data-ktwizard-type="step"]');
+
+            the.btnSubmit = KTUtil.find(element, '[data-ktwizard-type="action-submit"]');
+            the.btnNext = KTUtil.find(element, '[data-ktwizard-type="action-next"]');
+            the.btnPrev = KTUtil.find(element, '[data-ktwizard-type="action-prev"]');
+            the.btnLast = KTUtil.find(element, '[data-ktwizard-type="action-last"]');
+            the.btnFirst = KTUtil.find(element, '[data-ktwizard-type="action-first"]');
+
+            // Variables
+            the.events = [];
+            the.currentStep = 1;
+            the.stopped = false;
+            the.totalSteps = the.steps.length;
+
+            // Init current step
+            if (the.options.startStep > 1) {
+                Plugin.goTo(the.options.startStep);
+            }
+
+            // Init UI
+            Plugin.updateUI();
+        },
+
+        /**
+         * Build Form Wizard
+         */
+        build: function() {
+            // Next button event handler
+            KTUtil.addEvent(the.btnNext, 'click', function(e) {
+                e.preventDefault();
+                Plugin.goNext();
+            });
+
+            // Prev button event handler
+            KTUtil.addEvent(the.btnPrev, 'click', function(e) {
+                e.preventDefault();
+                Plugin.goPrev();
+            });
+
+            // First button event handler
+            KTUtil.addEvent(the.btnFirst, 'click', function(e) {
+                e.preventDefault();
+                Plugin.goFirst();
+            });
+
+            // Last button event handler
+            KTUtil.addEvent(the.btnLast, 'click', function(e) {
+                e.preventDefault();
+                Plugin.goLast();
+            });
+
+            KTUtil.on(element, 'a[data-ktwizard-type="step"]', 'click', function() {
+                var index = KTUtil.index(this) + 1;
+                if (index !== the.currentStep) {
+                    Plugin.goTo(index);
+                }                
+            });
+        },
+
+        /**
+         * Handles wizard click wizard
+         */
+        goTo: function(number) {
+            // Skip if this step is already shown
+            if (number === the.currentStep || number > the.totalSteps || number < 0) {
+                return;
+            }
+
+            // Validate step number
+            if (number) {
+                number = parseInt(number);
+            } else {
+                number = Plugin.getNextStep();
+            }
+
+            // Before next and prev events
+            var callback;
+
+            if (number > the.currentStep) {
+                callback = Plugin.eventTrigger('beforeNext');
+            } else {
+                callback = Plugin.eventTrigger('beforePrev');
+            }
+            
+            // Skip if stopped
+            if (the.stopped === true) {
+                the.stopped = false;
+                return;
+            }
+
+            // Continue if no exit
+            if (callback !== false) {
+                // Before change
+                Plugin.eventTrigger('beforeChange');
+
+                // Set current step 
+                the.currentStep = number;
+
+                Plugin.updateUI();
+
+                // Trigger change event
+                Plugin.eventTrigger('change');
+            }
+
+            // After next and prev events
+            if (number > the.startStep) {
+                Plugin.eventTrigger('afterNext');
+            } else {
+                Plugin.eventTrigger('afterPrev');
+            }
+
+            return the;
+        },
+
+        /**
+         * Cancel
+         */
+        stop: function() {
+            the.stopped = true;
+        },
+
+        /**
+         * Resume
+         */
+        start: function() {
+            the.stopped = false;
+        },
+
+        /**
+         * Check last step
+         */
+        isLastStep: function() {
+            return the.currentStep === the.totalSteps;
+        },
+
+        /**
+         * Check first step
+         */
+        isFirstStep: function() {
+            return the.currentStep === 1;
+        },
+
+        /**
+         * Check between step
+         */
+        isBetweenStep: function() {
+            return Plugin.isLastStep() === false && Plugin.isFirstStep() === false;
+        },
+
+        /**
+         * Go to the next step
+         */
+        goNext: function() {
+            return Plugin.goTo(Plugin.getNextStep());
+        },
+
+        /**
+         * Go to the prev step
+         */
+        goPrev: function() {
+            return Plugin.goTo(Plugin.getPrevStep());
+        },
+
+        /**
+         * Go to the last step
+         */
+        goLast: function() {
+            return Plugin.goTo(the.totalSteps);
+        },
+
+        /**
+         * Go to the first step
+         */
+        goFirst: function() {
+            return Plugin.goTo(1);
+        },
+
+        /**
+         * Go to the first step
+         */
+        updateUI: function() {
+            var stepType = '';
+            var index = the.currentStep - 1;
+
+            if (Plugin.isLastStep()) {
+                stepType = 'last';
+            } else if (Plugin.isFirstStep()) {
+                stepType = 'first';
+            } else {
+                stepType = 'between';
+            }
+
+            KTUtil.attr(the.element, 'data-ktwizard-state', stepType);
+
+            // Steps
+            var steps = KTUtil.findAll(the.element, '[data-ktwizard-type="step"]');
+
+            if (steps && steps.length > 0) {
+                for (var i = 0, len = steps.length; i < len; i++) {
+                    if (i == index) {
+                        KTUtil.attr(steps[i], 'data-ktwizard-state', 'current');
+                    } else {
+                        if (i < index) {
+                            KTUtil.attr(steps[i], 'data-ktwizard-state', 'done');
+                        } else {
+                            KTUtil.attr(steps[i], 'data-ktwizard-state', 'pending');
+                        }
+                    }
+                }
+            }
+
+            // Steps Info
+            var stepsInfo = KTUtil.findAll(the.element, '[data-ktwizard-type="step-info"]');
+            if (stepsInfo &&stepsInfo.length > 0) {
+                for (var i = 0, len = stepsInfo.length; i < len; i++) {
+                    if (i == index) {
+                        KTUtil.attr(stepsInfo[i], 'data-ktwizard-state', 'current');
+                    } else {
+                        KTUtil.removeAttr(stepsInfo[i], 'data-ktwizard-state');
+                    }
+                }
+            }  
+
+            // Steps Content
+            var stepsContent = KTUtil.findAll(the.element, '[data-ktwizard-type="step-content"]');
+            if (stepsContent&& stepsContent.length > 0) {
+                for (var i = 0, len = stepsContent.length; i < len; i++) {
+                    if (i == index) {
+                        KTUtil.attr(stepsContent[i], 'data-ktwizard-state', 'current');
+                    } else {
+                        KTUtil.removeAttr(stepsContent[i], 'data-ktwizard-state');
+                    }
+                }
+            }            
+        },
+
+        /**
+         * Get next step
+         */
+        getNextStep: function() {
+            if (the.totalSteps >= (the.currentStep + 1)) {
+                return the.currentStep + 1;
+            } else {
+                return the.totalSteps;
+            }
+        },
+
+        /**
+         * Get prev step
+         */
+        getPrevStep: function() {
+            if ((the.currentStep - 1) >= 1) {
+                return the.currentStep - 1;
+            } else {
+                return 1;
+            }
+        },
+
+        /**
+         * Trigger events
+         */
+        eventTrigger: function(name) {
+            //KTUtil.triggerCustomEvent(name);
+            for (var i = 0; i < the.events.length; i++) {
+                var event = the.events[i];
+                if (event.name == name) {
+                    if (event.one == true) {
+                        if (event.fired == false) {
+                            the.events[i].fired = true;
+                            event.handler.call(this, the);
+                        }
+                    } else {
+                        event.handler.call(this, the);
+                    }
+                }
+            }
+        },
+
+        addEvent: function(name, handler, one) {
+            the.events.push({
+                name: name,
+                handler: handler,
+                one: one,
+                fired: false
+            });
+
+            return the;
+        }
+    };
+
+    //////////////////////////
+    // ** Public Methods ** //
+    //////////////////////////
+
+    /**
+     * Set default options 
+     */
+
+    the.setDefaults = function(options) {
+        defaultOptions = options;
+    };
+
+    /**
+     * Go to the next step 
+     */
+    the.goNext = function() {
+        return Plugin.goNext();
+    };
+
+    /**
+     * Go to the prev step 
+     */
+    the.goPrev = function() {
+        return Plugin.goPrev();
+    };
+
+    /**
+     * Go to the last step 
+     */
+    the.goLast = function() {
+        return Plugin.goLast();
+    };
+
+    /**
+     * Cancel step 
+     */
+    the.stop = function() {
+        return Plugin.stop();
+    };
+
+    /**
+     * Resume step 
+     */
+    the.start = function() {
+        return Plugin.start();
+    };
+
+    /**
+     * Go to the first step 
+     */
+    the.goFirst = function() {
+        return Plugin.goFirst();
+    };
+
+    /**
+     * Go to a step
+     */
+    the.goTo = function(number) {
+        return Plugin.goTo(number);
+    };
+
+    /**
+     * Get current step number 
+     */
+    the.getStep = function() {
+        return the.currentStep;
+    };
+
+    /**
+     * Check last step 
+     */
+    the.isLastStep = function() {
+        return Plugin.isLastStep();
+    };
+
+    /**
+     * Check first step 
+     */
+    the.isFirstStep = function() {
+        return Plugin.isFirstStep();
+    };
+    
+    /**
+     * Attach event
+     */
+    the.on = function(name, handler) {
+        return Plugin.addEvent(name, handler);
+    };
+
+    /**
+     * Attach event that will be fired once
+     */
+    the.one = function(name, handler) {
+        return Plugin.addEvent(name, handler, true);
+    };
+
+    // Construct plugin
+    Plugin.construct.apply(the, [options]);
+
+    return the;
+};
 'use strict';
 (function($) {
 
@@ -1840,7 +5041,7 @@ $(document).ready(function() {
 	// plugin setup
 	$.fn[pluginName] = function(options) {
 		if ($(this).length === 0) {
-			console.log('No ' + pluginName + ' element exist.');
+			console.warn('No ' + pluginName + ' element exist.');
 			return;
 		}
 
@@ -1880,7 +5081,6 @@ $(document).ready(function() {
 
 				Plugin.setupBaseDOM.call();
 				Plugin.setupDOM(datatable.table);
-				// Plugin.spinnerCallback(true);
 
 				// set custom query from options
 				Plugin.setDataSourceQuery(Plugin.getOption('data.source.read.params.query'));
@@ -1888,14 +5088,18 @@ $(document).ready(function() {
 				// on event after layout had done setup, show datatable
 				$(datatable).on(pfx + 'datatable--on-layout-updated', Plugin.afterRender);
 
-				if (datatable.debug) Plugin.stateRemove(Plugin.stateId);
+				if (datatable.debug) {
+					Plugin.stateRemove(Plugin.stateId);
+				}
 
 				// initialize extensions
 				$.each(Plugin.getOption('extensions'), function(extName, extOptions) {
-					if (typeof $.fn[pluginName][extName] === 'function')
+					if (typeof $.fn[pluginName][extName] === 'function') {
 						new $.fn[pluginName][extName](datatable, extOptions);
+					}
 				});
 
+				Plugin.spinnerCallback(true);
 				// get data
 				if (options.data.type === 'remote' || options.data.type === 'local') {
 					if (options.data.saveState === false
@@ -1910,16 +5114,16 @@ $(document).ready(function() {
 					Plugin.dataRender();
 				}
 
-        // if html table, remove and setup a new header
-        if (isHtmlTable) {
-          $(datatable.tableHead).find('tr').remove();
-          $(datatable.tableFoot).find('tr').remove();
-        }
+                // if html table, remove and setup a new header
+                if (isHtmlTable) {
+                  $(datatable.tableHead).find('tr').remove();
+                  $(datatable.tableFoot).find('tr').remove();
+                }
 
-        Plugin.setHeadTitle();
-        if (Plugin.getOption('layout.footer')) {
-          Plugin.setHeadTitle(datatable.tableFoot);
-        }
+                Plugin.setHeadTitle();
+                if (Plugin.getOption('layout.footer')) {
+                  Plugin.setHeadTitle(datatable.tableFoot);
+                }
 
 				// hide header
 				if (typeof options.layout.header !== 'undefined' &&
@@ -2035,8 +5239,6 @@ $(document).ready(function() {
 					Plugin.lockTable.call();
 				}
 
-				Plugin.columnHide.call();
-
 				Plugin.resetScroll();
 
 				// check if not is a locked column
@@ -2049,6 +5251,8 @@ $(document).ready(function() {
 					// reset row
 					$(datatable.table).find('.' + pfx + 'datatable__row').css('height', '');
 				}
+
+				Plugin.columnHide.call();
 
 				Plugin.rowEvenOdd.call();
 
@@ -2064,6 +5268,28 @@ $(document).ready(function() {
 				}
 
 				$(datatable).trigger(pfx + 'datatable--on-layout-updated', {table: $(datatable.wrap).attr('id')});
+			},
+
+			dropdownFix: function() {
+				var dropdownMenu;
+				$('body').on('show.bs.dropdown', '.' + pfx + 'datatable .' + pfx + 'datatable__body', function(e) {
+					dropdownMenu = $(e.target).find('.dropdown-menu');
+					$('body').append(dropdownMenu.detach());
+					dropdownMenu.css('display', 'block');
+					dropdownMenu.position({
+						'my': 'right top',
+						'at': 'right bottom',
+						'of': $(e.relatedTarget),
+					});
+					// if datatable is inside modal
+					if (datatable.closest('.modal').length) {
+						// increase dropdown z-index
+						dropdownMenu.css('z-index', '2000');
+					}
+				}).on('hide.bs.dropdown', '.' + pfx + 'datatable .' + pfx + 'datatable__body', function(e) {
+					$(e.target).append(dropdownMenu.detach());
+					dropdownMenu.hide();
+				});
 			},
 
 			lockTable: function() {
@@ -2201,28 +5427,6 @@ $(document).ready(function() {
 					$(datatable.wrap).addClass(pfx + 'datatable--loaded');
 
 					Plugin.spinnerCallback(false);
-				});
-			},
-
-			dropdownFix: function() {
-				var dropdownMenu;
-				$('body').on('show.bs.dropdown', '.' + pfx + 'datatable .' + pfx + 'datatable__body', function(e) {
-					dropdownMenu = $(e.target).find('.dropdown-menu');
-					$('body').append(dropdownMenu.detach());
-					dropdownMenu.css('display', 'block');
-					dropdownMenu.position({
-						'my': 'right top',
-						'at': 'right bottom',
-						'of': $(e.relatedTarget),
-					});
-					// if datatable is inside modal
-					if (datatable.closest('.modal').length) {
-						// increase dropdown z-index
-						dropdownMenu.css('z-index', '2000');
-					}
-				}).on('hide.bs.dropdown', '.' + pfx + 'datatable .' + pfx + 'datatable__body', function(e) {
-					$(e.target).append(dropdownMenu.detach());
-					dropdownMenu.hide();
 				});
 			},
 
@@ -2637,6 +5841,8 @@ $(document).ready(function() {
 				}
 			},
 
+            maxWidthList: {},
+
 			/**
 			 * Adjust width to match container size
 			 */
@@ -2662,7 +5868,6 @@ $(document).ready(function() {
 						minWidth = Plugin.cellOffset;
 					}
 
-					var maxWidthList = {};
 					$(datatable.table).find('.' + pfx + 'datatable__row').
 							find('.' + pfx + 'datatable__cell').
 							// exclude expand icon
@@ -2673,15 +5878,14 @@ $(document).ready(function() {
 						var dataWidth = $(td).data('width');
 
 						if (typeof dataWidth !== 'undefined') {
-
 							if (dataWidth === 'auto') {
 								var field = $(td).data('field');
-								if (maxWidthList[field]) {
-									width = maxWidthList[field];
+								if (Plugin.maxWidthList[field]) {
+									width = Plugin.maxWidthList[field];
 								}
 								else {
-									var cells = $(datatable.tableBody).find('.' + pfx + 'datatable__cell[data-field="' + field + '"]');
-									width = maxWidthList[field] = Math.max.apply(null,
+									var cells = $(datatable.table).find('.' + pfx + 'datatable__cell[data-field="' + field + '"]');
+									width = Plugin.maxWidthList[field] = Math.max.apply(null,
 											$(cells).map(function() {
 												return $(this).outerWidth();
 											}).get());
@@ -3104,7 +6308,7 @@ $(document).ready(function() {
 					if (!Plugin.getOption('data.serverSorting')) {
 						delete data['sort'];
 					}
-					ajaxParams.data = $.extend({}, ajaxParams.data, data, Plugin.getOption('data.source.read.params'));
+					ajaxParams.data = $.extend({}, ajaxParams.data, Plugin.getOption('data.source.read.params'), data);
 					ajaxParams = $.extend({}, ajaxParams, Plugin.getOption('data.source.read'));
 
 					if (typeof ajaxParams.url !== 'string') ajaxParams.url = Plugin.getOption('data.source.read');
@@ -3156,7 +6360,7 @@ $(document).ready(function() {
 						if (pg.meta.page > pg.meta.pages) pg.meta.page = pg.meta.pages;
 
 						// set unique event name between tables
-						pg.paginateEvent = Plugin.getTablePrefix();
+						pg.paginateEvent = Plugin.getTablePrefix('paging');
 
 						pg.pager = $(datatable.table).siblings('.' + pfx + 'datatable__pager');
 						if ($(pg.pager).hasClass(pfx + 'datatable--paging-loaded')) return;
@@ -3586,21 +6790,30 @@ $(document).ready(function() {
 				var screen = util.getViewPort().width;
 				// foreach columns setting
 				$.each(options.columns, function(i, column) {
-					if (typeof column.responsive !== 'undefined') {
+					if (typeof column.responsive !== 'undefined' || typeof column.visible !== 'undefined') {
 						var field = column.field;
 						var tds = $.grep($(datatable.table).find('.' + pfx + 'datatable__cell'), function(n, i) {
 							return field === $(n).data('field');
 						});
-						if (util.getBreakpoint(column.responsive.hidden) >= screen) {
-							$(tds).hide();
-						} else {
-							$(tds).show();
-						}
-						if (util.getBreakpoint(column.responsive.visible) <= screen) {
-							$(tds).show();
-						} else {
-							$(tds).hide();
-						}
+
+						setTimeout(function () {
+							// hide by force
+							if (Plugin.getObject('visible', column) === false) {
+								$(tds).hide();
+							} else {
+								// show/hide by responsive breakpoint
+								if (util.getBreakpoint(Plugin.getObject('responsive.hidden', column)) >= screen) {
+									$(tds).hide();
+								} else {
+									$(tds).show();
+								}
+								if (util.getBreakpoint(Plugin.getObject('responsive.visible', column)) <= screen) {
+									$(tds).show();
+								} else {
+									$(tds).hide();
+								}
+							}
+						});
 					}
 				});
 			},
@@ -4924,46 +8137,6 @@ $(document).ready(function() {
 				return datatable.originalDataSet;
 			},
 
-			/**
-			 * @deprecated in v5.0.6
-			 * Hide column by column's field name
-			 * @param fieldName
-			 */
-			hideColumn: function(fieldName) {
-				// add hide option for this column
-				$.map(options.columns, function(column) {
-					if (fieldName === column.field) {
-						column.responsive = {hidden: 'xl'};
-					}
-					return column;
-				});
-				// hide current displayed column
-				var tds = $.grep($(datatable.table).find('.' + pfx + 'datatable__cell'), function(n, i) {
-					return fieldName === $(n).data('field');
-				});
-				$(tds).hide();
-			},
-
-			/**
-			 * @deprecated in v5.0.6
-			 * Show column by column's field name
-			 * @param fieldName
-			 */
-			showColumn: function(fieldName) {
-				// add hide option for this column
-				$.map(options.columns, function(column) {
-					if (fieldName === column.field) {
-						delete column.responsive;
-					}
-					return column;
-				});
-				// hide current displayed column
-				var tds = $.grep($(datatable.table).find('.' + pfx + 'datatable__cell'), function(n, i) {
-					return fieldName === $(n).data('field');
-				});
-				$(tds).show();
-			},
-
 			nodeTr: [],
 			nodeTd: [],
 			nodeCols: [],
@@ -5079,15 +8252,16 @@ $(document).ready(function() {
 
 					if (bool) {
 						if (Plugin.recentNode === Plugin.nodeCols) {
-							delete options.columns[index].responsive;
+							delete options.columns[index].visible;
 						}
 						$(Plugin.recentNode).show();
 					} else {
 						if (Plugin.recentNode === Plugin.nodeCols) {
-							Plugin.setOption('columns.' + index + '.responsive', {hidden: 'xl'});
+							Plugin.setOption('columns.' + index + '.visible', false);
 						}
 						$(Plugin.recentNode).hide();
 					}
+					Plugin.columnHide();
 					Plugin.redraw();
 				}
 			},
@@ -5113,7 +8287,10 @@ $(document).ready(function() {
 			 * @param page number
 			 */
 			gotoPage: function (page) {
-				Plugin.pagingObject.openPage(page);
+				if (typeof Plugin.pagingObject !== 'undefined') {
+					Plugin.isInit = true;
+					Plugin.pagingObject.openPage(page);
+				}
 			},
 
 		};
@@ -5195,7 +8372,7 @@ $(document).ready(function() {
 			class: pfx + 'datatable--brand', // custom wrapper class
 			scroll: false, // enable/disable datatable scroll both horizontal and vertical when needed.
 			height: null, // datatable's body's fixed height
-			minHeight: 300,
+			minHeight: 500,
 			footer: false, // display/hide footer
 			header: true, // display/hide header
 			customScrollbar: true, // set false to disable custom scrollbar
@@ -5624,3076 +8801,645 @@ if (KTUtil.isRTL()) {
 $.extend(true, $.fn.KTDatatable.defaults, defaults);
 "use strict";
 
-// plugin setup
-var KTDialog = function(options) {
-    // Main object
-    var the = this;
+// Class definition
+var KTChat = function () {
+	var initChat = function (parentEl) {
+		var messageListEl = KTUtil.find(parentEl, '.kt-scroll');
 
-    // Get element object
-    var element;
-    var body = KTUtil.get('body');  
+		if (!messageListEl) {
+			return;
+		}
 
-    // Default options
-    var defaultOptions = {
-        'placement' : 'top center',
-        'type'  : 'loader',
-        'width' : 100,
-        'state' : 'default',
-        'message' : 'Loading...' 
-    };    
+		// initialize perfect scrollbar(see:  https://github.com/utatti/perfect-scrollbar) 
+		KTUtil.scrollInit(messageListEl, {
+			windowScroll: false, // allow browser scroll when the scroll reaches the end of the side
+			mobileNativeScroll: true,  // enable native scroll for mobile
+			desktopNativeScroll: false, // disable native scroll and use custom scroll for desktop 
+			resetHeightOnDestroy: true,  // reset css height on scroll feature destroyed
+			handleWindowResize: true, // recalculate hight on window resize
+			rememberPosition: true, // remember scroll position in cookie
+			height: function() {  // calculate height
+				var height;
 
-    ////////////////////////////
-    // ** Private Methods  ** //
-    ////////////////////////////
+				// Mobile mode
+				if (KTUtil.isInResponsiveRange('tablet-and-mobile')) {
+					return KTUtil.hasAttr(messageListEl, 'data-mobile-height') ? parseInt(KTUtil.attr(messageListEl, 'data-mobile-height')) : 300;
+				} 
 
-    var Plugin = {
-        /**
-         * Construct
-         */
+				// Desktop mode
+				if (KTUtil.isInResponsiveRange('desktop') && KTUtil.hasAttr(messageListEl, 'data-height')) {
+					return parseInt(KTUtil.attr(messageListEl, 'data-height'));
+				}
 
-        construct: function(options) {
-            Plugin.init(options);
+				var chatEl = KTUtil.find(parentEl, '.kt-chat');
+				var portletHeadEl = KTUtil.find(parentEl, '.kt-portlet > .kt-portlet__head');
+				var portletBodyEl = KTUtil.find(parentEl, '.kt-portlet > .kt-portlet__body');
+				var portletFootEl = KTUtil.find(parentEl, '.kt-portlet > .kt-portlet__foot');
+				
+				if (KTUtil.isInResponsiveRange('desktop')) {
+					height = KTLayout.getContentHeight();
+				} else {
+					height = KTUtil.getViewPort().height;
+				}
 
-            return the;
-        },
+				if (chatEl) {
+					height = height - parseInt(KTUtil.css(chatEl, 'margin-top')) - parseInt(KTUtil.css(chatEl, 'margin-bottom'));
+					height = height - parseInt(KTUtil.css(chatEl, 'padding-top')) - parseInt(KTUtil.css(chatEl, 'padding-bottom'));
+				}
 
-        /**
-         * Handles subtoggle click toggle
-         */
-        init: function(options) {
-            the.events = [];
+				if (portletHeadEl) {
+					height = height - parseInt(KTUtil.css(portletHeadEl, 'height'));
+					height = height - parseInt(KTUtil.css(portletHeadEl, 'margin-top')) - parseInt(KTUtil.css(portletHeadEl, 'margin-bottom'));
+				}
 
-            // merge default and user defined options
-            the.options = KTUtil.deepExtend({}, defaultOptions, options);
+				if (portletBodyEl) {
+					height = height - parseInt(KTUtil.css(portletBodyEl, 'margin-top')) - parseInt(KTUtil.css(portletBodyEl, 'margin-bottom'));
+					height = height - parseInt(KTUtil.css(portletBodyEl, 'padding-top')) - parseInt(KTUtil.css(portletBodyEl, 'padding-bottom'));
+				}
 
-            the.state = false;
-        },
+				if (portletFootEl) {
+					height = height - parseInt(KTUtil.css(portletFootEl, 'height'));
+					height = height - parseInt(KTUtil.css(portletFootEl, 'margin-top')) - parseInt(KTUtil.css(portletFootEl, 'margin-bottom'));
+				}
 
-        /**
-         * Show dialog
-         */
-        show: function() {
-            Plugin.eventTrigger('show');
+				// remove additional space
+				height = height - 5;
+				
+				return height;
+			} 
+		});
 
-            element = document.createElement("DIV");
-            KTUtil.setHTML(element, the.options.message);
+		// messaging
+		var handleMessaging = function() {
+			var scrollEl = KTUtil.find(parentEl, '.kt-scroll');
+			var messagesEl = KTUtil.find(parentEl, '.kt-chat__messages');
+            var textarea = KTUtil.find(parentEl, '.kt-chat__input textarea');
             
-            KTUtil.addClass(element, 'kt-dialog kt-dialog--shown');
-            KTUtil.addClass(element, 'kt-dialog--' + the.options.state);
-            KTUtil.addClass(element, 'kt-dialog--' + the.options.type); 
-
-            if (the.options.placement == 'top center') {
-                KTUtil.addClass(element, 'kt-dialog--top-center');
-            }
-
-            body.appendChild(element);
-
-            the.state = 'shown';
-
-            Plugin.eventTrigger('shown');
-
-            return the;
-        },
-
-        /**
-         * Hide dialog
-         */
-        hide: function() {
-            if (element) {
-                Plugin.eventTrigger('hide');
-
-                element.remove();
-                the.state = 'hidden';
-
-                Plugin.eventTrigger('hidden');
-            }
-
-            return the;
-        },
-
-        /**
-         * Trigger events
-         */
-        eventTrigger: function(name) {
-            for (var i = 0; i < the.events.length; i++) {
-                var event = the.events[i];
-
-                if (event.name == name) {
-                    if (event.one == true) {
-                        if (event.fired == false) {
-                            the.events[i].fired = true;                            
-                            event.handler.call(this, the);
-                        }
-                    } else {
-                        event.handler.call(this, the);
-                    }
-                }
-            }
-        },
-
-        addEvent: function(name, handler, one) {
-            the.events.push({
-                name: name,
-                handler: handler,
-                one: one,
-                fired: false
-            });
-
-            return the;
-        }
-    };
-
-    //////////////////////////
-    // ** Public Methods ** //
-    //////////////////////////
-
-    /**
-     * Set default options 
-     */
-
-    the.setDefaults = function(options) {
-        defaultOptions = options;
-    };
-
-    /**
-     * Check shown state 
-     */
-    the.shown = function() {
-        return the.state == 'shown';
-    };
-
-    /**
-     * Check hidden state 
-     */
-    the.hidden = function() {
-        return the.state == 'hidden';
-    };
-
-    /**
-     * Show dialog 
-     */
-    the.show = function() {
-        return Plugin.show();
-    };
-
-    /**
-     * Hide dialog
-     */
-    the.hide = function() {
-        return Plugin.hide();
-    };
-
-    /**
-     * Attach event
-     * @returns {KTToggle}
-     */
-    the.on = function(name, handler) {
-        return Plugin.addEvent(name, handler);
-    };
-
-    /**
-     * Attach event that will be fired once
-     * @returns {KTToggle}
-     */
-    the.one = function(name, handler) {
-        return Plugin.addEvent(name, handler, true);
-    };
-
-    // Construct plugin
-    Plugin.construct.apply(the, [options]);
-
-    return the;
-};
-"use strict";
-var KTHeader = function(elementId, options) {
-    // Main object
-    var the = this;
-    var init = false;
-
-    // Get element object
-    var element = KTUtil.get(elementId);
-    var body = KTUtil.get('body');
-
-    if (element === undefined) {
-        return;
-    }
-
-    // Default options
-    var defaultOptions = {
-        classic: false,
-        offset: {
-            mobile: 150,
-            desktop: 200
-        },
-        minimize: {
-            mobile: false,
-            desktop: false
-        }
-    };
-
-    ////////////////////////////
-    // ** Private Methods  ** //
-    ////////////////////////////
-
-    var Plugin = {
-        /**
-         * Run plugin
-         * @returns {KTHeader}
-         */
-        construct: function(options) {
-            if (KTUtil.data(element).has('header')) {
-                the = KTUtil.data(element).get('header');
-            } else {
-                // reset header
-                Plugin.init(options);
-
-                // build header
-                Plugin.build();
-
-                KTUtil.data(element).set('header', the);
-            }
-
-            return the;
-        },
-
-        /**
-         * Handles subheader click toggle
-         * @returns {KTHeader}
-         */
-        init: function(options) {
-            the.events = [];
-
-            // merge default and user defined options
-            the.options = KTUtil.deepExtend({}, defaultOptions, options);
-        },
-
-        /**
-         * Reset header
-         * @returns {KTHeader}
-         */
-        build: function() {
-            var lastScrollTop = 0;
-            var eventTriggerState = true;
-            var viewportHeight = KTUtil.getViewPort().height;
-
-            if (the.options.minimize.mobile === false && the.options.minimize.desktop === false) {
+            if (textarea.value.length === 0 ) {
                 return;
             }
 
-            window.addEventListener('scroll', function() {
-                var offset = 0, on, off, st;
-
-                if (KTUtil.isInResponsiveRange('desktop')) {
-                    offset = the.options.offset.desktop;
-                    on = the.options.minimize.desktop.on;
-                    off = the.options.minimize.desktop.off;
-                } else if (KTUtil.isInResponsiveRange('tablet-and-mobile')) {
-                    offset = the.options.offset.mobile;
-                    on = the.options.minimize.mobile.on;
-                    off = the.options.minimize.mobile.off;
-                }
-
-                st = window.pageYOffset;
-
-                if (
-                    (KTUtil.isInResponsiveRange('tablet-and-mobile') && the.options.classic && the.options.classic.mobile) ||
-                    (KTUtil.isInResponsiveRange('desktop') && the.options.classic && the.options.classic.desktop)
-
-                ) {
-                    if (st > offset) { // down scroll mode
-                        KTUtil.addClass(body, on);
-                        KTUtil.removeClass(body, off);
-                        
-                        if (eventTriggerState) {
-                            Plugin.eventTrigger('minimizeOn', the);
-                            eventTriggerState = false;
-                        }
-                    } else { // back scroll mode
-                        KTUtil.addClass(body, off);
-                        KTUtil.removeClass(body, on);
-
-                        if (eventTriggerState == false) {
-                            Plugin.eventTrigger('minimizeOff', the);
-                            eventTriggerState = true; 
-                        }
-                    }
-                } else {
-                    if (st > offset && lastScrollTop < st) { // down scroll mode
-                        KTUtil.addClass(body, on);
-                        KTUtil.removeClass(body, off);
-
-                        if (eventTriggerState) {
-                            Plugin.eventTrigger('minimizeOn', the);
-                            eventTriggerState = false;
-                        }
-                    } else { // back scroll mode
-                        KTUtil.addClass(body, off);
-                        KTUtil.removeClass(body, on);
-
-                        if (eventTriggerState == false) {
-                            Plugin.eventTrigger('minimizeOff', the);
-                            eventTriggerState = true;
-                        }
-                    }
-
-                    lastScrollTop = st;
-                }
-            });
-        },
-
-        /**
-         * Trigger events
-         */
-        eventTrigger: function(name, args) {
-            for (var i = 0; i < the.events.length; i++) {
-                var event = the.events[i];
-                if (event.name == name) {
-                    if (event.one == true) {
-                        if (event.fired == false) {
-                            the.events[i].fired = true;
-                            event.handler.call(this, the, args);
-                        }
-                    } else {
-                        event.handler.call(this, the, args);
-                    }
-                }
-            }
-        },
-
-        addEvent: function(name, handler, one) {
-            the.events.push({
-                name: name,
-                handler: handler,
-                one: one,
-                fired: false
-            });
-        }
-    };
-
-    //////////////////////////
-    // ** Public Methods ** //
-    //////////////////////////
-
-    /**
-     * Set default options 
-     */
-
-    the.setDefaults = function(options) {
-        defaultOptions = options;
-    };
-
-    /**
-     * Register event
-     */
-    the.on = function(name, handler) {
-        return Plugin.addEvent(name, handler);
-    };
-
-    ///////////////////////////////
-    // ** Plugin Construction ** //
-    ///////////////////////////////
-
-    // Run plugin
-    Plugin.construct.apply(the, [options]);
-
-    // Init done
-    init = true;
-
-    // Return plugin instance
-    return the;
-};
-"use strict";
-var KTMenu = function(elementId, options) {
-    // Main object
-    var the = this;
-    var init = false;
-
-    // Get element object
-    var element = KTUtil.get(elementId);
-    var body = KTUtil.get('body');  
-
-    if (!element) {
-        return;
-    }
-
-    // Default options
-    var defaultOptions = {       
-        // accordion submenu mode
-        accordion: {
-            slideSpeed: 200, // accordion toggle slide speed in milliseconds
-            autoScroll: false, // enable auto scrolling(focus) to the clicked menu item
-            autoScrollSpeed: 1200,
-            expandAll: true // allow having multiple expanded accordions in the menu
-        },
-
-        // dropdown submenu mode
-        dropdown: {
-            timeout: 500 // timeout in milliseconds to show and hide the hoverable submenu dropdown
-        }
-    };
-
-    ////////////////////////////
-    // ** Private Methods  ** //
-    ////////////////////////////
-
-    var Plugin = {
-        /**
-         * Run plugin
-         * @returns {KTMenu}
-         */
-        construct: function(options) {
-            if (KTUtil.data(element).has('menu')) {
-                the = KTUtil.data(element).get('menu');
-            } else {
-                // reset menu
-                Plugin.init(options);
-
-                // reset menu
-                Plugin.reset();
-
-                // build menu
-                Plugin.build();
-
-                KTUtil.data(element).set('menu', the);
-            }
-
-            return the;
-        },
-
-        /**
-         * Handles submenu click toggle
-         * @returns {KTMenu}
-         */
-        init: function(options) {
-            the.events = [];
-
-            the.eventHandlers = {};
-
-            // merge default and user defined options
-            the.options = KTUtil.deepExtend({}, defaultOptions, options);
-
-            // pause menu
-            the.pauseDropdownHoverTime = 0;
-
-            the.uid = KTUtil.getUniqueID();
-        },
-
-        update: function(options) {
-            // merge default and user defined options
-            the.options = KTUtil.deepExtend({}, defaultOptions, options);
-
-            // pause menu
-            the.pauseDropdownHoverTime = 0;
-
-             // reset menu
-            Plugin.reset();
-
-            the.eventHandlers = {};
-
-            // build menu
-            Plugin.build();
-
-            KTUtil.data(element).set('menu', the);
-        },
-
-        reload: function() {
-             // reset menu
-            Plugin.reset();
-
-            // build menu
-            Plugin.build();
-
-            // reset submenu props
-            Plugin.resetSubmenuProps();
-        },
-
-        /**
-         * Reset menu
-         * @returns {KTMenu}
-         */
-        build: function() {
-            // General accordion submenu toggle
-            the.eventHandlers['event_1'] = KTUtil.on( element, '.kt-menu__toggle', 'click', Plugin.handleSubmenuAccordion);
-
-            // Dropdown mode(hoverable)
-            if (Plugin.getSubmenuMode() === 'dropdown' || Plugin.isConditionalSubmenuDropdown()) {
-                // dropdown submenu - hover toggle
-                the.eventHandlers['event_2'] = KTUtil.on( element, '[data-ktmenu-submenu-toggle="hover"]', 'mouseover', Plugin.handleSubmenuDrodownHoverEnter);
-                the.eventHandlers['event_3'] = KTUtil.on( element, '[data-ktmenu-submenu-toggle="hover"]', 'mouseout', Plugin.handleSubmenuDrodownHoverExit);
-
-                // dropdown submenu - click toggle
-                the.eventHandlers['event_4'] = KTUtil.on( element, '[data-ktmenu-submenu-toggle="click"] > .kt-menu__toggle, [data-ktmenu-submenu-toggle="click"] > .kt-menu__link .kt-menu__toggle', 'click', Plugin.handleSubmenuDropdownClick);
-                the.eventHandlers['event_5'] = KTUtil.on( element, '[data-ktmenu-submenu-toggle="tab"] > .kt-menu__toggle, [data-ktmenu-submenu-toggle="tab"] > .kt-menu__link .kt-menu__toggle', 'click', Plugin.handleSubmenuDropdownTabClick);
-            }
-
-            // General link click
-            // the.eventHandlers['event_6'] = KTUtil.on(element, '.kt-menu__item:not(.kt-menu__item--submenu) > .kt-menu__link:not(.kt-menu__toggle):not(.kt-menu__link--toggle-skip)', 'click', Plugin.handleLinkClick);
-
-            // Init scrollable menu
-            if (the.options.scroll && the.options.scroll.height) {
-                Plugin.scrollInit();
-            }
-        },
-
-        /**
-         * Reset menu
-         * @returns {KTMenu}
-         */
-        reset: function() { 
-            KTUtil.off( element, 'click', the.eventHandlers['event_1']);
-
-            // dropdown submenu - hover toggle
-            KTUtil.off( element, 'mouseover', the.eventHandlers['event_2']);
-            KTUtil.off( element, 'mouseout', the.eventHandlers['event_3']);
-
-            // dropdown submenu - click toggle
-            KTUtil.off( element, 'click', the.eventHandlers['event_4']);
-            KTUtil.off( element, 'click', the.eventHandlers['event_5']);
-            
-            KTUtil.off(element, 'click', the.eventHandlers['event_6']);
-        },
-
-        /**
-         * Init scroll menu
-         *
-        */
-        scrollInit: function() {
-            if ( the.options.scroll && the.options.scroll.height ) {
-                KTUtil.scrollDestroy(element);
-                KTUtil.scrollInit(element, {disableForMobile: true, resetHeightOnDestroy: true, handleWindowResize: true, height: the.options.scroll.height});
-            } else {
-                KTUtil.scrollDestroy(element);
-            }           
-        },
-
-        /**
-         * Update scroll menu
-        */
-        scrollUpdate: function() {
-            if ( the.options.scroll && the.options.scroll.height ) {
-                KTUtil.scrollUpdate(element);
-            }
-        },
-
-        /**
-         * Scroll top
-        */
-        scrollTop: function() {
-            if ( the.options.scroll && the.options.scroll.height ) {
-                KTUtil.scrollTop(element);
-            }
-        },
-
-        /**
-         * Get submenu mode for current breakpoint and menu state
-         * @returns {KTMenu}
-         */
-        getSubmenuMode: function(el) {
-            if ( KTUtil.isInResponsiveRange('desktop') ) {
-                if (el && KTUtil.hasAttr(el, 'data-ktmenu-submenu-toggle')) {
-                    return KTUtil.attr(el, 'data-ktmenu-submenu-toggle');
-                }
-
-                if ( KTUtil.isset(the.options.submenu, 'desktop.state.body') ) {
-                    if ( KTUtil.hasClasses(body, the.options.submenu.desktop.state.body) ) {
-                        return the.options.submenu.desktop.state.mode;
-                    } else {
-                        return the.options.submenu.desktop.default;
-                    }
-                } else if ( KTUtil.isset(the.options.submenu, 'desktop') ) {
-                    return the.options.submenu.desktop;
-                }
-            } else if ( KTUtil.isInResponsiveRange('tablet') && KTUtil.isset(the.options.submenu, 'tablet') ) {
-                return the.options.submenu.tablet;
-            } else if ( KTUtil.isInResponsiveRange('mobile') && KTUtil.isset(the.options.submenu, 'mobile') ) {
-                return the.options.submenu.mobile;
-            } else {
-                return false;
-            }
-        },
-
-        /**
-         * Get submenu mode for current breakpoint and menu state
-         * @returns {KTMenu}
-         */
-        isConditionalSubmenuDropdown: function() {
-            if ( KTUtil.isInResponsiveRange('desktop') && KTUtil.isset(the.options.submenu, 'desktop.state.body') ) {
-                return true;
-            } else {
-                return false;
-            }
-        },
-
-
-        /**
-         * Reset submenu attributes
-         * @returns {KTMenu}
-         */
-        resetSubmenuProps: function(e) {
-            var submenus = KTUtil.findAll(element, '.kt-menu__submenu');
-            if ( submenus ) {
-                for (var i = 0, len = submenus.length; i < len; i++) {
-                    KTUtil.css(submenus[0], 'display', '');
-                    KTUtil.css(submenus[0], 'overflow', '');                                        
-                }
-            }
-        },
-
-        /**
-         * Handles submenu hover toggle
-         * @returns {KTMenu}
-         */
-        handleSubmenuDrodownHoverEnter: function(e) {
-            if ( Plugin.getSubmenuMode(this) === 'accordion' ) {
-                return;
-            }
-
-            if ( the.resumeDropdownHover() === false ) {
-                return;
-            }
-
-            var item = this;
-
-            if ( item.getAttribute('data-hover') == '1' ) {
-                item.removeAttribute('data-hover');
-                clearTimeout( item.getAttribute('data-timeout') );
-                item.removeAttribute('data-timeout');
-                //Plugin.hideSubmenuDropdown(item, false);
-            }
-
-            // console.log('test!');
-
-            Plugin.showSubmenuDropdown(item);
-        },
-
-        /**
-         * Handles submenu hover toggle
-         * @returns {KTMenu}
-         */
-        handleSubmenuDrodownHoverExit: function(e) {
-            if ( the.resumeDropdownHover() === false ) {
-                return;
-            }
-
-            if ( Plugin.getSubmenuMode(this) === 'accordion' ) {
-                return;
-            }
-
-            var item = this;
-            var time = the.options.dropdown.timeout;
-
-            var timeout = setTimeout(function() {
-                if ( item.getAttribute('data-hover') == '1' ) {
-                    Plugin.hideSubmenuDropdown(item, true);
-                } 
-            }, time);
-
-            item.setAttribute('data-hover', '1');
-            item.setAttribute('data-timeout', timeout);  
-        },
-
-        /**
-         * Handles submenu click toggle
-         * @returns {KTMenu}
-         */
-        handleSubmenuDropdownClick: function(e) {
-            if ( Plugin.getSubmenuMode(this) === 'accordion' ) {
-                return;
-            }
- 
-            var item = this.closest('.kt-menu__item');
-
-            if ( item.getAttribute('data-ktmenu-submenu-mode') == 'accordion' ) {
-                return;
-            }
-
-            if ( KTUtil.hasClass(item, 'kt-menu__item--hover') === false ) {
-                KTUtil.addClass(item, 'kt-menu__item--open-dropdown');
-                Plugin.showSubmenuDropdown(item);
-            } else {
-                KTUtil.removeClass(item, 'kt-menu__item--open-dropdown' );
-                Plugin.hideSubmenuDropdown(item, true);
-            }
-
-            e.preventDefault();
-        },
-
-        /**
-         * Handles tab click toggle
-         * @returns {KTMenu}
-         */
-        handleSubmenuDropdownTabClick: function(e) {
-            if (Plugin.getSubmenuMode(this) === 'accordion') {
-                return;
-            }
-
-            var item = this.closest('.kt-menu__item');
-
-            if (item.getAttribute('data-ktmenu-submenu-mode') == 'accordion') {
-                return;
-            }
-
-            if (KTUtil.hasClass(item, 'kt-menu__item--hover') == false) {
-                KTUtil.addClass(item, 'kt-menu__item--open-dropdown');
-                Plugin.showSubmenuDropdown(item);
-            }
-
-            e.preventDefault();
-        },
-
-        /**
-         * Handles submenu dropdown close on link click
-         * @returns {KTMenu}
-         */
-        handleSubmenuDropdownClose: function(e, el) {
-            // exit if its not submenu dropdown mode
-            if (Plugin.getSubmenuMode(el) === 'accordion') {
-                return;
-            }
-
-            var shown = element.querySelectorAll('.kt-menu__item.kt-menu__item--submenu.kt-menu__item--hover:not(.kt-menu__item--tabs)');
-
-            // check if currently clicked link's parent item ha
-            if (shown.length > 0 && KTUtil.hasClass(el, 'kt-menu__toggle') === false && el.querySelectorAll('.kt-menu__toggle').length === 0) {
-                // close opened dropdown menus
-                for (var i = 0, len = shown.length; i < len; i++) {
-                    Plugin.hideSubmenuDropdown(shown[0], true);
-                }
-            }
-        },
-
-        /**
-         * helper functions
-         * @returns {KTMenu}
-         */
-        handleSubmenuAccordion: function(e, el) {
-            var query;
-            var item = el ? el : this;
-
-            if ( Plugin.getSubmenuMode(el) === 'dropdown' && (query = item.closest('.kt-menu__item') ) ) {
-                if (query.getAttribute('data-ktmenu-submenu-mode') != 'accordion' ) {
-                    e.preventDefault();
-                    return;
-                }
-            }
-
-            var li = item.closest('.kt-menu__item');
-            var submenu = KTUtil.child(li, '.kt-menu__submenu, .kt-menu__inner');
-
-            if (KTUtil.hasClass(item.closest('.kt-menu__item'), 'kt-menu__item--open-always')) {
-                return;
-            }
-
-            if ( li && submenu ) {
-                e.preventDefault();
-                var speed = the.options.accordion.slideSpeed;
-                var hasClosables = false;
-
-                if ( KTUtil.hasClass(li, 'kt-menu__item--open') === false ) {
-                    // hide other accordions                    
-                    if ( the.options.accordion.expandAll === false ) {
-                        var subnav = item.closest('.kt-menu__nav, .kt-menu__subnav');
-                        var closables = KTUtil.children(subnav, '.kt-menu__item.kt-menu__item--open.kt-menu__item--submenu:not(.kt-menu__item--here):not(.kt-menu__item--open-always)');
-
-                        if ( subnav && closables ) {
-                            for (var i = 0, len = closables.length; i < len; i++) {
-                                var el_ = closables[0];
-                                var submenu_ = KTUtil.child(el_, '.kt-menu__submenu');
-                                if ( submenu_ ) {
-                                    KTUtil.slideUp(submenu_, speed, function() {
-                                        Plugin.scrollUpdate();
-                                        KTUtil.removeClass(el_, 'kt-menu__item--open');
-                                    });                    
-                                }
-                            }
-                        }
-                    }
-
-                    KTUtil.slideDown(submenu, speed, function() {
-                        Plugin.scrollToItem(item);
-                        Plugin.scrollUpdate();
-                        
-                        Plugin.eventTrigger('submenuToggle', submenu);
-                    });
-                
-                    KTUtil.addClass(li, 'kt-menu__item--open');
-
-                } else {
-                    KTUtil.slideUp(submenu, speed, function() {
-                        Plugin.scrollToItem(item);
-                        Plugin.eventTrigger('submenuToggle', submenu);
-                    });
-
-                    KTUtil.removeClass(li, 'kt-menu__item--open');
-                }
-            }
-        },
-
-        /**
-         * scroll to item function
-         * @returns {KTMenu}
-         */
-        scrollToItem: function(item) {
-            // handle auto scroll for accordion submenus
-            if ( KTUtil.isInResponsiveRange('desktop') && the.options.accordion.autoScroll && element.getAttribute('data-ktmenu-scroll') !== '1' ) {
-                KTUtil.scrollTo(item, the.options.accordion.autoScrollSpeed);
-            }
-        },
-
-        /**
-         * helper functions
-         * @returns {KTMenu}
-         */
-        hideSubmenuDropdown: function(item, classAlso) {
-            // remove submenu activation class
-            if ( classAlso ) {
-                KTUtil.removeClass(item, 'kt-menu__item--hover');
-                KTUtil.removeClass(item, 'kt-menu__item--active-tab');
-            }
-
-            // clear timeout
-            item.removeAttribute('data-hover');
-
-            if ( item.getAttribute('data-ktmenu-dropdown-toggle-class') ) {
-                KTUtil.removeClass(body, item.getAttribute('data-ktmenu-dropdown-toggle-class'));
-            }
-
-            var timeout = item.getAttribute('data-timeout');
-            item.removeAttribute('data-timeout');
-            clearTimeout(timeout);
-        },
-
-        /**
-         * helper functions
-         * @returns {KTMenu}
-         */
-        showSubmenuDropdown: function(item) {
-            // close active submenus
-            var list = element.querySelectorAll('.kt-menu__item--submenu.kt-menu__item--hover, .kt-menu__item--submenu.kt-menu__item--active-tab');
-
-            if ( list ) {
-                for (var i = 0, len = list.length; i < len; i++) {
-                    var el = list[i];
-                    if ( item !== el && el.contains(item) === false && item.contains(el) === false ) {
-                        Plugin.hideSubmenuDropdown(el, true);
-                    }
-                }
-            } 
-
-            // add submenu activation class
-            KTUtil.addClass(item, 'kt-menu__item--hover');
-            
-            if ( item.getAttribute('data-ktmenu-dropdown-toggle-class') ) {
-                KTUtil.addClass(body, item.getAttribute('data-ktmenu-dropdown-toggle-class'));
-            }
-        },
-
-        /**
-         * Handles submenu slide toggle
-         * @returns {KTMenu}
-         */
-        createSubmenuDropdownClickDropoff: function(el) {
-            var query;
-            var zIndex = (query = KTUtil.child(el, '.kt-menu__submenu') ? KTUtil.css(query, 'z-index') : 0) - 1;
-
-            var dropoff = document.createElement('<div class="kt-menu__dropoff" style="background: transparent; position: fixed; top: 0; bottom: 0; left: 0; right: 0; z-index: ' + zIndex + '"></div>');
-
-            body.appendChild(dropoff);
-
-            KTUtil.addEvent(dropoff, 'click', function(e) {
-                e.stopPropagation();
-                e.preventDefault();
-                KTUtil.remove(this);
-                Plugin.hideSubmenuDropdown(el, true);
-            });
-        },
-
-        /**
-         * Handles submenu hover toggle
-         * @returns {KTMenu}
-         */
-        pauseDropdownHover: function(time) {
-            var date = new Date();
-
-            the.pauseDropdownHoverTime = date.getTime() + time;
-        },
-
-        /**
-         * Handles submenu hover toggle
-         * @returns {KTMenu}
-         */
-        resumeDropdownHover: function() {
-            var date = new Date();
-
-            return (date.getTime() > the.pauseDropdownHoverTime ? true : false);
-        },
-
-        /**
-         * Reset menu's current active item
-         * @returns {KTMenu}
-         */
-        resetActiveItem: function(item) {
-            var list;
-            var parents;
-
-            list = element.querySelectorAll('.kt-menu__item--active');
-            
-            for (var i = 0, len = list.length; i < len; i++) {
-                var el = list[0];
-                KTUtil.removeClass(el, 'kt-menu__item--active');
-                KTUtil.hide( KTUtil.child(el, '.kt-menu__submenu') );
-                parents = KTUtil.parents(el, '.kt-menu__item--submenu');
-
-                for (var i_ = 0, len_ = parents.length; i_ < len_; i_++) {
-                    var el_ = parents[i];
-                    KTUtil.removeClass(el_, 'kt-menu__item--open');
-                    KTUtil.hide( KTUtil.child(el_, '.kt-menu__submenu') );
-                }
-            }
-
-            // close open submenus
-            if ( the.options.accordion.expandAll === false ) {
-                if ( list = element.querySelectorAll('.kt-menu__item--open') ) {
-                    for (var i = 0, len = list.length; i < len; i++) {
-                        KTUtil.removeClass(parents[0], 'kt-menu__item--open');
-                    }
-                }
-            }
-        },
-
-        /**
-         * Sets menu's active item
-         * @returns {KTMenu}
-         */
-        setActiveItem: function(item) {
-            // reset current active item
-            Plugin.resetActiveItem();
-
-            KTUtil.addClass(item, 'kt-menu__item--active');
-            
-            var parents = KTUtil.parents(item, '.kt-menu__item--submenu');
-            for (var i = 0, len = parents.length; i < len; i++) {
-                KTUtil.addClass(parents[i], 'kt-menu__item--open');
-            }
-        },
-
-        /**
-         * Returns page breadcrumbs for the menu's active item
-         * @returns {KTMenu}
-         */
-        getBreadcrumbs: function(item) {
-            var query;
-            var breadcrumbs = [];
-            var link = KTUtil.child(item, '.kt-menu__link');
-
-            breadcrumbs.push({
-                text: (query = KTUtil.child(link, '.kt-menu__link-text') ? query.innerHTML : ''),
-                title: link.getAttribute('title'),
-                href: link.getAttribute('href')
-            });
-
-            var parents = KTUtil.parents(item, '.kt-menu__item--submenu');
-            for (var i = 0, len = parents.length; i < len; i++) {
-                var submenuLink = KTUtil.child(parents[i], '.kt-menu__link');
-
-                breadcrumbs.push({
-                    text: (query = KTUtil.child(submenuLink, '.kt-menu__link-text') ? query.innerHTML : ''),
-                    title: submenuLink.getAttribute('title'),
-                    href: submenuLink.getAttribute('href')
-                });
-            }
-
-            return  breadcrumbs.reverse();
-        },
-
-        /**
-         * Returns page title for the menu's active item
-         * @returns {KTMenu}
-         */
-        getPageTitle: function(item) {
-            var query;
-
-            return (query = KTUtil.child(item, '.kt-menu__link-text') ? query.innerHTML : '');
-        },
-
-        /**
-         * Trigger events
-         */
-        eventTrigger: function(name, args) {
-            for (var i = 0; i < the.events.length; i++ ) {
-                var event = the.events[i];
-                if ( event.name == name ) {
-                    if ( event.one == true ) {
-                        if ( event.fired == false ) {
-                            the.events[i].fired = true;
-                            event.handler.call(this, the, args);
-                        }
-                    } else {
-                        event.handler.call(this, the, args);
-                    }
-                }
-            }
-        },
-
-        addEvent: function(name, handler, one) {
-            the.events.push({
-                name: name,
-                handler: handler,
-                one: one,
-                fired: false
-            });
-        },
-
-        removeEvent: function(name) {
-            if (the.events[name]) {
-                delete the.events[name];
-            }
-        }
-    };
-
-    //////////////////////////
-    // ** Public Methods ** //
-    //////////////////////////
-
-    /**
-     * Set default options 
-     */
-
-    the.setDefaults = function(options) {
-        defaultOptions = options;
-    };
-
-    /**
-     * Update scroll
-     */
-    the.scrollUpdate = function() {
-        return Plugin.scrollUpdate();
-    };
-
-    /**
-     * Re-init scroll
-     */
-    the.scrollReInit = function() {
-        return Plugin.scrollInit();
-    };
-
-    /**
-     * Scroll top
-     */
-    the.scrollTop = function() {
-        return Plugin.scrollTop();
-    };
-
-    /**
-     * Set active menu item
-     */
-    the.setActiveItem = function(item) {
-        return Plugin.setActiveItem(item);
-    };
-
-    the.reload = function() {
-        return Plugin.reload();
-    };
-
-    the.update = function(options) {
-        return Plugin.update(options);
-    };
-
-    /**
-     * Set breadcrumb for menu item
-     */
-    the.getBreadcrumbs = function(item) {
-        return Plugin.getBreadcrumbs(item);
-    };
-
-    /**
-     * Set page title for menu item
-     */
-    the.getPageTitle = function(item) {
-        return Plugin.getPageTitle(item);
-    };
-
-    /**
-     * Get submenu mode
-     */
-    the.getSubmenuMode = function(el) {
-        return Plugin.getSubmenuMode(el);
-    };
-
-    /**
-     * Hide dropdown submenu
-     * @returns {jQuery}
-     */
-    the.hideDropdown = function(item) {
-        Plugin.hideSubmenuDropdown(item, true);
-    };
-
-    /**
-     * Disable menu for given time
-     * @returns {jQuery}
-     */
-    the.pauseDropdownHover = function(time) {
-        Plugin.pauseDropdownHover(time);
-    };
-
-    /**
-     * Disable menu for given time
-     * @returns {jQuery}
-     */
-    the.resumeDropdownHover = function() {
-        return Plugin.resumeDropdownHover();
-    };
-
-    /**
-     * Register event
-     */
-    the.on = function(name, handler) {
-        return Plugin.addEvent(name, handler);
-    };
-
-    the.off = function(name) {
-        return Plugin.removeEvent(name);
-    };
-
-    the.one = function(name, handler) {
-        return Plugin.addEvent(name, handler, true);
-    };
-
-    ///////////////////////////////
-    // ** Plugin Construction ** //
-    ///////////////////////////////
-
-    // Run plugin
-    Plugin.construct.apply(the, [options]);
-
-    // Handle plugin on window resize
-    KTUtil.addResizeHandler(function() {
-        if (init) {
-            the.reload();
-        }  
-    });
-
-    // Init done
-    init = true;
-
-    // Return plugin instance
-    return the;
-};
-
-// Plugin global lazy initialization
-document.addEventListener("click", function (e) {
-    var body = KTUtil.get('body');
-    var query;
-    if ( query = body.querySelectorAll('.kt-menu__nav .kt-menu__item.kt-menu__item--submenu.kt-menu__item--hover:not(.kt-menu__item--tabs)[data-ktmenu-submenu-toggle="click"]') ) {
-        for (var i = 0, len = query.length; i < len; i++) {
-            var element = query[i].closest('.kt-menu__nav').parentNode;
-
-            if ( element ) {
-                var the = KTUtil.data(element).get('menu');
-
-                if ( !the ) {
-                    break;
-                }
-
-                if ( !the || the.getSubmenuMode() !== 'dropdown' ) {
-                    break;
-                }
-
-                if ( e.target !== element && element.contains(e.target) === false ) {
-                    var items;
-                    if ( items = element.querySelectorAll('.kt-menu__item--submenu.kt-menu__item--hover:not(.kt-menu__item--tabs)[data-ktmenu-submenu-toggle="click"]') ) {
-                        for (var j = 0, cnt = items.length; j < cnt; j++) {
-                            the.hideDropdown(items[j]);
-                        }
-                    }
-                }
-            }            
-        }
-    } 
-});
-"use strict";
-var KTOffcanvas = function(elementId, options) {
-    // Main object
-    var the = this;
-    var init = false;
-
-    // Get element object
-    var element = KTUtil.get(elementId);
-    var body = KTUtil.get('body');
-
-    if (!element) {
-        return;
-    }
-
-    // Default options
-    var defaultOptions = {};
-
-    ////////////////////////////
-    // ** Private Methods  ** //
-    ////////////////////////////
-
-    var Plugin = {
-        construct: function(options) {
-            if (KTUtil.data(element).has('offcanvas')) {
-                the = KTUtil.data(element).get('offcanvas');
-            } else {
-                // reset offcanvas
-                Plugin.init(options);
-                
-                // build offcanvas
-                Plugin.build();
-
-                KTUtil.data(element).set('offcanvas', the);
-            }
-
-            return the;
-        },
-
-        init: function(options) {
-            the.events = [];
-
-            // merge default and user defined options
-            the.options = KTUtil.deepExtend({}, defaultOptions, options);
-            the.overlay;
-
-            the.classBase = the.options.baseClass;
-            the.classShown = the.classBase + '--on';
-            the.classOverlay = the.classBase + '-overlay';
-
-            the.state = KTUtil.hasClass(element, the.classShown) ? 'shown' : 'hidden';
-        },
-
-        build: function() {
-            // offcanvas toggle
-            if (the.options.toggleBy) {
-                if (typeof the.options.toggleBy === 'string') { 
-                    KTUtil.addEvent( the.options.toggleBy, 'click', function(e) {
-                        e.preventDefault();
-                        Plugin.toggle();
-                    }); 
-                } else if (the.options.toggleBy && the.options.toggleBy[0] && the.options.toggleBy[0].target) {
-                    for (var i in the.options.toggleBy) { 
-                        KTUtil.addEvent( the.options.toggleBy[i].target, 'click', function(e) {
-                            e.preventDefault();
-                            Plugin.toggle();
-                        }); 
-                    }
-                } else if (the.options.toggleBy && the.options.toggleBy.target) {
-                    KTUtil.addEvent( the.options.toggleBy.target, 'click', function(e) {
-                        e.preventDefault();
-                        Plugin.toggle();
-                    }); 
-                } 
-            }
-
-            // offcanvas close
-            var closeBy = KTUtil.get(the.options.closeBy);
-            if (closeBy) {
-                KTUtil.addEvent(closeBy, 'click', function(e) {
-                    e.preventDefault();
-                    Plugin.hide();
-                });
-            }
-        },
-
-        isShown: function(target) {
-            return (the.state == 'shown' ? true : false);
-        },
-
-        toggle: function() {;
-            Plugin.eventTrigger('toggle'); 
-
-            if (the.state == 'shown') {
-                Plugin.hide(this);
-            } else {
-                Plugin.show(this);
-            }
-        },
-
-        show: function(target) {
-            if (the.state == 'shown') {
-                return;
-            }
-
-            Plugin.eventTrigger('beforeShow');
-
-            Plugin.togglerClass(target, 'show');
-
-            // Offcanvas panel
-            KTUtil.addClass(body, the.classShown);
-            KTUtil.addClass(element, the.classShown);
-
-            the.state = 'shown';
-
-            if (the.options.overlay) {
-                the.overlay = KTUtil.insertAfter(document.createElement('DIV') , element );
-                KTUtil.addClass(the.overlay, the.classOverlay);
-                KTUtil.addEvent(the.overlay, 'click', function(e) {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    Plugin.hide(target);       
-                });
-            }
-
-            Plugin.eventTrigger('afterShow');
-        },
-
-        hide: function(target) {
-            if (the.state == 'hidden') {
-                return;
-            }
-
-            Plugin.eventTrigger('beforeHide');
-
-            Plugin.togglerClass(target, 'hide');
-
-            KTUtil.removeClass(body, the.classShown);
-            KTUtil.removeClass(element, the.classShown);
-
-            the.state = 'hidden';
-
-            if (the.options.overlay && the.overlay) {
-                KTUtil.remove(the.overlay);
-            }
-
-            Plugin.eventTrigger('afterHide');
-        },
-
-        togglerClass: function(target, mode) {
-            // Toggler
-            var id = KTUtil.attr(target, 'id');
-            var toggleBy;
-
-            if (the.options.toggleBy && the.options.toggleBy[0] && the.options.toggleBy[0].target) {
-                for (var i in the.options.toggleBy) {
-                    if (the.options.toggleBy[i].target === id) {
-                        toggleBy = the.options.toggleBy[i];
-                    }        
-                }
-            } else if (the.options.toggleBy && the.options.toggleBy.target) {
-                toggleBy = the.options.toggleBy;
-            }
-
-            if (toggleBy) {                
-                var el = KTUtil.get(toggleBy.target);
-                
-                if (mode === 'show') {
-                    KTUtil.addClass(el, toggleBy.state);
-                }
-
-                if (mode === 'hide') {
-                    KTUtil.removeClass(el, toggleBy.state);
-                }
-            }
-        },
-
-        eventTrigger: function(name, args) {
-            for (var i = 0; i < the.events.length; i++) {
-                var event = the.events[i];
-                if (event.name == name) {
-                    if (event.one == true) {
-                        if (event.fired == false) {
-                            the.events[i].fired = true;
-                            event.handler.call(this, the, args);
-                        }
-                    } else {
-                        event.handler.call(this, the, args);
-                    }
-                }
-            }
-        },
-
-        addEvent: function(name, handler, one) {
-            the.events.push({
-                name: name,
-                handler: handler,
-                one: one,
-                fired: false
-            });
-        }
-    };
-
-    //////////////////////////
-    // ** Public Methods ** //
-    //////////////////////////
-    the.setDefaults = function(options) {
-        defaultOptions = options;
-    };
-
-    the.isShown = function() {
-        return Plugin.isShown();
-    };
-
-    the.hide = function() {
-        return Plugin.hide();
-    };
-
-    the.show = function() {
-        return Plugin.show();
-    };
-
-    the.on = function(name, handler) {
-        return Plugin.addEvent(name, handler);
-    };
-
-    the.one = function(name, handler) {
-        return Plugin.addEvent(name, handler, true);
-    };
-
-    ///////////////////////////////
-    // ** Plugin Construction ** //
-    ///////////////////////////////
-
-    // Run plugin
-    Plugin.construct.apply(the, [options]);
-
-    // Init done
-    init = true;
-
-    // Return plugin instance
-    return the;
-};
-"use strict";
-// plugin setup
-var KTPortlet = function(elementId, options) {
-    // Main object
-    var the = this;
-    var init = false;
-
-    // Get element object
-    var element = KTUtil.get(elementId);
-    var body = KTUtil.get('body');
-
-    if (!element) {
-        return;
-    }
-
-    // Default options
-    var defaultOptions = {
-        bodyToggleSpeed: 400,
-        tooltips: true,
-        tools: {
-            toggle: {
-                collapse: 'Collapse',
-                expand: 'Expand'
-            },
-            reload: 'Reload',
-            remove: 'Remove',
-            fullscreen: {
-                on: 'Fullscreen',
-                off: 'Exit Fullscreen'
-            }
-        },
-        sticky: {
-            offset: 300,
-            zIndex: 101
-        }
-    };
-
-    ////////////////////////////
-    // ** Private Methods  ** //
-    ////////////////////////////
-
-    var Plugin = {
-        /**
-         * Construct
-         */
-
-        construct: function(options) {
-            if (KTUtil.data(element).has('portlet')) {
-                the = KTUtil.data(element).get('portlet');
-            } else {
-                // reset menu
-                Plugin.init(options);
-
-                // build menu
-                Plugin.build();
-
-                KTUtil.data(element).set('portlet', the);
-            }
-
-            return the;
-        },
-
-        /**
-         * Init portlet
-         */
-        init: function(options) {
-            the.element = element;
-            the.events = [];
-
-            // merge default and user defined options
-            the.options = KTUtil.deepExtend({}, defaultOptions, options);
-            the.head = KTUtil.child(element, '.kt-portlet__head');
-            the.foot = KTUtil.child(element, '.kt-portlet__foot');
-
-            if (KTUtil.child(element, '.kt-portlet__body')) {
-                the.body = KTUtil.child(element, '.kt-portlet__body');
-            } else if (KTUtil.child(element, '.kt-form')) {
-                the.body = KTUtil.child(element, '.kt-form');
-            }
-        },
-
-        /**
-         * Build Form Wizard
-         */
-        build: function() {
-            // Remove
-            var remove = KTUtil.find(the.head, '[data-ktportlet-tool=remove]');
-            if (remove) {
-                KTUtil.addEvent(remove, 'click', function(e) {
-                    e.preventDefault();
-                    Plugin.remove();
-                });
-            }
-
-            // Reload
-            var reload = KTUtil.find(the.head, '[data-ktportlet-tool=reload]');
-            if (reload) {
-                KTUtil.addEvent(reload, 'click', function(e) {
-                    e.preventDefault();
-                    Plugin.reload();
-                });
-            }
-
-            // Toggle
-            var toggle = KTUtil.find(the.head, '[data-ktportlet-tool=toggle]');
-            if (toggle) {
-                KTUtil.addEvent(toggle, 'click', function(e) {
-                    e.preventDefault();
-                    Plugin.toggle();
-                });
-            }
-
-            //== Fullscreen
-            var fullscreen = KTUtil.find(the.head, '[data-ktportlet-tool=fullscreen]');
-            if (fullscreen) {
-                KTUtil.addEvent(fullscreen, 'click', function(e) {
-                    e.preventDefault();
-                    Plugin.fullscreen();
-                });
-            }
-
-            Plugin.setupTooltips();
-        },
-
-        /**
-         * Enable stickt mode
-         */
-        initSticky: function() {
-            var lastScrollTop = 0;
-            var offset = the.options.sticky.offset;
-
-            if (!the.head) {
-                return;
-            }
-
-	        window.addEventListener('scroll', Plugin.onScrollSticky);
-        },
-
-	    /**
-	     * Window scroll handle event for sticky portlet
-	     */
-	    onScrollSticky: function(e) {
-		    var offset = the.options.sticky.offset;
-		    if(isNaN(offset)) return;
-
-		    var st = document.documentElement.scrollTop;
-
-		    if (st >= offset && KTUtil.hasClass(body, 'kt-portlet--sticky') === false) {
-			    Plugin.eventTrigger('stickyOn');
-
-			    KTUtil.addClass(body, 'kt-portlet--sticky');
-			    KTUtil.addClass(element, 'kt-portlet--sticky');
-
-			    Plugin.updateSticky();
-
-		    } else if ((st*1.5) <= offset && KTUtil.hasClass(body, 'kt-portlet--sticky')) {
-			    // back scroll mode
-			    Plugin.eventTrigger('stickyOff');
-
-			    KTUtil.removeClass(body, 'kt-portlet--sticky');
-			    KTUtil.removeClass(element, 'kt-portlet--sticky');
-
-			    Plugin.resetSticky();
-		    }
-	    },
-
-        updateSticky: function() {
-            if (!the.head) {
-                return;
-            }
-
-            var top;
-
-            if (KTUtil.hasClass(body, 'kt-portlet--sticky')) {
-                if (the.options.sticky.position.top instanceof Function) {
-                    top = parseInt(the.options.sticky.position.top.call());
-                } else {
-                    top = parseInt(the.options.sticky.position.top);
-                }
-
-                var left;
-                if (the.options.sticky.position.left instanceof Function) {
-                    left = parseInt(the.options.sticky.position.left.call());
-                } else {
-                    left = parseInt(the.options.sticky.position.left);
-                }
-
-                var right;
-                if (the.options.sticky.position.right instanceof Function) {
-                    right = parseInt(the.options.sticky.position.right.call());
-                } else {
-                    right = parseInt(the.options.sticky.position.right);
-                }
-
-                KTUtil.css(the.head, 'z-index', the.options.sticky.zIndex);
-                KTUtil.css(the.head, 'top', top + 'px');
-                KTUtil.css(the.head, 'left', left + 'px');
-                KTUtil.css(the.head, 'right', right + 'px');
-            }
-        },
-
-        resetSticky: function() {
-            if (!the.head) {
-                return;
-            }
-
-            if (KTUtil.hasClass(body, 'kt-portlet--sticky') === false) {
-                KTUtil.css(the.head, 'z-index', '');
-                KTUtil.css(the.head, 'top', '');
-                KTUtil.css(the.head, 'left', '');
-                KTUtil.css(the.head, 'right', '');
-            }
-        },
-
-        /**
-         * Remove portlet
-         */
-        remove: function() {
-            if (Plugin.eventTrigger('beforeRemove') === false) {
-                return;
-            }
-
-            if (KTUtil.hasClass(body, 'kt-portlet--fullscreen') && KTUtil.hasClass(element, 'kt-portlet--fullscreen')) {
-                Plugin.fullscreen('off');
-            }
-
-            Plugin.removeTooltips();
-
-            KTUtil.remove(element);
-
-            Plugin.eventTrigger('afterRemove');
-        },
-
-        /**
-         * Set content
-         */
-        setContent: function(html) {
-            if (html) {
-                the.body.innerHTML = html;
-            }
-        },
-
-        /**
-         * Get body
-         */
-        getBody: function() {
-            return the.body;
-        },
-
-        /**
-         * Get self
-         */
-        getSelf: function() {
-            return element;
-        },
-
-        /**
-         * Setup tooltips
-         */
-        setupTooltips: function() {
-            if (the.options.tooltips) {
-                var collapsed = KTUtil.hasClass(element, 'kt-portlet--collapse') || KTUtil.hasClass(element, 'kt-portlet--collapsed');
-                var fullscreenOn = KTUtil.hasClass(body, 'kt-portlet--fullscreen') && KTUtil.hasClass(element, 'kt-portlet--fullscreen');
-
-                //== Remove
-                var remove = KTUtil.find(the.head, '[data-ktportlet-tool=remove]');
-                if (remove) {
-                    var placement = (fullscreenOn ? 'bottom' : 'top');
-                    var tip = new Tooltip(remove, {
-                        title: the.options.tools.remove,
-                        placement: placement,
-                        offset: (fullscreenOn ? '0,10px,0,0' : '0,5px'),
-                        trigger: 'hover',
-                        template: '<div class="tooltip tooltip-portlet tooltip bs-tooltip-' + placement + '" role="tooltip">\
-                            <div class="tooltip-arrow arrow"></div>\
-                            <div class="tooltip-inner"></div>\
-                        </div>'
-                    });
-
-                    KTUtil.data(remove).set('tooltip', tip);
-                }
-
-                //== Reload
-                var reload = KTUtil.find(the.head, '[data-ktportlet-tool=reload]');
-                if (reload) {
-                    var placement = (fullscreenOn ? 'bottom' : 'top');
-                    var tip = new Tooltip(reload, {
-                        title: the.options.tools.reload,
-                        placement: placement,
-                        offset: (fullscreenOn ? '0,10px,0,0' : '0,5px'),
-                        trigger: 'hover',
-                        template: '<div class="tooltip tooltip-portlet tooltip bs-tooltip-' + placement + '" role="tooltip">\
-                            <div class="tooltip-arrow arrow"></div>\
-                            <div class="tooltip-inner"></div>\
-                        </div>'
-                    });
-
-                    KTUtil.data(reload).set('tooltip', tip);
-                }
-
-                //== Toggle
-                var toggle = KTUtil.find(the.head, '[data-ktportlet-tool=toggle]');
-                if (toggle) {
-                    var placement = (fullscreenOn ? 'bottom' : 'top');
-                    var tip = new Tooltip(toggle, {
-                        title: (collapsed ? the.options.tools.toggle.expand : the.options.tools.toggle.collapse),
-                        placement: placement,
-                        offset: (fullscreenOn ? '0,10px,0,0' : '0,5px'),
-                        trigger: 'hover',
-                        template: '<div class="tooltip tooltip-portlet tooltip bs-tooltip-' + placement + '" role="tooltip">\
-                            <div class="tooltip-arrow arrow"></div>\
-                            <div class="tooltip-inner"></div>\
-                        </div>'
-                    });
-
-                    KTUtil.data(toggle).set('tooltip', tip);
-                }
-
-                //== Fullscreen
-                var fullscreen = KTUtil.find(the.head, '[data-ktportlet-tool=fullscreen]');
-                if (fullscreen) {
-                    var placement = (fullscreenOn ? 'bottom' : 'top');
-                    var tip = new Tooltip(fullscreen, {
-                        title: (fullscreenOn ? the.options.tools.fullscreen.off : the.options.tools.fullscreen.on),
-                        placement: placement,
-                        offset: (fullscreenOn ? '0,10px,0,0' : '0,5px'),
-                        trigger: 'hover',
-                        template: '<div class="tooltip tooltip-portlet tooltip bs-tooltip-' + placement + '" role="tooltip">\
-                            <div class="tooltip-arrow arrow"></div>\
-                            <div class="tooltip-inner"></div>\
-                        </div>'
-                    });
-
-                    KTUtil.data(fullscreen).set('tooltip', tip);
-                }
-            }
-        },
-
-        /**
-         * Setup tooltips
-         */
-        removeTooltips: function() {
-            if (the.options.tooltips) {
-                //== Remove
-                var remove = KTUtil.find(the.head, '[data-ktportlet-tool=remove]');
-                if (remove && KTUtil.data(remove).has('tooltip')) {
-                    KTUtil.data(remove).get('tooltip').dispose();
-                }
-
-                //== Reload
-                var reload = KTUtil.find(the.head, '[data-ktportlet-tool=reload]');
-                if (reload && KTUtil.data(reload).has('tooltip')) {
-                    KTUtil.data(reload).get('tooltip').dispose();
-                }
-
-                //== Toggle
-                var toggle = KTUtil.find(the.head, '[data-ktportlet-tool=toggle]');
-                if (toggle && KTUtil.data(toggle).has('tooltip')) {
-                    KTUtil.data(toggle).get('tooltip').dispose();
-                }
-
-                //== Fullscreen
-                var fullscreen = KTUtil.find(the.head, '[data-ktportlet-tool=fullscreen]');
-                if (fullscreen && KTUtil.data(fullscreen).has('tooltip')) {
-                    KTUtil.data(fullscreen).get('tooltip').dispose();
-                }
-            }
-        },
-
-        /**
-         * Reload
-         */
-        reload: function() {
-            Plugin.eventTrigger('reload');
-        },
-
-        /**
-         * Toggle
-         */
-        toggle: function() {
-            if (KTUtil.hasClass(element, 'kt-portlet--collapse') || KTUtil.hasClass(element, 'kt-portlet--collapsed')) {
-                Plugin.expand();
-            } else {
-                Plugin.collapse();
-            }
-        },
-
-        /**
-         * Collapse
-         */
-        collapse: function() {
-            if (Plugin.eventTrigger('beforeCollapse') === false) {
-                return;
-            }
-
-            KTUtil.slideUp(the.body, the.options.bodyToggleSpeed, function() {
-                Plugin.eventTrigger('afterCollapse');
-            });
-
-            KTUtil.addClass(element, 'kt-portlet--collapse');
-
-            var toggle = KTUtil.find(the.head, '[data-ktportlet-tool=toggle]');
-            if (toggle && KTUtil.data(toggle).has('tooltip')) {
-                KTUtil.data(toggle).get('tooltip').updateTitleContent(the.options.tools.toggle.expand);
-            }
-        },
-
-        /**
-         * Expand
-         */
-        expand: function() {
-            if (Plugin.eventTrigger('beforeExpand') === false) {
-                return;
-            }
-
-            KTUtil.slideDown(the.body, the.options.bodyToggleSpeed, function() {
-                Plugin.eventTrigger('afterExpand');
-            });
-
-            KTUtil.removeClass(element, 'kt-portlet--collapse');
-            KTUtil.removeClass(element, 'kt-portlet--collapsed');
-
-            var toggle = KTUtil.find(the.head, '[data-ktportlet-tool=toggle]');
-            if (toggle && KTUtil.data(toggle).has('tooltip')) {
-                KTUtil.data(toggle).get('tooltip').updateTitleContent(the.options.tools.toggle.collapse);
-            }
-        },
-
-        /**
-         * fullscreen
-         */
-        fullscreen: function(mode) {
-            var d = {};
-            var speed = 300;
-
-            if (mode === 'off' || (KTUtil.hasClass(body, 'kt-portlet--fullscreen') && KTUtil.hasClass(element, 'kt-portlet--fullscreen'))) {
-                Plugin.eventTrigger('beforeFullscreenOff');
-
-                KTUtil.removeClass(body, 'kt-portlet--fullscreen');
-                KTUtil.removeClass(element, 'kt-portlet--fullscreen');
-
-                Plugin.removeTooltips();
-                Plugin.setupTooltips();
-
-                if (the.foot) {
-                    KTUtil.css(the.body, 'margin-bottom', '');
-                    KTUtil.css(the.foot, 'margin-top', '');
-                }
-
-                Plugin.eventTrigger('afterFullscreenOff');
-            } else {
-                Plugin.eventTrigger('beforeFullscreenOn');
-
-                KTUtil.addClass(element, 'kt-portlet--fullscreen');
-                KTUtil.addClass(body, 'kt-portlet--fullscreen');
-
-                Plugin.removeTooltips();
-                Plugin.setupTooltips();
-
-
-                if (the.foot) {
-                    var height1 = parseInt(KTUtil.css(the.foot, 'height'));
-                    var height2 = parseInt(KTUtil.css(the.foot, 'height')) + parseInt(KTUtil.css(the.head, 'height'));
-                    KTUtil.css(the.body, 'margin-bottom', height1 + 'px');
-                    KTUtil.css(the.foot, 'margin-top', '-' + height2 + 'px');
-                }
-
-                Plugin.eventTrigger('afterFullscreenOn');
-            }
-        },
-
-        /**
-         * Trigger events
-         */
-        eventTrigger: function(name) {
-            //KTUtil.triggerCustomEvent(name);
-            for (var i = 0; i < the.events.length; i++) {
-                var event = the.events[i];
-                if (event.name == name) {
-                    if (event.one == true) {
-                        if (event.fired == false) {
-                            the.events[i].fired = true;
-                            event.handler.call(this, the);
-                        }
-                    } else {
-                        event.handler.call(this, the);
-                    }
-                }
-            }
-        },
-
-        addEvent: function(name, handler, one) {
-            the.events.push({
-                name: name,
-                handler: handler,
-                one: one,
-                fired: false
-            });
-
-            return the;
-        }
-    };
-
-    //////////////////////////
-    // ** Public Methods ** //
-    //////////////////////////
-
-    /**
-     * Set default options
-     */
-
-    the.setDefaults = function(options) {
-        defaultOptions = options;
-    };
-
-    /**
-     * Remove portlet
-     * @returns {KTPortlet}
-     */
-    the.remove = function() {
-        return Plugin.remove(html);
-    };
-
-    /**
-     * Remove portlet
-     * @returns {KTPortlet}
-     */
-    the.initSticky = function() {
-        return Plugin.initSticky();
-    };
-
-    /**
-     * Remove portlet
-     * @returns {KTPortlet}
-     */
-    the.updateSticky = function() {
-        return Plugin.updateSticky();
-    };
-
-    /**
-     * Remove portlet
-     * @returns {KTPortlet}
-     */
-    the.resetSticky = function() {
-        return Plugin.resetSticky();
-    };
-
-	/**
-	 * Destroy sticky portlet
-	 */
-	the.destroySticky = function() {
-		Plugin.resetSticky();
-		window.removeEventListener('scroll', Plugin.onScrollSticky);
-	};
-
-    /**
-     * Reload portlet
-     * @returns {KTPortlet}
-     */
-    the.reload = function() {
-        return Plugin.reload();
-    };
-
-    /**
-     * Set portlet content
-     * @returns {KTPortlet}
-     */
-    the.setContent = function(html) {
-        return Plugin.setContent(html);
-    };
-
-    /**
-     * Toggle portlet
-     * @returns {KTPortlet}
-     */
-    the.toggle = function() {
-        return Plugin.toggle();
-    };
-
-    /**
-     * Collapse portlet
-     * @returns {KTPortlet}
-     */
-    the.collapse = function() {
-        return Plugin.collapse();
-    };
-
-    /**
-     * Expand portlet
-     * @returns {KTPortlet}
-     */
-    the.expand = function() {
-        return Plugin.expand();
-    };
-
-    /**
-     * Fullscreen portlet
-     * @returns {MPortlet}
-     */
-    the.fullscreen = function() {
-        return Plugin.fullscreen('on');
-    };
-
-    /**
-     * Fullscreen portlet
-     * @returns {MPortlet}
-     */
-    the.unFullscreen = function() {
-        return Plugin.fullscreen('off');
-    };
-
-    /**
-     * Get portletbody
-     * @returns {jQuery}
-     */
-    the.getBody = function() {
-        return Plugin.getBody();
-    };
-
-    /**
-     * Get portletbody
-     * @returns {jQuery}
-     */
-    the.getSelf = function() {
-        return Plugin.getSelf();
-    };
-
-    /**
-     * Attach event
-     */
-    the.on = function(name, handler) {
-        return Plugin.addEvent(name, handler);
-    };
-
-    /**
-     * Attach event that will be fired once
-     */
-    the.one = function(name, handler) {
-        return Plugin.addEvent(name, handler, true);
-    };
-
-    // Construct plugin
-    Plugin.construct.apply(the, [options]);
-
-    return the;
-};
-"use strict";
-var KTScrolltop = function(elementId, options) {
-    // Main object
-    var the = this;
-    var init = false;
-
-    // Get element object
-    var element = KTUtil.get(elementId);
-    var body = KTUtil.get('body');
-
-    if (!element) {
-        return;
-    }
-
-    // Default options
-    var defaultOptions = {
-        offset: 300,
-        speed: 600,
-        toggleClass: 'kt-scrolltop--on'
-    };
-
-    ////////////////////////////
-    // ** Private Methods  ** //
-    ////////////////////////////
-
-    var Plugin = {
-        /**
-         * Run plugin
-         * @returns {mscrolltop}
-         */
-        construct: function(options) {
-            if (KTUtil.data(element).has('scrolltop')) {
-                the = KTUtil.data(element).get('scrolltop');
-            } else {
-                // reset scrolltop
-                Plugin.init(options);
-
-                // build scrolltop
-                Plugin.build();
-
-                KTUtil.data(element).set('scrolltop', the);
-            }
-
-            return the;
-        },
-
-        /**
-         * Handles subscrolltop click toggle
-         * @returns {mscrolltop}
-         */
-        init: function(options) {
-            the.events = [];
-
-            // merge default and user defined options
-            the.options = KTUtil.deepExtend({}, defaultOptions, options);
-        },
-
-        build: function() {
-            // handle window scroll
-            if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
-                window.addEventListener('touchend', function() {
-                    Plugin.handle();
-                });
-
-                window.addEventListener('touchcancel', function() {
-                    Plugin.handle();
-                });
-
-                window.addEventListener('touchleave', function() {
-                    Plugin.handle();
-                });
-            } else {
-                window.addEventListener('scroll', function() { 
-                    Plugin.handle();
-                });
-            }
-
-            // handle button click 
-            KTUtil.addEvent(element, 'click', Plugin.scroll);
-        },
-
-        /**
-         * Handles scrolltop click scrollTop
-         */
-        handle: function() {
-            var pos = window.pageYOffset; // current vertical position
-            if (pos > the.options.offset) {
-                KTUtil.addClass(body, the.options.toggleClass);
-            } else {
-                KTUtil.removeClass(body, the.options.toggleClass);
-            }
-        },
-
-        /**
-         * Handles scrolltop click scrollTop
-         */
-        scroll: function(e) {
-            e.preventDefault();
-
-            KTUtil.scrollTop(0, the.options.speed);
-        },
-
-
-        /**
-         * Trigger events
-         */
-        eventTrigger: function(name, args) {
-            for (var i = 0; i < the.events.length; i++) {
-                var event = the.events[i];
-                if (event.name == name) {
-                    if (event.one == true) {
-                        if (event.fired == false) {
-                            the.events[i].fired = true;
-                            event.handler.call(this, the, args);
-                        }
-                    } else {
-                        event.handler.call(this, the, args);
-                    }
-                }
-            }
-        },
-
-        addEvent: function(name, handler, one) {
-            the.events.push({
-                name: name,
-                handler: handler,
-                one: one,
-                fired: false
-            });
-        }
-    };
-
-    //////////////////////////
-    // ** Public Methods ** //
-    //////////////////////////
-
-    /**
-     * Set default options 
-     */
-
-    the.setDefaults = function(options) {
-        defaultOptions = options;
-    };
-
-    /**
-     * Get subscrolltop mode
-     */
-    the.on = function(name, handler) {
-        return Plugin.addEvent(name, handler);
-    };
-
-    /**
-     * Set scrolltop content
-     * @returns {mscrolltop}
-     */
-    the.one = function(name, handler) {
-        return Plugin.addEvent(name, handler, true);
-    };
-
-    ///////////////////////////////
-    // ** Plugin Construction ** //
-    ///////////////////////////////
-
-    // Run plugin
-    Plugin.construct.apply(the, [options]);
-
-    // Init done
-    init = true;
-
-    // Return plugin instance
-    return the;
-};
-"use strict";
-
-// plugin setup
-var KTToggle = function(elementId, options) {
-    // Main object
-    var the = this;
-    var init = false;
-
-    // Get element object
-    var element = KTUtil.get(elementId);
-    var body = KTUtil.get('body');  
-
-    if (!element) {
-        return;
-    }
-
-    // Default options
-    var defaultOptions = {
-        togglerState: '',
-        targetState: ''
-    };    
-
-    ////////////////////////////
-    // ** Private Methods  ** //
-    ////////////////////////////
-
-    var Plugin = {
-        /**
-         * Construct
-         */
-
-        construct: function(options) {
-            if (KTUtil.data(element).has('toggle')) {
-                the = KTUtil.data(element).get('toggle');
-            } else {
-                // reset menu
-                Plugin.init(options);
-
-                // build menu
-                Plugin.build();
-
-                KTUtil.data(element).set('toggle', the);
-            }
-
-            return the;
-        },
-
-        /**
-         * Handles subtoggle click toggle
-         */
-        init: function(options) {
-            the.element = element;
-            the.events = [];
-
-            // merge default and user defined options
-            the.options = KTUtil.deepExtend({}, defaultOptions, options);
-
-            the.target = KTUtil.get(the.options.target);
-            the.targetState = the.options.targetState;
-            the.togglerState = the.options.togglerState;
-
-            the.state = KTUtil.hasClasses(the.target, the.targetState) ? 'on' : 'off';
-        },
-
-        /**
-         * Setup toggle
-         */
-        build: function() {
-            KTUtil.addEvent(element, 'mouseup', Plugin.toggle);
+			var node = document.createElement("DIV");  
+			KTUtil.addClass(node, 'kt-chat__message kt-chat__message--brand kt-chat__message--right');
+
+			var html = 
+				'<div class="kt-chat__user">' +				
+					'<span class="kt-chat__datetime">Just now</span>' +
+					'<a href="#" class="kt-chat__username">Jason Muller</span></a>' +					
+					'<span class="kt-userpic kt-userpic--circle kt-userpic--sm">' +
+						'<img src="./assets/media/users/100_12.jpg" alt="image">'  + 
+					'</span>' +
+				'</div>' +
+				'<div class="kt-chat__text kt-bg-light-brand">' + 
+					textarea.value
+				'</div>';
+
+			KTUtil.setHTML(node, html);
+			messagesEl.appendChild(node);
+			textarea.value = '';
+			scrollEl.scrollTop = parseInt(KTUtil.css(messagesEl, 'height'));
+			
+			var ps;
+			if (ps = KTUtil.data(scrollEl).get('ps')) {
+				ps.update();
+			}					
+			
+			setTimeout(function() {
+				var node = document.createElement("DIV");  
+				KTUtil.addClass(node, 'kt-chat__message kt-chat__message--success');
+
+				var html = 
+					'<div class="kt-chat__user">' +
+						'<span class="kt-userpic kt-userpic--circle kt-userpic--sm">' +
+							'<img src="./assets/media/users/100_13.jpg" alt="image">'  + 
+						'</span>' +
+						'<a href="#" class="kt-chat__username">Max Born</span></a>' +
+						'<span class="kt-chat__datetime">Just now</span>' +
+					'</div>' +
+					'<div class="kt-chat__text kt-bg-light-success">' + 
+					'Right before vacation season we have the next Big Deal for you. <br>Book the car of your dreams and save up to <b>25%*</b> worldwide.'
+					'</div>';
+
+				KTUtil.setHTML(node, html);
+				messagesEl.appendChild(node);
+				textarea.value = '';
+				scrollEl.scrollTop = parseInt(KTUtil.css(messagesEl, 'height'));
+				
+				var ps;
+				if (ps = KTUtil.data(scrollEl).get('ps')) {
+					ps.update();
+				}					
+			}, 2000);
+		}
+
+		// attach events
+		KTUtil.on(parentEl, '.kt-chat__input textarea', 'keydown', function(e) {
+			if (e.keyCode == 13) {
+				handleMessaging();
+				e.preventDefault();
+
+				return false; 
+			}
+		});
+
+		KTUtil.on(parentEl, '.kt-chat__input .kt-chat__reply', 'click', function(e) {
+			handleMessaging();
+		});
+	}
+
+	return {
+		// public functions
+		init: function() {
+			// init modal chat example
+			initChat( KTUtil.getByID('kt_chat_modal'));
+
+			// trigger click to show popup modal chat on page load
+			setTimeout(function() {
+				//KTUtil.getByID('kt_app_chat_launch_btn').click();
+			}, 1000);
         },
         
-        /**
-         * Handles offcanvas click toggle
-         */
-        toggle: function(e) {
-            Plugin.eventTrigger('beforeToggle');
-
-            if (the.state == 'off') {
-                Plugin.toggleOn();
-            } else {
-                Plugin.toggleOff();
-            }
-
-            Plugin.eventTrigger('afterToggle');
-
-            e.preventDefault();
-
-            return the;
-        },
-
-        /**
-         * Handles toggle click toggle
-         */
-        toggleOn: function() {
-            Plugin.eventTrigger('beforeOn');
-
-            KTUtil.addClass(the.target, the.targetState);
-
-            if (the.togglerState) {
-                KTUtil.addClass(element, the.togglerState);
-            }
-
-            the.state = 'on';
-
-            Plugin.eventTrigger('afterOn');
-
-            Plugin.eventTrigger('toggle');
-
-            return the;
-        },
-
-        /**
-         * Handles toggle click toggle
-         */
-        toggleOff: function() {
-            Plugin.eventTrigger('beforeOff');
-
-            KTUtil.removeClass(the.target, the.targetState);
-
-            if (the.togglerState) {
-                KTUtil.removeClass(element, the.togglerState);
-            }
-
-            the.state = 'off';
-
-            Plugin.eventTrigger('afterOff');
-
-            Plugin.eventTrigger('toggle');
-
-            return the;
-        },
-
-        /**
-         * Trigger events
-         */
-        eventTrigger: function(name) {
-            for (var i = 0; i < the.events.length; i++) {
-                var event = the.events[i];
-
-                if (event.name == name) {
-                    if (event.one == true) {
-                        if (event.fired == false) {
-                            the.events[i].fired = true;                            
-                            event.handler.call(this, the);
-                        }
-                    } else {
-                        event.handler.call(this, the);
-                    }
-                }
-            }
-        },
-
-        addEvent: function(name, handler, one) {
-            the.events.push({
-                name: name,
-                handler: handler,
-                one: one,
-                fired: false
-            });
-
-            return the;
+        setup: function(element) {
+            initChat(element);
         }
-    };
+	};
+}();
 
-    //////////////////////////
-    // ** Public Methods ** //
-    //////////////////////////
+KTUtil.ready(function() {	
+	KTChat.init();
+});
+"use strict";
 
-    /**
-     * Set default options 
-     */
+var KTDemoPanel = function() {
+    var demoPanel = KTUtil.getByID('kt_demo_panel');
+    var offcanvas;
 
-    the.setDefaults = function(options) {
-        defaultOptions = options;
-    };
+    var init = function() {
+        offcanvas = new KTOffcanvas(demoPanel, {
+            overlay: true,  
+            baseClass: 'kt-demo-panel',
+            closeBy: 'kt_demo_panel_close',
+            toggleBy: 'kt_demo_panel_toggle'
+        }); 
 
-    /**
-     * Get toggle state 
-     */
-    the.getState = function() {
-        return the.state;
-    };
+        var head = KTUtil.find(demoPanel, '.kt-demo-panel__head');
+        var body = KTUtil.find(demoPanel, '.kt-demo-panel__body');
 
-    /**
-     * Toggle 
-     */
-    the.toggle = function() {
-        return Plugin.toggle();
-    };
+        KTUtil.scrollInit(body, {
+            disableForMobile: true, 
+            resetHeightOnDestroy: true, 
+            handleWindowResize: true, 
+            height: function() {
+                var height = parseInt(KTUtil.getViewPort().height);
+               
+                if (head) {
+                    height = height - parseInt(KTUtil.actualHeight(head));
+                    height = height - parseInt(KTUtil.css(head, 'marginBottom'));
+                }
+        
+                height = height - parseInt(KTUtil.css(demoPanel, 'paddingTop'));
+                height = height - parseInt(KTUtil.css(demoPanel, 'paddingBottom'));    
 
-    /**
-     * Toggle on 
-     */
-    the.toggleOn = function() {
-        return Plugin.toggleOn();
-    };
+                return height;
+            }
+        });
 
-    /**
-     * Toggle off 
-     */
-    the.toggleOff = function() {
-        return Plugin.toggleOff();
-    };
-
-    /**
-     * Attach event
-     * @returns {KTToggle}
-     */
-    the.on = function(name, handler) {
-        return Plugin.addEvent(name, handler);
-    };
-
-    /**
-     * Attach event that will be fired once
-     * @returns {KTToggle}
-     */
-    the.one = function(name, handler) {
-        return Plugin.addEvent(name, handler, true);
-    };
-
-    // Construct plugin
-    Plugin.construct.apply(the, [options]);
-
-    return the;
-};
-// plugin setup
-var KTWizard = function(elementId, options) {
-    // Main object
-    var the = this;
-    var init = false;
-
-    // Get element object
-    var element = KTUtil.get(elementId);
-    var body = KTUtil.get('body');
-
-    if (!element) {
-        return; 
+        if (typeof offcanvas !== 'undefined' && offcanvas.length === 0) {
+            offcanvas.on('hide', function() {
+                var expires = new Date(new Date().getTime() + 60 * 60 * 1000); // expire in 60 minutes from now
+                Cookies.set('kt_demo_panel_shown', 1, {expires: expires});
+            });
+        }
     }
 
-    // Default options
-    var defaultOptions = {
-        startStep: 1,
-        manualStepForward: false
+    var remind = function() {
+        if (!(encodeURI(window.location.hostname) == 'keenthemes.com' || encodeURI(window.location.hostname) == 'www.keenthemes.com')) {
+            return;
+        }
+
+        setTimeout(function() {
+            if (!Cookies.get('kt_demo_panel_shown')) {
+                var expires = new Date(new Date().getTime() + 15 * 60 * 1000); // expire in 15 minutes from now
+                Cookies.set('kt_demo_panel_shown', 1, { expires: expires });
+                offcanvas.show();
+            } 
+        }, 4000);
+    }
+
+    return {     
+        init: function() {  
+            init(); 
+            remind();
+        }
     };
+}();
 
-    ////////////////////////////
-    // ** Private Methods  ** //
-    ////////////////////////////
+$(document).ready(function() {
+    KTDemoPanel.init();
+});
+"use strict";
 
-    var Plugin = {
-        /**
-         * Construct
-         */
+var KTOffcanvasPanel = function() {
+    var notificationPanel = KTUtil.get('kt_offcanvas_toolbar_notifications');
+    var quickActionsPanel = KTUtil.get('kt_offcanvas_toolbar_quick_actions');
+    var profilePanel = KTUtil.get('kt_offcanvas_toolbar_profile');
+    var searchPanel = KTUtil.get('kt_offcanvas_toolbar_search');
 
-        construct: function(options) {
-            if (KTUtil.data(element).has('wizard')) {
-                the = KTUtil.data(element).get('wizard');
-            } else {
-                // reset menu
-                Plugin.init(options);
+    var initNotifications = function() {
+        var head = KTUtil.find(notificationPanel, '.kt-offcanvas-panel__head');
+        var body = KTUtil.find(notificationPanel, '.kt-offcanvas-panel__body');
 
-                // build menu
-                Plugin.build();
+        var offcanvas = new KTOffcanvas(notificationPanel, {
+            overlay: true,  
+            baseClass: 'kt-offcanvas-panel',
+            closeBy: 'kt_offcanvas_toolbar_notifications_close',
+            toggleBy: 'kt_offcanvas_toolbar_notifications_toggler_btn'
+        }); 
 
-                KTUtil.data(element).set('wizard', the);
-            }
-
-            return the;
-        },
-
-        /**
-         * Init wizard
-         */
-        init: function(options) {
-            the.element = element;
-            the.events = [];
-
-            // merge default and user defined options
-            the.options = KTUtil.deepExtend({}, defaultOptions, options);
-
-            // Elements
-            the.steps = KTUtil.findAll(element, '[data-ktwizard-type="step"]');
-
-            the.btnSubmit = KTUtil.find(element, '[data-ktwizard-type="action-submit"]');
-            the.btnNext = KTUtil.find(element, '[data-ktwizard-type="action-next"]');
-            the.btnPrev = KTUtil.find(element, '[data-ktwizard-type="action-prev"]');
-            the.btnLast = KTUtil.find(element, '[data-ktwizard-type="action-last"]');
-            the.btnFirst = KTUtil.find(element, '[data-ktwizard-type="action-first"]');
-
-            // Variables
-            the.events = [];
-            the.currentStep = 1;
-            the.stopped = false;
-            the.totalSteps = the.steps.length;
-
-            // Init current step
-            if (the.options.startStep > 1) {
-                Plugin.goTo(the.options.startStep);
-            }
-
-            // Init UI
-            Plugin.updateUI();
-        },
-
-        /**
-         * Build Form Wizard
-         */
-        build: function() {
-            // Next button event handler
-            KTUtil.addEvent(the.btnNext, 'click', function(e) {
-                e.preventDefault();
-                Plugin.goNext();
-            });
-
-            // Prev button event handler
-            KTUtil.addEvent(the.btnPrev, 'click', function(e) {
-                e.preventDefault();
-                Plugin.goPrev();
-            });
-
-            // First button event handler
-            KTUtil.addEvent(the.btnFirst, 'click', function(e) {
-                e.preventDefault();
-                Plugin.goFirst();
-            });
-
-            // Last button event handler
-            KTUtil.addEvent(the.btnLast, 'click', function(e) {
-                e.preventDefault();
-                Plugin.goLast();
-            });
-
-            KTUtil.on(element, 'a[data-ktwizard-type="step"]', 'click', function() {
-                var index = KTUtil.index(this) + 1;
-                if (index !== the.currentStep) {
-                    Plugin.goTo(index);
-                }                
-            });
-        },
-
-        /**
-         * Handles wizard click wizard
-         */
-        goTo: function(number) {
-            // Skip if this step is already shown
-            if (number === the.currentStep || number > the.totalSteps || number < 0) {
-                return;
-            }
-
-            // Validate step number
-            if (number) {
-                number = parseInt(number);
-            } else {
-                number = Plugin.getNextStep();
-            }
-
-            // Before next and prev events
-            var callback;
-
-            if (number > the.currentStep) {
-                callback = Plugin.eventTrigger('beforeNext');
-            } else {
-                callback = Plugin.eventTrigger('beforePrev');
-            }
-            
-            // Skip if stopped
-            if (the.stopped === true) {
-                the.stopped = false;
-                return;
-            }
-
-            // Continue if no exit
-            if (callback !== false) {
-                // Before change
-                Plugin.eventTrigger('beforeChange');
-
-                // Set current step 
-                the.currentStep = number;
-
-                Plugin.updateUI();
-
-                // Trigger change event
-                Plugin.eventTrigger('change');
-            }
-
-            // After next and prev events
-            if (number > the.startStep) {
-                Plugin.eventTrigger('afterNext');
-            } else {
-                Plugin.eventTrigger('afterPrev');
-            }
-
-            return the;
-        },
-
-        /**
-         * Cancel
-         */
-        stop: function() {
-            the.stopped = true;
-        },
-
-        /**
-         * Resume
-         */
-        start: function() {
-            the.stopped = false;
-        },
-
-        /**
-         * Check last step
-         */
-        isLastStep: function() {
-            return the.currentStep === the.totalSteps;
-        },
-
-        /**
-         * Check first step
-         */
-        isFirstStep: function() {
-            return the.currentStep === 1;
-        },
-
-        /**
-         * Check between step
-         */
-        isBetweenStep: function() {
-            return Plugin.isLastStep() === false && Plugin.isFirstStep() === false;
-        },
-
-        /**
-         * Go to the next step
-         */
-        goNext: function() {
-            return Plugin.goTo(Plugin.getNextStep());
-        },
-
-        /**
-         * Go to the prev step
-         */
-        goPrev: function() {
-            return Plugin.goTo(Plugin.getPrevStep());
-        },
-
-        /**
-         * Go to the last step
-         */
-        goLast: function() {
-            return Plugin.goTo(the.totalSteps);
-        },
-
-        /**
-         * Go to the first step
-         */
-        goFirst: function() {
-            return Plugin.goTo(1);
-        },
-
-        /**
-         * Go to the first step
-         */
-        updateUI: function() {
-            var stepType = '';
-            var index = the.currentStep - 1;
-
-            if (Plugin.isLastStep()) {
-                stepType = 'last';
-            } else if (Plugin.isFirstStep()) {
-                stepType = 'first';
-            } else {
-                stepType = 'between';
-            }
-
-            KTUtil.attr(the.element, 'data-ktwizard-state', stepType);
-
-            // Steps
-            var steps = KTUtil.findAll(the.element, '[data-ktwizard-type="step"]');
-
-            if (steps && steps.length > 0) {
-                for (var i = 0, len = steps.length; i < len; i++) {
-                    if (i == index) {
-                        KTUtil.attr(steps[i], 'data-ktwizard-state', 'current');
-                    } else {
-                        if (i < index) {
-                            KTUtil.attr(steps[i], 'data-ktwizard-state', 'done');
-                        } else {
-                            KTUtil.attr(steps[i], 'data-ktwizard-state', 'pending');
-                        }
-                    }
+        KTUtil.scrollInit(body, {
+            mobileNativeScroll: true, 
+            resetHeightOnDestroy: true, 
+            handleWindowResize: true, 
+            height: function() {
+                var height = parseInt(KTUtil.getViewPort().height);
+               
+                if (head) {
+                    height = height - parseInt(KTUtil.actualHeight(head));
+                    height = height - parseInt(KTUtil.css(head, 'marginBottom'));
                 }
+        
+                height = height - parseInt(KTUtil.css(notificationPanel, 'paddingTop'));
+                height = height - parseInt(KTUtil.css(notificationPanel, 'paddingBottom'));    
+
+                return height;
             }
+        });
+    }
 
-            // Steps Info
-            var stepsInfo = KTUtil.findAll(the.element, '[data-ktwizard-type="step-info"]');
-            if (stepsInfo &&stepsInfo.length > 0) {
-                for (var i = 0, len = stepsInfo.length; i < len; i++) {
-                    if (i == index) {
-                        KTUtil.attr(stepsInfo[i], 'data-ktwizard-state', 'current');
-                    } else {
-                        KTUtil.removeAttr(stepsInfo[i], 'data-ktwizard-state');
-                    }
-                }
-            }  
+    var initQucikActions = function() {
+        var head = KTUtil.find(quickActionsPanel, '.kt-offcanvas-panel__head');
+        var body = KTUtil.find(quickActionsPanel, '.kt-offcanvas-panel__body');
 
-            // Steps Content
-            var stepsContent = KTUtil.findAll(the.element, '[data-ktwizard-type="step-content"]');
-            if (stepsContent&& stepsContent.length > 0) {
-                for (var i = 0, len = stepsContent.length; i < len; i++) {
-                    if (i == index) {
-                        KTUtil.attr(stepsContent[i], 'data-ktwizard-state', 'current');
-                    } else {
-                        KTUtil.removeAttr(stepsContent[i], 'data-ktwizard-state');
-                    }
+        var offcanvas = new KTOffcanvas(quickActionsPanel, {
+            overlay: true,  
+            baseClass: 'kt-offcanvas-panel',
+            closeBy: 'kt_offcanvas_toolbar_quick_actions_close',
+            toggleBy: 'kt_offcanvas_toolbar_quick_actions_toggler_btn'
+        }); 
+
+        KTUtil.scrollInit(body, {
+            mobileNativeScroll: true, 
+            resetHeightOnDestroy: true, 
+            handleWindowResize: true, 
+            height: function() {
+                var height = parseInt(KTUtil.getViewPort().height);
+               
+                if (head) {
+                    height = height - parseInt(KTUtil.actualHeight(head));
+                    height = height - parseInt(KTUtil.css(head, 'marginBottom'));
                 }
+        
+                height = height - parseInt(KTUtil.css(quickActionsPanel, 'paddingTop'));
+                height = height - parseInt(KTUtil.css(quickActionsPanel, 'paddingBottom'));    
+
+                return height;
+            }
+        });
+    }
+
+    var initProfile = function() {
+        var head = KTUtil.find(profilePanel, '.kt-offcanvas-panel__head');
+        var body = KTUtil.find(profilePanel, '.kt-offcanvas-panel__body');
+
+        var offcanvas = new KTOffcanvas(profilePanel, {
+            overlay: true,  
+            baseClass: 'kt-offcanvas-panel',
+            closeBy: 'kt_offcanvas_toolbar_profile_close',
+            toggleBy: 'kt_offcanvas_toolbar_profile_toggler_btn'
+        }); 
+
+        KTUtil.scrollInit(body, {
+            mobileNativeScroll: true, 
+            resetHeightOnDestroy: true, 
+            handleWindowResize: true, 
+            height: function() {
+                var height = parseInt(KTUtil.getViewPort().height);
+               
+                if (head) {
+                    height = height - parseInt(KTUtil.actualHeight(head));
+                    height = height - parseInt(KTUtil.css(head, 'marginBottom'));
+                }
+        
+                height = height - parseInt(KTUtil.css(profilePanel, 'paddingTop'));
+                height = height - parseInt(KTUtil.css(profilePanel, 'paddingBottom'));    
+
+                return height;
+            }
+        });
+    }
+
+    var initSearch = function() {
+        var head = KTUtil.find(searchPanel, '.kt-offcanvas-panel__head');
+        var body = KTUtil.find(searchPanel, '.kt-offcanvas-panel__body');
+        
+        var offcanvas = new KTOffcanvas(searchPanel, {
+            overlay: true,  
+            baseClass: 'kt-offcanvas-panel',
+            closeBy: 'kt_offcanvas_toolbar_search_close',
+            toggleBy: 'kt_offcanvas_toolbar_search_toggler_btn'
+        }); 
+
+        KTUtil.scrollInit(body, {
+            mobileNativeScroll: true, 
+            resetHeightOnDestroy: true, 
+            handleWindowResize: true, 
+            height: function() {
+                var height = parseInt(KTUtil.getViewPort().height);
+               
+                if (head) {
+                    height = height - parseInt(KTUtil.actualHeight(head));
+                    height = height - parseInt(KTUtil.css(head, 'marginBottom'));
+                }
+        
+                height = height - parseInt(KTUtil.css(searchPanel, 'paddingTop'));
+                height = height - parseInt(KTUtil.css(searchPanel, 'paddingBottom'));    
+
+                return height;
+            }
+        });
+    }
+
+    return {     
+        init: function() {  
+            initNotifications(); 
+            initQucikActions();
+            initProfile();
+            initSearch();
+        }
+    };
+}();
+
+$(document).ready(function() {
+    KTOffcanvasPanel.init();
+});
+"use strict";
+
+var KTQuickPanel = function() {
+    var panel = KTUtil.get('kt_quick_panel');
+    var notificationPanel = KTUtil.get('kt_quick_panel_tab_notifications');
+    var logsPanel = KTUtil.get('kt_quick_panel_tab_logs');
+    var settingsPanel = KTUtil.get('kt_quick_panel_tab_settings');
+
+    var getContentHeight = function() {
+        var height;
+        var nav = KTUtil.find(panel, '.kt-quick-panel__nav');
+        var content = KTUtil.find(panel, '.kt-quick-panel__content');
+
+        height = parseInt(KTUtil.getViewPort().height) - parseInt(KTUtil.actualHeight(nav)) - (2 * parseInt(KTUtil.css(nav, 'padding-top'))) - 10;
+
+        return height;
+    }
+
+    var initOffcanvas = function() {
+        new KTOffcanvas(panel, {
+            overlay: true,  
+            baseClass: 'kt-quick-panel',
+            closeBy: 'kt_quick_panel_close_btn',
+            toggleBy: 'kt_quick_panel_toggler_btn'
+        });   
+    }
+
+    var initNotifications = function() {
+        KTUtil.scrollInit(notificationPanel, {
+            mobileNativeScroll: true, 
+            resetHeightOnDestroy: true, 
+            handleWindowResize: true, 
+            height: function() {
+                return getContentHeight();
+            }
+        });
+    }
+
+    var initLogs = function() {
+        KTUtil.scrollInit(logsPanel, {
+            mobileNativeScroll: true, 
+            resetHeightOnDestroy: true, 
+            handleWindowResize: true, 
+            height: function() {
+                return getContentHeight();
+            }
+        });
+    }
+
+    var initSettings = function() {
+        KTUtil.scrollInit(settingsPanel, {
+            mobileNativeScroll: true, 
+            resetHeightOnDestroy: true, 
+            handleWindowResize: true, 
+            height: function() {
+                return getContentHeight();
+            }
+        });
+    }
+
+    var updatePerfectScrollbars = function() {
+        $(panel).find('a[data-toggle="tab"]').on('shown.bs.tab', function (e) { 
+            KTUtil.scrollUpdate(notificationPanel);
+            KTUtil.scrollUpdate(logsPanel);
+            KTUtil.scrollUpdate(settingsPanel);
+        });
+    }
+
+    return {     
+        init: function() {  
+            initOffcanvas(); 
+            initNotifications();
+            initLogs();
+            initSettings();
+            updatePerfectScrollbars();
+        }
+    };
+}();
+
+$(document).ready(function() {
+    KTQuickPanel.init();
+});
+"use strict";
+
+var KTQuickSearch = function() {
+    var target;
+    var form;
+    var input;
+    var closeIcon;
+    var resultWrapper;
+    var resultDropdown;
+    var resultDropdownToggle;
+    var inputGroup;
+    var query = '';
+
+    var hasResult = false; 
+    var timeout = false; 
+    var isProcessing = false;
+    var requestTimeout = 200; // ajax request fire timeout in milliseconds 
+    var spinnerClass = 'kt-spinner kt-spinner--input kt-spinner--sm kt-spinner--brand kt-spinner--right';
+    var resultClass = 'kt-quick-search--has-result';
+    var minLength = 2;
+
+    var showProgress = function() {
+        isProcessing = true;
+        KTUtil.addClass(inputGroup, spinnerClass); 
+
+        if (closeIcon) {
+            KTUtil.hide(closeIcon);
+        }       
+    }
+
+    var hideProgress = function() {
+        isProcessing = false;
+        KTUtil.removeClass(inputGroup, spinnerClass);
+
+        if (closeIcon) {
+            if (input.value.length < minLength) {
+                KTUtil.hide(closeIcon);
+            } else {
+                KTUtil.show(closeIcon, 'flex');
             }            
-        },
-
-        /**
-         * Get next step
-         */
-        getNextStep: function() {
-            if (the.totalSteps >= (the.currentStep + 1)) {
-                return the.currentStep + 1;
-            } else {
-                return the.totalSteps;
-            }
-        },
-
-        /**
-         * Get prev step
-         */
-        getPrevStep: function() {
-            if ((the.currentStep - 1) >= 1) {
-                return the.currentStep - 1;
-            } else {
-                return 1;
-            }
-        },
-
-        /**
-         * Trigger events
-         */
-        eventTrigger: function(name) {
-            //KTUtil.triggerCustomEvent(name);
-            for (var i = 0; i < the.events.length; i++) {
-                var event = the.events[i];
-                if (event.name == name) {
-                    if (event.one == true) {
-                        if (event.fired == false) {
-                            the.events[i].fired = true;
-                            event.handler.call(this, the);
-                        }
-                    } else {
-                        event.handler.call(this, the);
-                    }
-                }
-            }
-        },
-
-        addEvent: function(name, handler, one) {
-            the.events.push({
-                name: name,
-                handler: handler,
-                one: one,
-                fired: false
-            });
-
-            return the;
         }
-    };
-
-    //////////////////////////
-    // ** Public Methods ** //
-    //////////////////////////
-
-    /**
-     * Set default options 
-     */
-
-    the.setDefaults = function(options) {
-        defaultOptions = options;
-    };
-
-    /**
-     * Go to the next step 
-     */
-    the.goNext = function() {
-        return Plugin.goNext();
-    };
-
-    /**
-     * Go to the prev step 
-     */
-    the.goPrev = function() {
-        return Plugin.goPrev();
-    };
-
-    /**
-     * Go to the last step 
-     */
-    the.goLast = function() {
-        return Plugin.goLast();
-    };
-
-    /**
-     * Cancel step 
-     */
-    the.stop = function() {
-        return Plugin.stop();
-    };
-
-    /**
-     * Resume step 
-     */
-    the.start = function() {
-        return Plugin.start();
-    };
-
-    /**
-     * Go to the first step 
-     */
-    the.goFirst = function() {
-        return Plugin.goFirst();
-    };
-
-    /**
-     * Go to a step
-     */
-    the.goTo = function(number) {
-        return Plugin.goTo(number);
-    };
-
-    /**
-     * Get current step number 
-     */
-    the.getStep = function() {
-        return the.currentStep;
-    };
-
-    /**
-     * Check last step 
-     */
-    the.isLastStep = function() {
-        return Plugin.isLastStep();
-    };
-
-    /**
-     * Check first step 
-     */
-    the.isFirstStep = function() {
-        return Plugin.isFirstStep();
-    };
-    
-    /**
-     * Attach event
-     */
-    the.on = function(name, handler) {
-        return Plugin.addEvent(name, handler);
-    };
-
-    /**
-     * Attach event that will be fired once
-     */
-    the.one = function(name, handler) {
-        return Plugin.addEvent(name, handler, true);
-    };
-
-    // Construct plugin
-    Plugin.construct.apply(the, [options]);
-
-    return the;
-};
-// plugin setup
-var KTAvatar = function(elementId, options) {
-    // Main object
-    var the = this;
-    var init = false;
-
-    // Get element object
-    var element = KTUtil.get(elementId);
-    var body = KTUtil.get('body');
-
-    if (!element) {
-        return; 
     }
 
-    // Default options
-    var defaultOptions = {
-    };
+    var showDropdown = function() {
+        if (resultDropdownToggle && !KTUtil.hasClass(resultDropdown, 'show')) {
+            $(resultDropdownToggle).dropdown('toggle');
+            $(resultDropdownToggle).dropdown('update'); 
+        }
+    }
 
-    ////////////////////////////
-    // ** Private Methods  ** //
-    ////////////////////////////
+    var hideDropdown = function() {
+        if (resultDropdownToggle && KTUtil.hasClass(resultDropdown, 'show')) {
+            $(resultDropdownToggle).dropdown('toggle');
+        }
+    }
 
-    var Plugin = {
-        /**
-         * Construct
-         */
+    var processSearch = function() {
+        if (hasResult && query === input.value) {  
+            hideProgress();
+            KTUtil.addClass(target, resultClass);
+            showDropdown();
+            KTUtil.scrollUpdate(resultWrapper);
 
-        construct: function(options) {
-            if (KTUtil.data(element).has('avatar')) {
-                the = KTUtil.data(element).get('avatar');
-            } else {
-                // reset menu
-                Plugin.init(options);
+            return;
+        }
 
-                // build menu
-                Plugin.build();
+        query = input.value;
 
-                KTUtil.data(element).set('avatar', the);
-            }
+        KTUtil.removeClass(target, resultClass);
+        showProgress();
 
-            return the;
-        },
-
-        /**
-         * Init avatar
-         */
-        init: function(options) {
-            the.element = element;
-            the.events = [];
-
-            the.input = KTUtil.find(element, 'input[type="file"]');
-            the.holder = KTUtil.find(element, '.kt-avatar__holder');
-            the.cancel = KTUtil.find(element, '.kt-avatar__cancel');
-            the.src = KTUtil.css(the.holder, 'backgroundImage');
-
-            // merge default and user defined options
-            the.options = KTUtil.deepExtend({}, defaultOptions, options);
-        },
-
-        /**
-         * Build Form Wizard
-         */
-        build: function() {
-            // Handle avatar change
-            KTUtil.addEvent(the.input, 'change', function(e) {
-                e.preventDefault();
-
-	            if (the.input && the.input.files && the.input.files[0]) {
-	                var reader = new FileReader();
-	                reader.onload = function(e) {
-	                    KTUtil.css(the.holder, 'background-image', 'url('+e.target.result +')');
-	                }
-	                reader.readAsDataURL(the.input.files[0]);
-
-	                KTUtil.addClass(the.element, 'kt-avatar--changed');
-	            }
+        setTimeout(function() {
+            $.ajax({
+                url: 'inc/api/quick_search.php',
+                data: {
+                    query: query
+                },
+                dataType: 'html',
+                success: function(res) {
+                    hasResult = true;
+                    hideProgress();
+                    KTUtil.addClass(target, resultClass);
+                    KTUtil.setHTML(resultWrapper, res);
+                    showDropdown();
+                    KTUtil.scrollUpdate(resultWrapper);
+                },
+                error: function(res) {
+                    hasResult = false;
+                    hideProgress();
+                    KTUtil.addClass(target, resultClass);
+                    KTUtil.setHTML(resultWrapper, '<span class="kt-quick-search__message">Connection error. Pleae try again later.</div>');
+                    showDropdown();
+                    KTUtil.scrollUpdate(resultWrapper);
+                }
             });
+        }, 1000);       
+    }
 
-            // Handle avatar cancel
-            KTUtil.addEvent(the.cancel, 'click', function(e) {
-                e.preventDefault();
+    var handleCancel = function(e) {
+        input.value = '';
+        query = '';
+        hasResult = false;
+        KTUtil.hide(closeIcon);
+        KTUtil.removeClass(target, resultClass);
+        hideDropdown();
+    }
 
-	            KTUtil.removeClass(the.element, 'kt-avatar--changed');
-	            KTUtil.css(the.holder, 'background-image', the.src);
-	            the.input.value = "";
-            });
-        },
+    var handleSearch = function() {
+        if (input.value.length < minLength) {
+            hideProgress();
+            hideDropdown();
 
-        /**
-         * Trigger events
-         */
-        eventTrigger: function(name) {
-            //KTUtil.triggerCustomEvent(name);
-            for (var i = 0; i < the.events.length; i++) {
-                var event = the.events[i];
-                if (event.name == name) {
-                    if (event.one == true) {
-                        if (event.fired == false) {
-                            the.events[i].fired = true;
-                            event.handler.call(this, the);
-                        }
-                    } else {
-                        event.handler.call(this, the);
-                    }
+            return;
+        }
+
+        if (isProcessing == true) {
+            return;
+        }
+
+        if (timeout) {
+            clearTimeout(timeout);
+        }
+
+        timeout = setTimeout(function() {
+            processSearch();
+        }, requestTimeout);     
+    }
+
+    return {     
+        init: function(element) { 
+            // Init
+            target = element;
+            form = KTUtil.find(target, '.kt-quick-search__form');
+            input = KTUtil.find(target, '.kt-quick-search__input');
+            closeIcon = KTUtil.find(target, '.kt-quick-search__close');
+            resultWrapper = KTUtil.find(target, '.kt-quick-search__wrapper');
+            resultDropdown = KTUtil.find(target, '.dropdown-menu'); 
+            resultDropdownToggle = KTUtil.find(target, '[data-toggle="dropdown"]');
+            inputGroup = KTUtil.find(target, '.input-group');           
+
+            // Attach input keyup handler
+            KTUtil.addEvent(input, 'keyup', handleSearch);
+            KTUtil.addEvent(input, 'focus', handleSearch);
+
+            // Prevent enter click
+            form.onkeypress = function(e) {
+                var key = e.charCode || e.keyCode || 0;     
+                if (key == 13) {
+                    e.preventDefault();
                 }
             }
-        },
+           
+            KTUtil.addEvent(closeIcon, 'click', handleCancel);     
 
-        addEvent: function(name, handler, one) {
-            the.events.push({
-                name: name,
-                handler: handler,
-                one: one,
-                fired: false
-            });
-
-            return the;
+            // Auto-focus on the form input on dropdown form open
+            var toggle = KTUtil.getByID('kt_quick_search_toggle');
+            if (toggle) {
+                $(toggle).on('shown.bs.dropdown', function () {
+                    input.focus();
+                });
+            }  
         }
     };
-
-    //////////////////////////
-    // ** Public Methods ** //
-    //////////////////////////
-
-    /**
-     * Set default options 
-     */
-
-    the.setDefaults = function(options) {
-        defaultOptions = options;
-    };
-    
-    /**
-     * Attach event
-     */
-    the.on = function(name, handler) {
-        return Plugin.addEvent(name, handler);
-    };
-
-    /**
-     * Attach event that will be fired once
-     */
-    the.one = function(name, handler) {
-        return Plugin.addEvent(name, handler, true);
-    };
-
-    // Construct plugin
-    Plugin.construct.apply(the, [options]);
-
-    return the;
 };
+
+var KTQuickSearchMobile = KTQuickSearch;
+
+$(document).ready(function() {
+    if (KTUtil.get('kt_quick_search_default')) {
+        KTQuickSearch().init(KTUtil.get('kt_quick_search_default'));
+    }
+
+    if (KTUtil.get('kt_quick_search_inline')) {
+        KTQuickSearchMobile().init(KTUtil.get('kt_quick_search_inline'));
+    }
+});
 "use strict";
 
 var KTLayout = function() {
@@ -8868,7 +9614,8 @@ var KTLayout = function() {
         var scroll;
         if (KTUtil.attr(menu, 'data-ktmenu-scroll') === '1') {
             scroll = {
-                height: function() {
+                rememberPosition: true, // remember position on page reload
+                height: function() {  // calculate available scrollable area height
                     var height;
 
                     if (KTUtil.isInResponsiveRange('desktop')) {
@@ -8953,69 +9700,75 @@ var KTLayout = function() {
 
     // Init page sticky portlet
     var initPageStickyPortlet = function() {
-        var asideWidth = 255;
-        var asideMinimizeWidth = 78;
-        var asideSecondaryWidth = 60;
-        var asideSecondaryExpandedWidth = 310;
+        var asideWidth = 100;
 
         return new KTPortlet('kt_page_portlet', {
-            sticky: {
-                offset: parseInt(KTUtil.css( KTUtil.get('kt_header'), 'height')),
-                zIndex: 90,
-                position: {
-                    top: function() {
-                        if (KTUtil.isInResponsiveRange('desktop')) {
-                            var h = parseInt(KTUtil.css( KTUtil.get('kt_header'), 'height') );
-                            
-                            if (KTUtil.isInResponsiveRange('desktop') && KTUtil.hasClass(body, 'kt-subheader--fixed') && KTUtil.get('kt_subheader')) {
-                                h = h + parseInt(KTUtil.css( KTUtil.get('kt_subheader'), 'height') );
-                            }
+			sticky: {
+				offset: parseInt(KTUtil.css(KTUtil.get('kt_header'), 'height')) + 200,
+				zIndex: 90,
+				position: {
+					top: function() {
+						var pos = 0;
 
-                            return h;
-                        } else {
-                            return parseInt(KTUtil.css( KTUtil.get('kt_header_mobile'), 'height') );
-                        }                        
-                    },
-                    left: function() {
-                        var left = 0;
+						if (KTUtil.isInResponsiveRange('desktop')) {
+							if (KTUtil.hasClass(body, 'kt-header--fixed')) {
+								pos = pos + parseInt(KTUtil.css(KTUtil.get('kt_header'), 'height'));
+							}
 
-                        if (KTUtil.isInResponsiveRange('desktop')) {
-                            if (KTUtil.hasClass(body, 'kt-aside--minimize')) {
-                                left += asideMinimizeWidth;
-                            } else {
-                                left += asideWidth;
-                            }
-                        }
+							if (KTUtil.hasClass(body, 'kt-subheader--fixed') && KTUtil.get('kt_subheader')) {
+								pos = pos + parseInt(KTUtil.css(KTUtil.get('kt_subheader'), 'height'));
+							}
+						} else {
+							if (KTUtil.hasClass(body, 'kt-header-mobile--fixed')) {
+								pos = pos + parseInt(KTUtil.css(KTUtil.get('kt_header_mobile'), 'height'));
+							}
+						}
 
-                        left += parseInt(KTUtil.css( KTUtil.get('kt_content'), 'paddingLeft'));
-
-                        return left; 
-                    },
-                    right: function() {
-                        var right = 0;
-
-                        if (KTUtil.isInResponsiveRange('desktop')) {                            
-                            if (KTUtil.hasClass(body, 'kt-aside-secondary--enabled')) {
-                                if (KTUtil.hasClass(body, 'kt-aside-secondary--expanded')) {
-                                    right += asideSecondaryExpandedWidth + asideSecondaryWidth;
-                                } else {
-                                    right += asideSecondaryWidth; 
-                                }
-                            } else {
-                                right += parseInt(KTUtil.css( KTUtil.get('kt_content'), 'paddingRight'));
-                            }
-                        }
-
-                        if (KTUtil.get('kt_aside_secondary')) {
-                            right += parseInt(KTUtil.css( KTUtil.get('kt_content'), 'paddingRight') );
-                        }
-
-                        return right;
-                    }
-                }
-            }
-        });
+						return pos;
+					},
+					left: function(portlet) {
+						var porletEl = portlet.getSelf();      
+						
+						return KTUtil.offset(porletEl).left;
+					},
+					right: function(portlet) {
+                        var porletEl = portlet.getSelf();      
+                        
+                        var portletWidth = parseInt(KTUtil.css(porletEl, 'width'));
+						var bodyWidth = parseInt(KTUtil.css(KTUtil.get('body'), 'width'));
+						var portletOffsetLeft = KTUtil.offset(porletEl).left;
+					
+						return bodyWidth - portletWidth - portletOffsetLeft;
+					}
+				}
+			}
+		});
     }
+
+	// Calculate content available full height
+	var getContentHeight = function() {
+		var height;
+
+		height = KTUtil.getViewPort().height;
+
+		if (KTUtil.getByID('kt_header')) {
+            height = height - KTUtil.actualHeight('kt_header');
+		}
+
+		if (KTUtil.getByID('kt_subheader')) {
+            height = height - KTUtil.actualHeight('kt_subheader');
+		}
+
+		if (KTUtil.getByID('kt_footer')) {
+			height = height - parseInt(KTUtil.css('kt_footer', 'height'));
+		}
+
+		if (KTUtil.getByID('kt_content')) {
+			height = height - parseInt(KTUtil.css('kt_content', 'padding-top')) - parseInt(KTUtil.css('kt_content', 'padding-bottom'));
+		}
+
+		return height;
+	}
 
     return {
         init: function() {
@@ -9102,7 +9855,11 @@ var KTLayout = function() {
             if (KTUtil.isMobileDevice()) {
                 headerMenuOffcanvas.hide();
             }
-        }
+        },
+
+        getContentHeight: function() {
+			return getContentHeight();
+		}
     };
 }();
 
