@@ -96,7 +96,7 @@
         <div class="row">
           <div class="col-6">
             <div class="row">
-              <div class="kt-portlet">
+              <div class="kt-portlet kt-portlet--bordered">
                 <div class="kt-portlet__head">
                   <div class="kt-portlet__head-label">
                               <span class="kt-portlet__head-icon">
@@ -107,7 +107,7 @@
                     </h3>
                   </div>
                 </div>
-                <div class="kt-portlet__body">
+                <div class="kt-portlet__body kt-padding-10">
                   <img :src="selectedPhoto.preview_file" class="size-auto"/>
                 </div>
               </div>

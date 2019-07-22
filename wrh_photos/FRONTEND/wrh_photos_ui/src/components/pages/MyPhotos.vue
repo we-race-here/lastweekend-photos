@@ -29,7 +29,7 @@
                   <div class="kt-subheader__search event-select">
                     <multiselect v-model="searchSelectedEvents" :options="events" :multiple="true" track-by="id"
                                  label="name"
-                                 placeholder="Select events...">
+                                 placeholder="Select event">
                     </multiselect>
                   </div>
                 </div>
@@ -85,7 +85,7 @@
                             next-text="Next"
                             last-text="Last"
                             align="center"
-                            @input="getPhotos(searchValue, currentPage, pageSize)">
+                            @input="getPhotos(searchValue, searchSelectedEvents, currentPage, pageSize)">
               </b-pagination>
             </div>
           </div>
@@ -105,7 +105,7 @@
           <div class="row">
             <div class="col-md-6 col-sm-12">
               <div class="row">
-                <div class="kt-portlet">
+                <div class="kt-portlet kt-portlet--bordered">
                   <div class="kt-portlet__head">
                     <div class="kt-portlet__head-label">
                       <h5>{{selectedPhotos[0].name === unknownFileName ? 0 : selectedPhotos.length}} photo(s)
@@ -114,16 +114,17 @@
                     <div class="kt-portlet__head-toolbar">
                       <div class="kt-portlet__head-actions">
                         <div class="upload-btn-wrapper">
-                          <button class="btn btn-outline-brand btn-sm">Select photo(s)
-                          </button>
-                          <input type="file" ref="selectedPhotosRef" @change="selectPhotos" multiple accept="image/*"/>
+                          <label class="btn btn-outline-brand btn-sm pointer-cursor">
+                                 Select photo(s)
+                          <input type="file" ref="selectedPhotosRef" @change="selectPhotos" multiple accept="image/*" class="kt-hidden"/>
+                          </label>
                         </div>
                       </div>
                     </div>
                   </div>
                   <div class="kt-portlet__body">
-                    <img :src="selectedPhotos[selectedPhotoIndex].original_file"
-                         v-if="selectedPhotos[selectedPhotoIndex]" class="size-auto-fix"/>
+                    <img :src="(selectedPhotos[selectedPhotoIndex] || {}).original_file || `${$publicPath}resources/images/no-photo-available.png`"
+                         class="size-auto-fix"/>
                   </div>
                 </div>
               </div>
@@ -225,7 +226,7 @@
                 <b-row>
                   <b-col v-for="index in 10" :key="(index - 1) + selectedPhotoNavigationIndex">
                     <b-img fluid
-                           v-bind:class="selectedPhotos[(index - 1) + selectedPhotoNavigationIndex].uploaded ? 'img-thumbnail-uploaded' : (selectedPhotoIndex === (index - 1) + selectedPhotoNavigationIndex ? 'img-thumbnail-viewed' : '')"
+                           v-bind:class="selectedPhotos[(index - 1) + selectedPhotoNavigationIndex].uploaded ? 'img-thumbnail-uploaded' : selectedPhotos[(index - 1) + selectedPhotoNavigationIndex].uploading ? 'img-thumbnail-uploading': (selectedPhotoIndex === (index - 1) + selectedPhotoNavigationIndex ? 'img-thumbnail-viewed' : '')"
                            v-if="selectedPhotos.length >= index + selectedPhotoNavigationIndex"
                            :src="selectedPhotos[(index - 1) + selectedPhotoNavigationIndex].original_file"
                            @click="selectedPhotoIndex = (index - 1) + selectedPhotoNavigationIndex"></b-img>
@@ -241,8 +242,11 @@
           </div>
           <div class="row">
             <div class="col p-0">
-              <button class="btn btn-success btn-block btn-lg mt-3 mr-3" @click="uploadPhotos">
-                Upload
+              <button class="btn btn-success btn-block btn-spinner btn-lg mt-3 mr-3" @click="uploadPhotos" :disabled="anyUploading || allUploaded">
+                <i :class="anyUploading? 'fa fa-spin fa-spinner':'fa fa-upload'"></i>
+                <span v-show="!anyUploading">Upload</span>
+                <span v-show="anyUploading">Uploading</span>
+                <span v-if="allUploaded" class="la la-check-circle"></span>
               </button>
             </div>
           </div>
@@ -410,6 +414,14 @@
         }, 500)
       }
     },
+    computed: {
+      anyUploading: function() {
+        return this.selectedPhotos.filter(f => f.uploading).length > 0;
+      },
+      allUploaded: function() {
+        return this.selectedPhotos.length > 0 && this.selectedPhotos.filter(f => !f.uploaded).length === 0
+      }
+    },
     methods: {
       onClickLogoPosition: function(position) {
         this.$set(this.selectedPhotos[this.selectedPhotoIndex], 'logo_position', position);
@@ -450,7 +462,7 @@
           for (let j = 0; j < this.selectedPhotos.length; j++) {
             if (this.selectedPhotos[j].name === file.name) {
               isDuplicate = true;
-              continue;
+              break;
             }
           }
           if (isDuplicate) {
@@ -463,11 +475,12 @@
               name: file.name,
               original_file: newPhoto,
               _event: {
-                name: "Select a event..."
+                name: "Select an event..."
               },
               _tags: [],
               _peoples: [],
-              uploaded: false
+              uploaded: false,
+              uploading: false,
             });
 
             if (this.selectedPhotos.length > 1 &&
@@ -481,8 +494,14 @@
       },
       uploadPhotos: function () {
         if (this.selectedPhotos[0].name === this.unknownFileName) {
-          this.showError("No photo selected");
-          return;
+          return this.showError("No photo selected");
+        }
+        let defaultPhotoInfo = this.selectedPhotos[0];
+        if (!(defaultPhotoInfo._event || {}).id) {
+          return this.showError("No event chosen!");
+        }
+        if (!(defaultPhotoInfo.title || "").trim()) {
+          return this.showError("No title entered!");
         }
 
         for (let i = 0; i < this.selectedPhotos.length; i++) {
@@ -491,7 +510,7 @@
             continue;
           }
           // Each photo only correspond to one event
-          uploadPhoto.event = uploadPhoto._event.id;
+          uploadPhoto.event = (uploadPhoto._event || {}).id;
 
           uploadPhoto.tags = [];
           for (let j = 0; j < uploadPhoto._tags.length; j++) {
@@ -503,12 +522,24 @@
             uploadPhoto.peoples.push(uploadPhoto._peoples[j].id);
           }
 
+          let postData = Object.assign({}, uploadPhoto);
+          ["title", "description", "event", "price", "logo_position", "photo_date"].forEach(function (f) {
+            if (!postData[f]) {
+              postData[f] = defaultPhotoInfo[f];
+            }
+          });
+          if (!postData.tags.length) {
+            postData.tags = defaultPhotoInfo.tags;
+          }
+          if (!postData.peoples.length) {
+            postData.peoples = defaultPhotoInfo.peoples;
+          }
           uploadPhoto.uploading = true;
-          PhotoApi.upload(uploadPhoto).then(() => {
+          PhotoApi.upload(postData).then(() => {
                 uploadPhoto.uploading = false;
                 uploadPhoto.uploaded = true;
-                this.showSuccess(`The ${uploadPhoto.name} photo upload successfully`, 5000);
               }, () => {
+                uploadPhoto.uploading = false;
                 this.showError(`Some error happened when trying to upload ${uploadPhoto.name} photo`, 500);
               }
           )
@@ -732,6 +763,13 @@
     max-width: 50px;
     width: 50px;
     border: 3px dotted #11e604;
+    height: auto;
+  }
+
+  .img-thumbnail-uploading {
+    max-width: 50px;
+    width: 50px;
+    border: 3px dotted #ffeb16;
     height: auto;
   }
 
