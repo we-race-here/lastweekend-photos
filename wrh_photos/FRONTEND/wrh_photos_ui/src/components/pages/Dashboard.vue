@@ -1,3 +1,57 @@
+<style scoped>
+  .low-res-photo-not-loaded {
+    opacity: 0.4;
+  }
+
+  .nav-link.active, .nav-link:hover {
+    color: #000000 !important;
+    border-color: #000000 !important;
+  }
+
+  .large-icon {
+    font-size: 1.75rem;
+  }
+
+  .size-auto {
+    width: 100%;
+    height: auto;
+  }
+
+  #kt_subheader_search_container {
+    width: 100%;
+  }
+
+  #generalSearch {
+    font-size: 1rem !important;
+  }
+
+  .event-select {
+    width: 70% !important;
+    margin-top: 8px !important;
+  }
+
+  .overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    width: 100%;
+    opacity: 0.7;
+    transition: .5s ease;
+    background-color: gray;
+  }
+  .overlay-loader {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    color: white;
+  }
+
+
+</style>
+
 <template>
   <section>
     <page-bar></page-bar>
@@ -94,7 +148,7 @@
     >
       <div class="modal-body">
         <div class="row">
-          <div class="col-6">
+          <div class="col-7">
             <div class="row">
               <div class="kt-portlet kt-portlet--bordered">
                 <div class="kt-portlet__head">
@@ -107,8 +161,11 @@
                     </h3>
                   </div>
                 </div>
-                <div class="kt-portlet__body kt-padding-10">
-                  <img :src="selectedPhoto.preview_file" class="size-auto"/>
+                <div class="kt-portlet__body kt-padding-10" :class="{'low-res-photo-not-loaded': !selectedPhoto.low_res_file}">
+                  <img :src="selectedPhoto.low_res_file || selectedPhoto.preview_file" class="size-auto"/>
+                  <div class="overlay" v-if="selectedPhoto._gettingLowResFile">
+                    <div class="overlay-loader"><i class="fa fa-spin fa-spinner fa-2x"></i></div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -124,27 +181,74 @@
                       <span class="kt-font-bolder">{{ logoPositionMap[logoPosition || 'br'].title }}</span>
                     </button>
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" x-placement="top-start"
-                         style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, -138px, 0px);">
+                         style="position: absolute; will-change: transform; top: 0; left: 0; transform: translate3d(0, -138px, 0);">
                       <a href="javascript:" v-for="p in logoPositionOptions" :key="p.value" class="dropdown-item"
                          :class="{active: p.value==(logoPosition || 'br')}"
-                         data-toggle="kt-tooltip" data-placement="left" @click="logoPosition=p.value">
+                         data-toggle="kt-tooltip" data-placement="left" @click="logoPosition=p.value; selectedPhoto.low_res_file=null">
                         {{ p.title }}
                       </a>
                     </div>
                   </div>
                 </div>
-                <div class="row mt-4">
-                  <button type="button" class="btn btn-secondary btn-block btn-lg mt-2" disabled>
+                <div class="row mt-2">
+                  <button type="button" class="btn btn-secondary btn-block btn-lg" disabled>
+                    <i class="flaticon2-download"></i>
                     Download original file
                   </button>
                 </div>
-                <div class="row mt-4">
-                  <button type="button" @click="downloadWithLogoFile" class="btn btn-spinner btn-success btn-block btn-lg mt-2"
-                          :disabled="selectedPhoto._downloadingWithAds">
-                    <i :class="selectedPhoto._downloadingWithAds? 'la la-spin la-spinner':'flaticon2-download'"></i>
-                    Free Download (with Ads)
+                <div  v-if="!selectedPhoto.low_res_file" class="row mt-2">
+                  <button type="button" @click="getLowResPhotoLink" class="btn btn-spinner btn-primary btn-block btn-lg"
+                          :disabled="selectedPhoto._gettingLowResFile || selectedPhoto.low_res_file">
+                    <i :class="selectedPhoto._gettingLowResFile? 'la la-spin la-spinner':'la la-link'"></i>
+                    Get Photo Link(With Ads)
                   </button>
                 </div>
+                <template v-else>
+                  <hr>
+                  <div class="row mb-2">
+                    <button type="button" @click="downloadLowResPhoto" class="btn btn-spinner btn-success btn-block">
+                      <i class="flaticon2-download"></i>
+                      Download Photo(With Ads)
+                    </button>
+                  </div>
+                  <social-sharing :url="selectedPhoto.low_res_file"
+                                  :title="selectedPhoto.title || 'N/A'"
+                                  :description="selectedPhoto.description || 'N/A'"
+                                  hashtags="weracehere,wrhphoto"
+                                  v-cloak inline-template>
+                    <div class="row">
+                      <network network="facebook" id="facebook">
+                        <button type="button" class="btn btn-facebook btn-square">
+                          <i class="socicon-facebook"></i>
+                          Facebook Share
+                        </button>
+                      </network>
+                      <network network="twitter" id="twitter">
+                        <button type="button" class="btn btn btn-twitter btn-square">
+                          <i class="socicon-twitter"></i>
+                          Twitter Share
+                        </button>
+                      </network>
+                    </div>
+                  </social-sharing>
+                  <div class="row mt-2">
+                    <div class="input-group input-group-sm">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">
+                          Link:
+                        </span>
+                      </div>
+                      <input id="photo-link-for-clipboard" v-model="selectedPhoto.low_res_file" type="text"
+                             @click="selectPhotoLink()"
+                             class="form-control" title="Photo link" readonly>
+                      <div class="input-group-append" @click="copyPhotoLinkToClipboard()">
+                        <span class="input-group-text pointer-cursor">
+                          <i class="flaticon2-copy" title="Copy photo link to clipboard"></i>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </template>
               </div>
             </div>
           </div>
@@ -155,6 +259,8 @@
 </template>
 
 <script>
+  import SocialSharing from "vue-social-sharing";
+
   import PageBar from "../partials/PageBar";
   import EventApi from "../../endpoint/EventApi";
   import PhotoApi from "../../endpoint/PhotoApi";
@@ -170,6 +276,7 @@
     components: {
       PageBar,
       Multiselect,
+      SocialSharing
     },
     mixins: [
       UtilMixin, LoadingOverlayableMixin
@@ -219,17 +326,30 @@
       }
     },
     methods: {
-      downloadWithLogoFile: function() {
+      selectPhotoLink: function() {
+        var copyText = document.getElementById("photo-link-for-clipboard");
+        copyText.select();
+      },
+      copyPhotoLinkToClipboard: function() {
+        this.selectPhotoLink();
+        document.execCommand("copy");
+      },
+      getLowResPhotoLink: function() {
         var self = this;
-        this.$set(this.selectedPhoto, '_downloadingWithAds', true);
+        this.$set(this.selectedPhoto, '_gettingLowResFile', true);
         PhotoApi.getLowResFile(this.selectedPhoto, {ads_position: this.logoPosition}).then((resp) => {
           self.selectedPhoto.low_res_file = resp.data.file;
-          self.download2(this.noCacheUrl(resp.data.file));
-          self.$set(self.selectedPhoto, '_downloadingWithAds', false);
+          self.$set(self.selectedPhoto, '_gettingLowResFile', false);
         }, function (error) {
-          self.$set(self.selectedPhoto, '_downloadingWithAds', false);
+          self.$set(self.selectedPhoto, '_gettingLowResFile', false);
           self.showDefaultServerError(error);
         })
+      },
+      downloadLowResPhoto: function() {
+        if (!this.selectedPhoto.low_res_file) {
+          return;
+        }
+        this.download2(this.selectedPhoto.low_res_file);
       },
       getPhotos: function (searchValue, currentPage, pageSize) {
         let params = {'search': searchValue, 'page': currentPage, 'page_size': pageSize};
@@ -257,34 +377,3 @@
     }
   }
 </script>
-
-<style scoped>
-
-  .nav-link.active, .nav-link:hover {
-    color: #000000 !important;
-    border-color: #000000 !important;
-  }
-
-  .large-icon {
-    font-size: 1.75rem;
-  }
-
-  .size-auto {
-    width: 100%;
-    height: auto;
-  }
-
-  #kt_subheader_search_container {
-    width: 100%;
-  }
-
-  #generalSearch {
-    font-size: 1rem !important;
-  }
-
-  .event-select {
-    width: 70% !important;
-    margin-top: 8px !important;
-  }
-
-</style>

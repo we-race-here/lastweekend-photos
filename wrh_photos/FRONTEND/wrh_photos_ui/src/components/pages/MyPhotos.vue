@@ -161,7 +161,7 @@
                           </span>
                         </button>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" x-placement="top-start"
-                             style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, -138px, 0px);">
+                             style="position: absolute; will-change: transform; top: 0; left: 0; transform: translate3d(0, -138px, 0);">
 
                           <a href="javascript:" v-for="p in logoPositionOptions" :key="p.value" class="dropdown-item"
                              :class="{active: p.value==(selectedPhotos[selectedPhotoIndex].logo_position || 'br')}"
@@ -681,10 +681,6 @@
 
   #kt_subheader_search_container {
     width: 100%;
-  }
-
-  .no-padding {
-    padding: 0px !important;
   }
 
   .modal-full {
