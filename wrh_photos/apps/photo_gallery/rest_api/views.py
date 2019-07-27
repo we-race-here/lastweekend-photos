@@ -246,7 +246,6 @@ class PhotoView(LoggingMixin, HistoricalViewMixin, viewsets.ModelViewSet):
             return Response({'detail': 'Invalid ads_position param "{}"'.format(ads_position)})
 
         photo = self.get_object()
-        user = self.get_current_user(request)
 
         # TODO: we should have an intelligent mechanism to choose ads_sponsor based credit of sponsor
         ads_sponsor = self.get_random_sponsor(photo.event)
