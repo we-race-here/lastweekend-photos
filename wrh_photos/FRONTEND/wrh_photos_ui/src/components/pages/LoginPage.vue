@@ -385,6 +385,7 @@ export default {
           self.signinForm = {};
           self.$store.state.currentUser = response.data;
           self.signingIn = false;
+          self.$router.replace({ name: self.$rns.ROOT });
           self.showSuccess("Welcome to WRH/Photos!", 5000);
         },
         function(response) {
@@ -405,8 +406,11 @@ export default {
       return this.pageState === "forget_password";
     }
   },
-  mounted: function() {
-    this.closeAllNotify();
+  created: function() {
+    if (this.$store.getters.isLoadedUser) {
+      this.$router.replace({ name: this.$rns.ROOT });
+    }
   }
 };
 </script>
+

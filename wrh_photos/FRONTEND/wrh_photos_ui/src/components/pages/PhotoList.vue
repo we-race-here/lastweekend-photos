@@ -53,7 +53,7 @@
 </style>
 
 <template>
-  <section>
+  <div class="kt-container kt-container--fluid  kt-grid__item kt-grid__item--fluid">
     <page-bar></page-bar>
     <div class="kt-portlet">
       <div class="kt-portlet__head">
@@ -63,7 +63,7 @@
               <div class="row justify-content-md-center align-items-center">
                 <div class="col-auto p-0">
                   <h3 class="kt-subheader__title">
-                    Dashboard
+                    {{$route.meta.pageInfo.title}}
                   </h3>
                 </div>
                 <div class="col-auto mt-1 p-0">
@@ -255,7 +255,7 @@
         </div>
       </div>
     </b-modal>
-  </section>
+  </div>
 </template>
 
 <script>

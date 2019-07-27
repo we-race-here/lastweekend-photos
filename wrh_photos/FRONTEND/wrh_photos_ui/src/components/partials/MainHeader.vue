@@ -1,4 +1,7 @@
 <style scoped>
+  .kt-header__topbar .kt-header__topbar-item.kt-header__topbar-item--quickpanel .kt-header__topbar-icon {
+    background-color: #55af06;
+  }
   .kt-user-card__email {
     color: #9e9d9d;
   }
@@ -13,7 +16,7 @@
 
     <div class="kt-header__brand kt-grid__item  " id="kt_header_brand">
       <div class="kt-header__brand-logo">
-        <a href="/">
+        <a is="router-link" :to="{name: $rns.INDEX_PAGE}" >
           <img alt="Logo" :src="`${$publicPath}resources/images/logo-6.png`"/>
         </a>
       </div>
@@ -28,23 +31,25 @@
     <div class="kt-header-menu-wrapper kt-grid__item kt-grid__item--fluid" id="kt_header_menu_wrapper">
       <div id="kt_header_menu" class="kt-header-menu kt-header-menu-mobile  kt-header-menu--layout-default ">
         <ul class="kt-menu__nav ">
-          <li class="kt-menu__item" :class="{'kt-menu__item--active': isActive($rns.DASHBOARD)}" aria-haspopup="true">
-            <a is="router-link" :to="{name: $rns.DASHBOARD}" class="kt-menu__link ">
-              <i class="kt-menu__link-icon flaticon2-protection"></i><span class="kt-menu__link-text">Dashboard</span>
-            </a>
-          </li>
-          <li class="kt-menu__item" :class="{'kt-menu__item--active': isActive($rns.MY_PHOTOS)}" aria-haspopup="true">
-            <a is="router-link" :to="{name: $rns.MY_PHOTOS}" class="kt-menu__link ">
-              <i class="kt-menu__link-icon flaticon-photo-camera"></i><span class="kt-menu__link-text">My Photos</span>
-            </a>
-          </li>
-          <!--<li class="kt-menu__item  kt-menu__item--active " aria-haspopup="true"><a href="#" class="kt-menu__link "><span class="kt-menu__link-text">Dashboard</span></a></li>-->
+          <template v-if="$store.getters.isLoadedUser">
+            <li class="kt-menu__item" :class="{'kt-menu__item--active': isActive($rns.MY_PHOTOS)}" aria-haspopup="true">
+              <a is="router-link" :to="{name: $rns.MY_PHOTOS}" class="kt-menu__link ">
+                <i class="kt-menu__link-icon flaticon-photo-camera"></i><span class="kt-menu__link-text">My Photos</span>
+              </a>
+            </li>
+            <!--<li class="kt-menu__item  kt-menu__item--active " aria-haspopup="true"><a href="#" class="kt-menu__link "><span class="kt-menu__link-text">Dashboard</span></a></li>-->
+          </template>
         </ul>
       </div>
     </div>
 
     <div class="kt-header__topbar">
-      <div class="kt-header__topbar-item kt-header__topbar-item--search dropdown" id="kt_quick_search_toggle">
+      <div class="kt-header__topbar-item" title="About us">
+        <div class="kt-header__topbar-wrapper" data-offset="10px,0px">
+          <span class="kt-header__topbar-icon kt-header__topbar-icon--warning"><i class="flaticon2-information"></i></span>
+        </div>
+      </div>
+      <div class="kt-header__topbar-item kt-header__topbar-item--search dropdown" id="kt_quick_search_toggle" title="Search">
         <div class="kt-header__topbar-wrapper" data-toggle="dropdown" data-offset="10px,0px">
           <span class="kt-header__topbar-icon"><i class="flaticon2-search-1"></i></span>
         </div>
@@ -66,88 +71,107 @@
         </div>
       </div>
 
-      <div class="kt-header__topbar-item dropdown">
-        <div class="kt-header__topbar-wrapper" data-toggle="dropdown" data-offset="10px,0px">
-          <span class="kt-header__topbar-icon kt-header__topbar-icon--success"><i
-                  class="flaticon2-bell-alarm-symbol"></i></span>
-          <span class="kt-hidden kt-badge kt-badge--danger"></span>
-        </div>
-      </div>
+      <template v-if="$store.getters.isLoadedUser">
 
-      <div class="kt-header__topbar-item dropdown">
-        <div class="kt-header__topbar-wrapper" data-toggle="dropdown" data-offset="10px,0px">
-          <span class="kt-header__topbar-icon kt-header__topbar-icon--warning"><i class="flaticon2-gear"></i></span>
-        </div>
-      </div>
-
-      <div class="kt-header__topbar-item kt-header__topbar-item--user">
-        <div class="kt-header__topbar-wrapper" data-toggle="dropdown" data-offset="10px,0px">
-          <img v-if="$store.state.currentUser.avatar" alt="Pic" :src="$store.state.currentUser.avatar"/>
-          <span v-else class="kt-header__topbar-icon">{{ $store.getters.userDisplayName.slice(0, 1) }}</span>
-        </div>
-        <div class="dropdown-menu dropdown-menu-fit dropdown-menu-right dropdown-menu-anim dropdown-menu-xl">
-
-          <div class="kt-user-card kt-user-card--skin-dark kt-notification-item-padding-x"
-               :style="`background-image: url(${$publicPath}resources/images/bg-1.jpg)`">
-            <div class="kt-user-card__avatar">
-              <img v-if="$store.state.currentUser.avatar" alt="Pic" :src="$store.state.currentUser.avatar"/>
-              <span v-else class="kt-badge kt-badge--lg kt-badge--rounded kt-badge--bold kt-font-success">{{ $store.getters.userDisplayName.slice(0, 1) }}</span>
-            </div>
-            <div class="kt-user-card__name">
-              {{ $store.getters.userDisplayName }}
-              <p class="small kt-user-card__email">{{ $store.state.currentUser.email }}</p>
-            </div>
+        <div class="kt-header__topbar-item">
+          <div class="kt-header__topbar-wrapper" data-offset="10px,0px">
+            <span class="kt-header__topbar-icon kt-header__topbar-icon--success"><i
+                    class="flaticon2-bell-alarm-symbol"></i></span>
+            <span class="kt-hidden kt-badge kt-badge--danger"></span>
           </div>
+        </div>
 
-          <div class="kt-notification">
-            <a is="router-link" :to="{name: $rns.MY_PROFILE}" class="kt-notification__item">
-              <div class="kt-notification__item-icon">
-                <i class="flaticon2-calendar-3 kt-font-success"></i>
+        <div class="kt-header__topbar-item">
+          <div class="kt-header__topbar-wrapper" data-offset="10px,0px">
+            <span class="kt-header__topbar-icon kt-header__topbar-icon--warning"><i class="flaticon2-gear"></i></span>
+          </div>
+        </div>
+
+        <div class="kt-header__topbar-item kt-header__topbar-item--user">
+          <div class="kt-header__topbar-wrapper" data-toggle="dropdown" data-offset="10px,0px">
+            <img v-if="$store.state.currentUser.avatar" alt="Pic" :src="$store.state.currentUser.avatar"/>
+            <span v-else class="kt-header__topbar-icon">{{ $store.getters.userDisplayName.slice(0, 1) }}</span>
+          </div>
+          <div class="dropdown-menu dropdown-menu-fit dropdown-menu-right dropdown-menu-anim dropdown-menu-xl">
+
+            <div class="kt-user-card kt-user-card--skin-dark kt-notification-item-padding-x"
+                 :style="`background-image: url(${$publicPath}resources/images/bg-1.jpg)`">
+              <div class="kt-user-card__avatar">
+                <img v-if="$store.state.currentUser.avatar" alt="Pic" :src="$store.state.currentUser.avatar"/>
+                <span v-else class="kt-badge kt-badge--lg kt-badge--rounded kt-badge--bold kt-font-success">{{ $store.getters.userDisplayName.slice(0, 1) }}</span>
               </div>
-              <div class="kt-notification__item-details">
-                <div class="kt-notification__item-title kt-font-bold">
-                  My Profile
-                </div>
-                <div class="kt-notification__item-time">
-                  User, Racer and Staff promotors profile
-                </div>
+              <div class="kt-user-card__name">
+                {{ $store.getters.userDisplayName }}
+                <p class="small kt-user-card__email">{{ $store.state.currentUser.email }}</p>
               </div>
-            </a>
-            <a href="javascript:" class="kt-notification__item">
-              <div class="kt-notification__item-icon">
-                <i class="flaticon2-settings kt-font-danger"></i>
-              </div>
-              <div class="kt-notification__item-details">
-                <div class="kt-notification__item-title kt-font-bold">
-                  Settings
+            </div>
+
+            <div class="kt-notification">
+              <a is="router-link" :to="{name: $rns.MY_PROFILE}" class="kt-notification__item">
+                <div class="kt-notification__item-icon">
+                  <i class="flaticon2-calendar-3 kt-font-success"></i>
                 </div>
-                <div class="kt-notification__item-time">
-                  User setttings and configuration
+                <div class="kt-notification__item-details">
+                  <div class="kt-notification__item-title kt-font-bold">
+                    My Profile
+                  </div>
+                  <div class="kt-notification__item-time">
+                    User, Racer and Staff promotors profile
+                  </div>
                 </div>
-              </div>
-            </a>
-            <a href="javascript:" class="kt-notification__item">
-              <div class="kt-notification__item-icon">
-                <i class="flaticon-questions-circular-button kt-font-info"></i>
-              </div>
-              <div class="kt-notification__item-details">
-                <div class="kt-notification__item-title kt-font-bold">
-                  FAQ
-                </div>
-                <div class="kt-notification__item-time">
-                  Frequently Asked Questions
-                </div>
-              </div>
-            </a>
-            <div class="kt-notification__custom">
-              <a href="javascript:" @click="logout" class="btn btn-label-danger btn-sm btn-bold">
-                <i class="flaticon-logout"></i>
-                Sign Out
               </a>
+              <a href="javascript:" class="kt-notification__item">
+                <div class="kt-notification__item-icon">
+                  <i class="flaticon2-settings kt-font-danger"></i>
+                </div>
+                <div class="kt-notification__item-details">
+                  <div class="kt-notification__item-title kt-font-bold">
+                    Settings
+                  </div>
+                  <div class="kt-notification__item-time">
+                    User setttings and configuration
+                  </div>
+                </div>
+              </a>
+              <a href="javascript:" class="kt-notification__item">
+                <div class="kt-notification__item-icon">
+                  <i class="flaticon-questions-circular-button kt-font-info"></i>
+                </div>
+                <div class="kt-notification__item-details">
+                  <div class="kt-notification__item-title kt-font-bold">
+                    FAQ
+                  </div>
+                  <div class="kt-notification__item-time">
+                    Frequently Asked Questions
+                  </div>
+                </div>
+              </a>
+              <div class="kt-notification__custom">
+                <a href="javascript:" @click="logout" class="btn btn-label-danger btn-sm btn-bold">
+                  <i class="flaticon-logout"></i>
+                  Sign Out
+                </a>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+        <!--
+        TODO: bellow additional hidden menu item is a trick to fix showing user dropdown after logout and relogin. we should find better way to fix that!
+        -->
+        <div class="kt-header__topbar-item kt-header__topbar-item--user kt-hidden">
+          <div class="kt-header__topbar-wrapper" data-toggle="dropdown" data-offset="10px,0px">
+            <span class="kt-header__topbar-icon">{{ $store.getters.userDisplayName.slice(0, 1) }}</span>
+          </div>
+        </div>
+
+      </template>
+      <template v-else>
+        <div class="kt-header__topbar-item kt-header__topbar-item--quickpanel" title="Login">
+          <div class="kt-header__topbar-wrapper" data-offset="10px,0px">
+            <a is="router-link" :to="{name: $rns.LOGIN_PAGE}" class="kt-header__topbar-icon kt-header__topbar-icon--warning"><i class="fa fa-sign-in-alt"></i></a>
+          </div>
+        </div>
+      </template>
     </div>
   </div>
 
@@ -163,10 +187,11 @@
     methods: {
       logout: function () {
         var self = this;
-        this.showInfo("Logging out ...");
         SessionApi.logout().then(
             function () {
+              self.showInfo("Logging out...", 1000);
               self.$store.state.currentUser = {};
+              self.$router.replace({ name: self.$rns.ROOT });
             },
             function (error) {
               self.showDefaultServerError(error);

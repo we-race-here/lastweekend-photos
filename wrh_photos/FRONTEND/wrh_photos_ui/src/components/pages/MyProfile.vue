@@ -12,7 +12,7 @@
 </style>
 
 <template>
-  <div>
+  <div class="kt-container kt-container--fluid  kt-grid__item kt-grid__item--fluid">
     <page-bar></page-bar>
     <div class="kt-portlet kt-portlet--tabs my-profile">
       <div class="kt-portlet__head">
@@ -142,7 +142,7 @@
                         <span v-show="!savingProfile">Save</span>
                         <span v-show="savingProfile">Saving</span>
                       </button>
-                      <a is="router-link" :to="{name: $rns.DASHBOARD}" class="btn btn-secondary">Cancel </a>
+                      <a is="router-link" :to="{name: $rns.INDEX_PAGE}" class="btn btn-secondary">Cancel </a>
                     </div>
                   </div>
                 </div>
@@ -217,7 +217,7 @@
                         <span v-show="!savingProfile">Save</span>
                         <span v-show="savingProfile">Saving</span>
                       </button>
-                      <a is="router-link" :to="{name: $rns.DASHBOARD}" class="btn btn-secondary">Cancel </a>
+                      <a is="router-link" :to="{name: $rns.INDEX_PAGE}" class="btn btn-secondary">Cancel </a>
                     </div>
                   </div>
                 </div>
@@ -326,7 +326,7 @@
                         <span v-show="!savingProfile">Save</span>
                         <span v-show="savingProfile">Saving</span>
                       </button>
-                      <a is="router-link" :to="{name: $rns.DASHBOARD}" class="btn btn-secondary">Cancel </a>
+                      <a is="router-link" :to="{name: $rns.INDEX_PAGE}" class="btn btn-secondary">Cancel </a>
                     </div>
                   </div>
                 </div>
@@ -373,7 +373,7 @@
                         <span v-show="!changingPassword">Change Password</span>
                         <span v-show="changingPassword">Changing</span>
                       </button>
-                      <a is="router-link" :to="{name: $rns.DASHBOARD}" class="btn btn-secondary">Cancel </a>
+                      <a is="router-link" :to="{name: $rns.INDEX_PAGE}" class="btn btn-secondary">Cancel </a>
                     </div>
                   </div>
                 </div>

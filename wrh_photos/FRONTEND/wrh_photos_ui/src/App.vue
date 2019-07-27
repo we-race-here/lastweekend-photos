@@ -10,26 +10,20 @@
 <template>
   <div class="kt-grid kt-grid--hor kt-grid--root">
     <span title="Ui Version" class="fixed-top badge badge-danger app-version-tag">{{ $appVersion }}</span>
-    <template v-if="$store.getters.isLoadedUser">
-      <main-layout></main-layout>
-    </template>
-    <template v-else>
-      <login-page></login-page>
-    </template>
+    <main-layout></main-layout>
     <version-alert v-if="mismatchVersion" :new-version="newAppVersion"></version-alert>
   </div>
 
 </template>
 
 <script>
-import LoginPage from "./components/pages/LoginPage";
 import VersionAlert from "./components/partials/VersionAlert";
 import MainLayout from "./components/layouts/MainLayout";
 import UtilMixin from "./components/mixins/UtilMixin"
 
 export default {
   name: "App",
-  components: { MainLayout, VersionAlert, LoginPage },
+  components: { MainLayout, VersionAlert},
   mixins: [UtilMixin],
   data() {
     return {

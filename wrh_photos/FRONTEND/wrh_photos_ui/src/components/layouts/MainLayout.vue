@@ -7,7 +7,6 @@
 				</a>
 			</div>
 			<div class="kt-header-mobile__toolbar">
-				<div class="kt-header-mobile__toolbar-toggler kt-header-mobile__toolbar-toggler--left" id="kt_aside_mobile_toggler"><span></span></div>
 				<div class="kt-header-mobile__toolbar-toggler" id="kt_header_mobile_toggler"><span></span></div>
 				<div class="kt-header-mobile__toolbar-topbar-toggler" id="kt_header_mobile_topbar_toggler"><i class="flaticon-more"></i></div>
 			</div>
@@ -16,15 +15,13 @@
 		<div class="kt-grid kt-grid--hor kt-grid--root">
 			<div class="kt-grid__item kt-grid__item--fluid kt-grid kt-grid--ver kt-page">
 				<button class="kt-aside-close " id="kt_aside_close_btn"><i class="la la-close"></i></button>
-        <side-menu></side-menu>
+        <!--<side-menu></side-menu>-->
 				<div class="kt-grid__item kt-grid__item--fluid kt-grid kt-grid--hor kt-wrapper" id="kt_wrapper">
           <main-header></main-header>
 					<div class="kt-grid__item kt-grid__item--fluid kt-grid kt-grid--hor">
-            <div class="kt-container  kt-container--fluid  kt-grid__item kt-grid__item--fluid">
-              <keep-alive include="EventList">
-                <router-view></router-view>
-              </keep-alive>
-            </div>
+            <keep-alive include="EventList">
+              <router-view></router-view>
+            </keep-alive>
 					</div>
 
 					<main-footer></main-footer>

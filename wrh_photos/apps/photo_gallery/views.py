@@ -20,7 +20,8 @@ class IndexView(View):
 
     def get(self, request, *args, **kwargs):
         ctx = {}
-        return render(request, 'photo_gallery/index.html', ctx)
+        # return render(request, 'photo_gallery/index.html', ctx)
+        return redirect('/static/vue/index.html')
 
 
 class UiPanelView(View):

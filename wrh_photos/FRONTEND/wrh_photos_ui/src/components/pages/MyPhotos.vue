@@ -1,5 +1,5 @@
 <template>
-  <section>
+  <div class="kt-container kt-container--fluid  kt-grid__item kt-grid__item--fluid">
     <page-bar></page-bar>
     <div class="kt-portlet">
       <div class="kt-portlet__head">
@@ -345,7 +345,7 @@
         </div>
       </b-modal>
     </div>
-  </section>
+  </div>
 </template>
 
 <script>

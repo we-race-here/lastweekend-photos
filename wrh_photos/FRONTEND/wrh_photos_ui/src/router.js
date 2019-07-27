@@ -4,18 +4,22 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 
-import Dashboard from "./components/pages/Dashboard";
+import PhotoList from "./components/pages/PhotoList";
 import MyProfile from "./components/pages/MyProfile";
 import MyPhotos from "./components/pages/MyPhotos";
 import Download from "./components/pages/Download";
+import LoginPage from "./components/pages/LoginPage";
+import store from "./store";
 
 Vue.use(VueRouter);
 
 export const routeNames = {
   ROOT: "root",
   DASHBOARD: "dashboard",
-  MY_PROFILE: "my-profile",
-  MY_PHOTOS: "my-photos",
+  INDEX_PAGE: "index_page",
+  LOGIN_PAGE: "login_page",
+  MY_PROFILE: "my_profile",
+  MY_PHOTOS: "my_photos",
   DOWNLOAD:'download',
 };
 
@@ -33,7 +37,34 @@ const router = new VueRouter({
     {
       path: "/",
       name: routeNames.ROOT,
-      redirect: {name: routeNames.DASHBOARD}
+      redirect: {name: routeNames.INDEX_PAGE},
+      meta: {
+        public: true
+      }
+    },
+    {
+      path: "/index",
+      name: routeNames.INDEX_PAGE,
+      meta: {
+        public: true,
+        pageInfo: {
+          title: "Photo List",
+          titleDesc: "list of photos"
+        }
+      },
+      component: PhotoList
+    },
+    {
+      path: "/login",
+      name: routeNames.LOGIN_PAGE,
+      meta: {
+        public: true,
+        pageInfo: {
+          title: "Login",
+          titleDesc: "login in panel"
+        }
+      },
+      component: LoginPage
     },
     {
       path: "/my-profile",
@@ -47,17 +78,6 @@ const router = new VueRouter({
       component: MyProfile
     },
     {
-      path: "/dashboard",
-      name: routeNames.DASHBOARD,
-      meta: {
-        pageInfo: {
-          title: "Dashboard",
-          titleDesc: "reports & statistics"
-        }
-      },
-      component: Dashboard
-    },
-    {
       path: "/my-photos",
       name: routeNames.MY_PHOTOS,
       meta: {
@@ -68,23 +88,19 @@ const router = new VueRouter({
       },
       component: MyPhotos
     },
-      {
-      path: "/download",
-      name: routeNames.DOWNLOAD,
-      meta: {
-        pageInfo: {
-          title: "Download",
-          titleDesc: "download photo",
-          back: routeNames.DASHBOARD
-        }
-      },
-      component: Download
-    },
     {
       path: "*",
-      redirect: {name: routeNames.DASHBOARD}
+      redirect: {name: routeNames.INDEX_PAGE}
     }
   ]
+});
+
+router.beforeEach(function(to, from, next) {
+  if (store.getters.isLoadedUser || (to.meta || {}).public) {
+    next();
+  } else {
+    next({ name: routeNames.ROOT, replace: true });
+  }
 });
 
 router.afterEach(function (toRoute) {

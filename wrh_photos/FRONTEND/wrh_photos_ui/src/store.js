@@ -37,6 +37,7 @@ const store = new Vuex.Store({
         var name = (state.currentUser.firstname || state.currentUser.username);
         return name.charAt(0).toUpperCase() + name.slice(1);
       }
+      return "";
     }
   }
 });
