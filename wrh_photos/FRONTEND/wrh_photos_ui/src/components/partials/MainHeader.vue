@@ -31,6 +31,11 @@
     <div class="kt-header-menu-wrapper kt-grid__item kt-grid__item--fluid" id="kt_header_menu_wrapper">
       <div id="kt_header_menu" class="kt-header-menu kt-header-menu-mobile  kt-header-menu--layout-default ">
         <ul class="kt-menu__nav ">
+          <li class="kt-menu__item" :class="{'kt-menu__item--active': isActive($rns.INDEX_PAGE)}" aria-haspopup="true">
+            <a is="router-link" :to="{name: $rns.INDEX_PAGE}" class="kt-menu__link ">
+              <i class="kt-menu__link-icon flaticon-squares"></i><span class="kt-menu__link-text">Photo List</span>
+            </a>
+          </li>
           <template v-if="$store.getters.isLoadedUser">
             <li class="kt-menu__item" :class="{'kt-menu__item--active': isActive($rns.MY_PHOTOS)}" aria-haspopup="true">
               <a is="router-link" :to="{name: $rns.MY_PHOTOS}" class="kt-menu__link ">
@@ -189,7 +194,6 @@
         var self = this;
         SessionApi.logout().then(
             function () {
-              self.showInfo("Logging out...", 1000);
               self.$store.state.currentUser = {};
               self.$router.replace({ name: self.$rns.ROOT });
             },
