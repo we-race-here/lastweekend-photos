@@ -7,18 +7,10 @@
           <div class="kt-subheader__main">
             <div class="container-fluid">
               <div class="row justify-content-md-center align-items-center">
-                <div class="col-auto">
-                  <h3 class="kt-subheader__title">
-                    My Photos
-                  </h3>
-                </div>
-                <div class="col-auto mt-1 p-0">
-                  <span class="kt-subheader__separator kt-subheader__separator--v"></span>
-                </div>
                 <div class="col-auto mt-1 p-0">
                   <span class="kt-subheader__desc" id="kt_subheader_total">{{photos.pagination.total}} Total</span>
                 </div>
-                <div class="col-md-6 col-sm-12 p-0 mr-auto kt-subheader__group" id="kt_subheader_search">
+                <div class="col-md-6 col-sm-10 p-0 mr-auto kt-subheader__group" id="kt_subheader_search">
                   <div class="kt-input-icon kt-input-icon--right kt-subheader__search mr-3">
                     <input type="text" class="form-control" placeholder="Search..." id="generalSearch"
                            v-model="searchValue">
