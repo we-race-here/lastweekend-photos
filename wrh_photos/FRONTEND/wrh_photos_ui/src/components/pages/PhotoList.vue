@@ -14,7 +14,9 @@
 
   .size-auto {
     width: 100%;
-    height: auto;
+    height: 250px;
+    object-fit: cover;
+    object-position: center center;
   }
 
   #kt_subheader_search_container {
@@ -42,6 +44,7 @@
     transition: .5s ease;
     background-color: gray;
   }
+
   .overlay-loader {
     position: absolute;
     top: 50%;
@@ -100,7 +103,7 @@
                   <div class="kt-portlet__head-toolbar">
                     <div class="kt-portlet__head-actions">
                       <button type="button" @click="openDownloadPhotoModal(photo)"
-                         class="btn btn-outline-success btn-sm btn-icon btn-icon-md mr-1">
+                              class="btn btn-outline-success btn-sm btn-icon btn-icon-md mr-1">
                         <i class="flaticon-download"></i>
                       </button>
                       <a href="javascript:" class="btn btn-outline-danger btn-sm btn-icon btn-icon-md mr-1">
@@ -130,6 +133,7 @@
         </div>
       </div>
     </div>
+    <!-- download modal -->
     <b-modal
             size="lg"
             centered
@@ -153,7 +157,8 @@
                     </h3>
                   </div>
                 </div>
-                <div class="kt-portlet__body kt-padding-10" :class="{'low-res-photo-not-loaded': !selectedPhoto.low_res_file}">
+                <div class="kt-portlet__body kt-padding-10"
+                     :class="{'low-res-photo-not-loaded': !selectedPhoto.low_res_file}">
                   <img :src="selectedPhoto.low_res_file || selectedPhoto.preview_file" class="size-auto"/>
                   <div class="overlay" v-if="selectedPhoto._gettingLowResFile">
                     <div class="overlay-loader"><i class="fa fa-spin fa-spinner fa-2x"></i></div>
@@ -176,7 +181,8 @@
                          style="position: absolute; will-change: transform; top: 0; left: 0; transform: translate3d(0, -138px, 0);">
                       <a href="javascript:" v-for="p in logoPositionOptions" :key="p.value" class="dropdown-item"
                          :class="{active: p.value==(logoPosition || 'br')}"
-                         data-toggle="kt-tooltip" data-placement="left" @click="logoPosition=p.value; selectedPhoto.low_res_file=null">
+                         data-toggle="kt-tooltip" data-placement="left"
+                         @click="logoPosition=p.value; selectedPhoto.low_res_file=null">
                         {{ p.title }}
                       </a>
                     </div>
@@ -188,7 +194,7 @@
                     Download original file
                   </button>
                 </div>
-                <div  v-if="!selectedPhoto.low_res_file" class="row mt-2">
+                <div v-if="!selectedPhoto.low_res_file" class="row mt-2">
                   <button type="button" @click="getLowResPhotoLink" class="btn btn-spinner btn-primary btn-block btn-lg"
                           :disabled="selectedPhoto._gettingLowResFile || selectedPhoto.low_res_file">
                     <i :class="selectedPhoto._gettingLowResFile? 'la la-spin la-spinner':'la la-link'"></i>
@@ -318,15 +324,15 @@
       }
     },
     methods: {
-      selectPhotoLink: function() {
+      selectPhotoLink: function () {
         var copyText = document.getElementById("photo-link-for-clipboard");
         copyText.select();
       },
-      copyPhotoLinkToClipboard: function() {
+      copyPhotoLinkToClipboard: function () {
         this.selectPhotoLink();
         document.execCommand("copy");
       },
-      getLowResPhotoLink: function() {
+      getLowResPhotoLink: function () {
         var self = this;
         this.$set(this.selectedPhoto, '_gettingLowResFile', true);
         PhotoApi.getLowResFile(this.selectedPhoto, {ads_position: this.logoPosition}).then((resp) => {
@@ -337,7 +343,7 @@
           self.showDefaultServerError(error);
         })
       },
-      downloadLowResPhoto: function() {
+      downloadLowResPhoto: function () {
         if (!this.selectedPhoto.low_res_file) {
           return;
         }

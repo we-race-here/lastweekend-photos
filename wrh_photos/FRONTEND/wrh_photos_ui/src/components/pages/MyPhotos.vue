@@ -26,7 +26,8 @@
                   </div>
                 </div>
                 <div class="col-md-auto col-sm-12 p-0">
-                  <button type="button" class="btn btn-outline-brand btn-sm" @click="$refs.addPhotoModalRef.show()">
+                  <button type="button" class="btn btn-outline-brand btn-sm"
+                          @click="openAddPhotoModal">
                     <i class="flaticon2-plus"></i>
                     Add photo
                   </button>
@@ -53,11 +54,11 @@
                   <div class="kt-portlet__head-toolbar">
                     <div class="kt-portlet__head-actions">
                       <button type="button" @click="openEditPhotoModal(photo)"
-                         class="btn btn-outline-success btn-sm btn-icon btn-icon-md mr-1">
+                              class="btn btn-outline-success btn-sm btn-icon btn-icon-md mr-1">
                         <i class="flaticon-edit"></i>
                       </button>
                       <button type="button" @click="showConfirmDeleteModal(photo)"
-                         class="btn btn-outline-danger btn-sm btn-icon btn-icon-md mr-1">
+                              class="btn btn-outline-danger btn-sm btn-icon btn-icon-md mr-1">
                         <i class="flaticon-delete"></i>
                       </button>
                     </div>
@@ -84,14 +85,14 @@
         </div>
       </div>
 
-      <!-- Add photo modal -->
+      <!-- Add/Edit photo modal -->
       <b-modal
               size="lg"
               centered
-              ref="addPhotoModalRef"
-              id="addPhotoModal"
-              title="Add new photo"
-              @hide="onAddPhotoModalHide"
+              ref="addEditPhotoModalRef"
+              id="addEditPhotoModal"
+              :title="addEditModalTitle"
+              @hide="onAddEditPhotoModalHide"
               :hide-footer="true">
         <div class="modal-body">
           <div class="row">
@@ -102,20 +103,24 @@
                     <div class="kt-portlet__head-label">
                       <h5>{{selectedPhotos[0].name === unknownFileName ? 0 : selectedPhotos.length}} photo(s)
                         selected</h5>
+                      {{selectedPhotos.length}}
                     </div>
                     <div class="kt-portlet__head-toolbar">
                       <div class="kt-portlet__head-actions">
                         <div class="upload-btn-wrapper">
                           <label class="btn btn-outline-brand btn-sm pointer-cursor">
-                                 Select photo(s)
-                          <input type="file" ref="selectedPhotosRef" @change="selectPhotos" multiple accept="image/*" class="kt-hidden"/>
+                            Select photo(s)
+                            <input type="file" ref="selectedPhotosRef" @change="selectPhotos" multiple accept="image/*"
+                                   class="kt-hidden"/>
                           </label>
                         </div>
                       </div>
                     </div>
                   </div>
                   <div class="kt-portlet__body">
-                    <img :src="(selectedPhotos[selectedPhotoIndex] || {}).original_file || `${$publicPath}resources/images/no-photo-available.png`"
+                    <img :src="(selectedPhotos[selectedPhotoIndex] || {}).original_file  ||
+                    (selectedPhotos[selectedPhotoIndex] || {}).preview_file ||
+                    `${$publicPath}resources/images/no-photo-available.png`"
                          class="size-auto-fix"/>
                   </div>
                 </div>
@@ -220,7 +225,7 @@
                     <b-img fluid
                            v-bind:class="selectedPhotos[(index - 1) + selectedPhotoNavigationIndex].uploaded ? 'img-thumbnail-uploaded' : selectedPhotos[(index - 1) + selectedPhotoNavigationIndex].uploading ? 'img-thumbnail-uploading': (selectedPhotoIndex === (index - 1) + selectedPhotoNavigationIndex ? 'img-thumbnail-viewed' : '')"
                            v-if="selectedPhotos.length >= index + selectedPhotoNavigationIndex"
-                           :src="selectedPhotos[(index - 1) + selectedPhotoNavigationIndex].original_file"
+                           :src="selectedPhotos[(index - 1) + selectedPhotoNavigationIndex].original_file || selectedPhotos[(index - 1) + selectedPhotoNavigationIndex].preview_file"
                            @click="selectedPhotoIndex = (index - 1) + selectedPhotoNavigationIndex"></b-img>
                   </b-col>
                 </b-row>
@@ -234,7 +239,8 @@
           </div>
           <div class="row">
             <div class="col p-0">
-              <button class="btn btn-success btn-block btn-spinner btn-lg mt-3 mr-3" @click="uploadPhotos" :disabled="anyUploading || allUploaded">
+              <button class="btn btn-success btn-block btn-spinner btn-lg mt-3 mr-3" @click="uploadPhotos"
+                      :disabled="anyUploading || allUploaded">
                 <i :class="anyUploading? 'fa fa-spin fa-spinner':'fa fa-upload'"></i>
                 <span v-show="!anyUploading">Upload</span>
                 <span v-show="anyUploading">Uploading</span>
@@ -242,67 +248,6 @@
               </button>
             </div>
           </div>
-        </div>
-      </b-modal>
-
-      <!-- Edit modal -->
-      <b-modal
-              size="md"
-              centered
-              ref="editPhotoModalRef"
-              id="editPhotoModal"
-              :title="'Edit ' + selectedPhoto.title"
-              :hide-footer="true">
-        <div class="modal-body text-center">
-          <img ref="editableImage" :src="selectedPhoto.preview_file">
-          <hr>
-          <input type="text" class="form-control" id="photo.name" placeholder="Pick a name for your photo">
-          <hr>
-          <textarea aria-multiline="true" class="form-control" id="photo.description"
-                    placeholder="add a description">
-          </textarea>
-          <hr>
-          <input type="text" class="form-control" id="photo.tag" placeholder="add some tag and press enter">
-          <hr>
-          <input type="text" class="form-control" id="photo.people" placeholder="add people by name or ID or email">
-          <hr>
-          <span>add to album</span>
-          <div>
-            <select class="form-control">
-              <option>
-                choose your album
-              </option>
-              <option>
-                album 1
-              </option>
-              <option>
-                album 2
-              </option>
-            </select>
-          </div>
-          <div class="text-left">
-            <a href="#">or create a new group</a>
-          </div>
-          <hr>
-          <span>add to group</span>
-          <div>
-            <select class="form-control">
-              <option>
-                choose your group
-              </option>
-              <option>
-                album 1
-              </option>
-              <option>
-                album 2
-              </option>
-            </select>
-          </div>
-          <div class="text-left">
-            <a href="#">or create a new group</a>
-          </div>
-          <button class="btn btn-success">Save</button>&nbsp;
-          <button class="btn btn-danger" @click="$refs.editPhotoModalRef.hide()">Close</button>
         </div>
       </b-modal>
 
@@ -407,15 +352,15 @@
       }
     },
     computed: {
-      anyUploading: function() {
+      anyUploading: function () {
         return this.selectedPhotos.filter(f => f.uploading).length > 0;
       },
-      allUploaded: function() {
+      allUploaded: function () {
         return this.selectedPhotos.length > 0 && this.selectedPhotos.filter(f => !f.uploaded).length === 0
       }
     },
     methods: {
-      onClickLogoPosition: function(position) {
+      onClickLogoPosition: function (position) {
         this.$set(this.selectedPhotos[this.selectedPhotoIndex], 'logo_position', position);
       },
       getPhotos: function (searchValue, selectedEvents, currentPage, pageSize) {
@@ -439,9 +384,14 @@
               "Some error happened when trying to get my photo")
         })
       },
+      openAddPhotoModal: function () {
+        this.addEditModalTitle = 'Add a photo';
+        this.$refs.addEditPhotoModalRef.show()
+      },
       openEditPhotoModal: function (photo) {
-        this.selectedPhoto = photo;
-        this.$refs.editPhotoModalRef.show();
+        this.addEditModalTitle = 'Edit the photo';
+        this.addSelectedPhoto(photo);
+        this.$refs.addEditPhotoModalRef.show()
       },
       selectPhotos: function () {
         // push select photo into the selected photo array
@@ -463,7 +413,7 @@
 
           reader.onload = e => {
             let newPhoto = e.target.result;
-            this.selectedPhotos.push({
+            this.addSelectedPhoto({
               name: file.name,
               original_file: newPhoto,
               _event: {
@@ -474,11 +424,6 @@
               uploaded: false,
               uploading: false,
             });
-
-            if (this.selectedPhotos.length > 1 &&
-                this.selectedPhotos[0].name === this.unknownFileName) {
-              this.selectedPhotos.splice(0, 1);
-            }
           };
           reader.readAsDataURL(file);
         }
@@ -514,6 +459,7 @@
             uploadPhoto.peoples.push(uploadPhoto._peoples[j].id);
           }
 
+          // choose default value for unspecified ones
           let postData = Object.assign({}, uploadPhoto);
           ["title", "description", "event", "price", "logo_position", "photo_date"].forEach(function (f) {
             if (!postData[f]) {
@@ -526,8 +472,17 @@
           if (!postData.peoples.length) {
             postData.peoples = defaultPhotoInfo.peoples;
           }
+
+          // Edit the photo if it already has id
+          let uploadAction;
+          if (postData.id > 0) {
+            uploadAction = PhotoApi.edit(postData);
+          } else {
+            uploadAction = PhotoApi.add(postData);
+          }
+
           uploadPhoto.uploading = true;
-          PhotoApi.upload(postData).then(() => {
+          uploadAction.then(() => {
                 uploadPhoto.uploading = false;
                 uploadPhoto.uploaded = true;
               }, () => {
@@ -553,7 +508,7 @@
           this.peopleIsLoading = false;
         });
       },
-      onAddPhotoModalHide: function () {
+      onAddEditPhotoModalHide: function () {
         this.selectedPhotos = [
           {
             name: this.unknownFileName,
@@ -561,6 +516,7 @@
         ];
         this.selectedPhotoIndex = 0;
         this.selectedPhotoNavigationIndex = 0;
+        this.addEditModalTitle = "";
         this.getPhotos(this.searchValue, this.searchSelectedEvents, this.currentPage, this.pageSize);
       },
       showConfirmDeleteModal: function (photo) {
@@ -604,6 +560,14 @@
         if (this.selectedPhotoIndex < this.selectedPhotoNavigationIndex) {
           this.selectedPhotoNavigationIndex--;
         }
+      },
+      addSelectedPhoto(photo) {
+        this.selectedPhotos.push(photo);
+
+        if (this.selectedPhotos.length > 1 &&
+            this.selectedPhotos[0].name === this.unknownFileName) {
+          this.selectedPhotos.splice(0, 1);
+        }
       }
     },
     data: function () {
@@ -636,7 +600,8 @@
         peopleIsLoading: false,
         currentPage: 1,
         pageSize: 12,
-        deletingPhoto: false
+        deletingPhoto: false,
+        addEditModalTitle: ""
       }
     }
   }
@@ -663,7 +628,9 @@
 
   .size-auto {
     width: 100%;
-    height: auto;
+    height: 250px;
+    object-fit: cover;
+    object-position: center center;
   }
 
   .size-auto-fix {
@@ -768,6 +735,14 @@
 
   .navigation-arrow-hover:hover {
     cursor: pointer;
+  }
+
+  .flaticon2-back {
+    color: white;
+  }
+
+  .flaticon2-next {
+    color: white;
   }
 
 </style>

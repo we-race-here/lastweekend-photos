@@ -9,8 +9,11 @@ export default {
     params = params || {};
     return Api.get("photo/my", {'params': params});
   },
-  upload(photo) {
+  add(photo) {
     return Api.post("photo", photo);
+  },
+  edit(photo) {
+    return Api.put(`photo/${photo.id}`, photo);
   },
   delete(photo) {
     return Api.delete("photo/" + photo.id);
