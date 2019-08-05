@@ -505,6 +505,7 @@
           this.tagIsLoading = false;
         });
       },
+
       addPeople: function (search) {
         this.peopleIsLoading = true;
         PeopleApi.add({name: search}).then((resp) => {
