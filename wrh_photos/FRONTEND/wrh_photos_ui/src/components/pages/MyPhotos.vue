@@ -91,7 +91,7 @@
               centered
               ref="addEditPhotoModalRef"
               id="addEditPhotoModal"
-              :title="addEditModalTitle"
+              :title="photoModalType === PhotoModalType.Add ? 'Add photo(s)' : 'Edit the photo'"
               @hide="onAddEditPhotoModalHide"
               :hide-footer="true">
         <div class="modal-body">
@@ -103,11 +103,10 @@
                     <div class="kt-portlet__head-label">
                       <h5>{{selectedPhotos[0].name === unknownFileName ? 0 : selectedPhotos.length}} photo(s)
                         selected</h5>
-                      {{selectedPhotos.length}}
                     </div>
                     <div class="kt-portlet__head-toolbar">
                       <div class="kt-portlet__head-actions">
-                        <div class="upload-btn-wrapper">
+                        <div class="upload-btn-wrapper" v-if="photoModalType === PhotoModalType.Add">
                           <label class="btn btn-outline-brand btn-sm pointer-cursor">
                             Select photo(s)
                             <input type="file" ref="selectedPhotosRef" @change="selectPhotos" multiple accept="image/*"
@@ -171,7 +170,7 @@
                   </div>
                   <div class="row mt-2">
                     <div class="col">
-                      <dateTime placeholder="when do you pick this photo?"
+                      <dateTime placeholder="Date of Photo"
                                 v-model="selectedPhotos[selectedPhotoIndex].date"
                                 :config="{ timepicker: false, format: 'YYYY/MM/DD' }"
                                 comparator="date"
@@ -213,7 +212,8 @@
               </div>
             </div>
           </div>
-          <div class="row mt-2" v-if="selectedPhotos[0].name !== unknownFileName">
+          <div class="row mt-2"
+               v-if="photoModalType === PhotoModalType.Add && selectedPhotos[0].name !== unknownFileName">
             <div class="col-auto navigation-arrow d-flex align-items-center"
                  :class="{'navigation-arrow-hover': selectedPhotoIndex > 0}" @click="previousPhoto">
               <i class="flaticon2-back"></i>
@@ -242,8 +242,8 @@
               <button class="btn btn-success btn-block btn-spinner btn-lg mt-3 mr-3" @click="uploadPhotos"
                       :disabled="anyUploading || allUploaded">
                 <i :class="anyUploading? 'fa fa-spin fa-spinner':'fa fa-upload'"></i>
-                <span v-show="!anyUploading">Upload</span>
-                <span v-show="anyUploading">Uploading</span>
+                <span v-show="!anyUploading">{{photoModalType === PhotoModalType.Add ? 'Upload' : 'Update'}}</span>
+                <span v-show="anyUploading">{{photoModalType === PhotoModalType.Add ? 'Uploading' : 'Updating'}}</span>
                 <span v-if="allUploaded" class="la la-check-circle"></span>
               </button>
             </div>
@@ -385,11 +385,14 @@
         })
       },
       openAddPhotoModal: function () {
-        this.addEditModalTitle = 'Add a photo';
+        this.photoModalType = this.PhotoModalType.Add;
         this.$refs.addEditPhotoModalRef.show()
       },
       openEditPhotoModal: function (photo) {
-        this.addEditModalTitle = 'Edit the photo';
+        this.photoModalType = this.PhotoModalType.Edit;
+        // To fix vue reactive property
+        this.$set(photo, 'uploaded', false);
+        this.$set(photo, 'uploading', false);
         this.addSelectedPhoto(photo);
         this.$refs.addEditPhotoModalRef.show()
       },
@@ -430,6 +433,7 @@
         this.$refs.selectedPhotosRef.value = "";
       },
       uploadPhotos: function () {
+        // At least the first photo must be has name, event, etc.
         if (this.selectedPhotos[0].name === this.unknownFileName) {
           return this.showError("No photo selected");
         }
@@ -441,6 +445,7 @@
           return this.showError("No title entered!");
         }
 
+        // Fix photo relations
         for (let i = 0; i < this.selectedPhotos.length; i++) {
           let uploadPhoto = this.selectedPhotos[i];
           if (uploadPhoto.uploaded) {
@@ -572,6 +577,11 @@
     },
     data: function () {
       const unknownFileName = "__unknown__";
+      const PhotoModalType = {
+        None: "none",
+        Add: "add",
+        Edit: "edit"
+      };
       return {
         searchValue: "",
         logoPositionOptions: LOGO_POSITION_OPTIONS,
@@ -601,7 +611,8 @@
         currentPage: 1,
         pageSize: 12,
         deletingPhoto: false,
-        addEditModalTitle: ""
+        photoModalType: PhotoModalType.None,
+        PhotoModalType: PhotoModalType
       }
     }
   }
