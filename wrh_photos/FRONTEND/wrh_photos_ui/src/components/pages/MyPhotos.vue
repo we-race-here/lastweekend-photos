@@ -38,10 +38,10 @@
         </div>
       </div>
       <div class="kt-portlet__body">
-        <div class="container-fluid mr-3 ml-3">
+        <div class="container-fluid">
           <div class="row">
             <div class="col-md-3 mt-3 mb-3" v-for="photo in photos.results" :key="photo.id">
-              <div class="kt-portlet">
+              <div class="kt-portlet kt-portlet--bordered">
                 <div class="kt-portlet__head">
                   <div class="kt-portlet__head-label">
                               <span class="kt-portlet__head-icon">
@@ -64,7 +64,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="kt-portlet__body">
+                <div class="">
                   <img :src="photo.preview_file" class="size-auto"/>
                 </div>
               </div>
@@ -116,11 +116,11 @@
                       </div>
                     </div>
                   </div>
-                  <div class="kt-portlet__body">
+                  <div class="">
                     <img :src="(selectedPhotos[selectedPhotoIndex] || {}).original_file  ||
                     (selectedPhotos[selectedPhotoIndex] || {}).preview_file ||
                     `${$publicPath}resources/images/no-photo-available.png`"
-                         class="size-auto-fix"/>
+                         class="size-auto"/>
                   </div>
                 </div>
               </div>
@@ -640,18 +640,6 @@
     font-size: 1.75rem;
   }
 
-  .size-auto {
-    width: 100%;
-    height: 250px;
-    object-fit: cover;
-    object-position: center center;
-  }
-
-  .size-auto-fix {
-    width: 320px;
-    height: 300px;
-  }
-
   #kt_subheader_search_container {
     width: 100%;
   }
@@ -714,11 +702,6 @@
     top: 5px;
     left: 40px;
     font-weight: 400;
-  }
-
-  img {
-    height: auto;
-    width: 100%;
   }
 
   .img-thumbnail-viewed {

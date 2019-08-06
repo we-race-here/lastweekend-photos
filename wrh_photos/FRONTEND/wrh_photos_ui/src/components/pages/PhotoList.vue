@@ -12,13 +12,6 @@
     font-size: 1.75rem;
   }
 
-  .size-auto {
-    width: 100%;
-    height: 250px;
-    object-fit: cover;
-    object-position: center center;
-  }
-
   #kt_subheader_search_container {
     width: 100%;
   }
@@ -87,10 +80,10 @@
 
       </div>
       <div class="kt-portlet__body">
-        <div class="container-fluid mr-3 ml-3">
+        <div class="container-fluid">
           <div class="row">
             <div class="col-md-4 mt-3 mb-3" v-for="photo in photos.results" :key="photo.id">
-              <div class="kt-portlet">
+              <div class="kt-portlet kt-portlet--bordered">
                 <div class="kt-portlet__head">
                   <div class="kt-portlet__head-label">
                   <span class="kt-portlet__head-icon">
@@ -112,7 +105,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="kt-portlet__body">
+                <div class="">
                   <img :src="photo.preview_file" class="size-auto"/>
                 </div>
               </div>
@@ -157,9 +150,9 @@
                     </h3>
                   </div>
                 </div>
-                <div class="kt-portlet__body kt-padding-10"
+                <div class=""
                      :class="{'low-res-photo-not-loaded': !selectedPhoto.low_res_file}">
-                  <img :src="selectedPhoto.low_res_file || selectedPhoto.preview_file" class="size-auto"/>
+                  <img :src="selectedPhoto.low_res_file || selectedPhoto.preview_file" class="size-auto-height"/>
                   <div class="overlay" v-if="selectedPhoto._gettingLowResFile">
                     <div class="overlay-loader"><i class="fa fa-spin fa-spinner fa-2x"></i></div>
                   </div>
@@ -172,7 +165,7 @@
               <div class="col">
                 <div class="row">
                   <div class="dropdown">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                    <button class="btn btn-secondary dropdown-toggle full-width" type="button" id="dropdownMenuButton"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                       Logo position:
                       <span class="kt-font-bolder">{{ logoPositionMap[logoPosition || 'br'].title }}</span>
