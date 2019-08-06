@@ -445,6 +445,7 @@
           return this.showError("No title entered!");
         }
 
+        let sequensePromise = Promise.resolve();
         // Fix photo relations
         for (let i = 0; i < this.selectedPhotos.length; i++) {
           let uploadPhoto = this.selectedPhotos[i];
@@ -481,20 +482,21 @@
           // Edit the photo if it already has id
           let uploadAction;
           if (postData.id > 0) {
-            uploadAction = PhotoApi.edit(postData);
+            uploadAction = PhotoApi.edit;
           } else {
-            uploadAction = PhotoApi.add(postData);
+            uploadAction = PhotoApi.add;
           }
 
           uploadPhoto.uploading = true;
-          uploadAction.then(() => {
-                uploadPhoto.uploading = false;
-                uploadPhoto.uploaded = true;
-              }, () => {
-                uploadPhoto.uploading = false;
-                this.showError(`Some error happened when trying to upload ${uploadPhoto.name} photo`, 500);
-              }
-          )
+          sequensePromise = sequensePromise.then(() => {
+            return uploadAction(postData).then(() => {
+              uploadPhoto.uploading = false;
+              uploadPhoto.uploaded = true;
+            }, () => {
+              uploadPhoto.uploading = false;
+              this.showError(`Some error happened when trying to upload ${uploadPhoto.name} photo`, 500);
+            });
+          });
         }
       },
       addTag: function (search) {
@@ -505,6 +507,7 @@
           this.tagIsLoading = false;
         });
       },
+
       addPeople: function (search) {
         this.peopleIsLoading = true;
         PeopleApi.add({name: search}).then((resp) => {
