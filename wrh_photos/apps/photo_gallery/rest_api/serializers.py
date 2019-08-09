@@ -141,16 +141,18 @@ class NestedPhotoPeopleSerializer(serializers.ModelSerializer):
         fields = ('id', 'name',)
 
 
-class NestedEventSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Event
-        fields = ('id', 'name',)
-
-
 class NestedSponsorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sponsor
         fields = ('id', 'brand_name', 'logo')
+
+
+class NestedEventSerializer(serializers.ModelSerializer):
+    _sponsors = NestedSponsorSerializer(read_only=True, many=True, source='sponsors')
+
+    class Meta:
+        model = Event
+        fields = ('id', 'name', '_sponsors')
 
 
 class EventSerializer(DynamicFieldsSerializerMixin, serializers.ModelSerializer):
@@ -190,6 +192,7 @@ class PhotoPeopleSerializer(DynamicFieldsSerializerMixin, serializers.ModelSeria
 
 
 class PhotoSerializer(DynamicFieldsSerializerMixin, serializers.ModelSerializer):
+
     _tags = NestedPhotoTagSerializer(read_only=True, many=True, source='tags')
     _peoples = NestedPhotoPeopleSerializer(read_only=True, many=True, source='peoples')
     _owner = NestedUserSerializer(read_only=True, source='owner')

@@ -19,6 +19,24 @@
     object-position: center center;
   }
 
+  .sponsor-size-auto {
+    width: 70px;
+    height: 65px;
+    object-fit: cover;
+    border: 2px solid #6986e9;
+    border-radius: 4px;
+  }
+
+  .overflow {
+    width: 5em;
+    text-overflow: ellipsis;
+    /**
+     * Required properties to achieve text-overflow
+     */
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
   #kt_subheader_search_container {
     width: 100%;
   }
@@ -114,6 +132,15 @@
                 </div>
                 <div class="kt-portlet__body">
                   <img :src="photo.preview_file" class="size-auto"/>
+                </div>
+                <div class="kt-portlet__foot kt-portlet__foot--sm kt-align-right">
+                  <div class="d-flex">
+                    <div v-for="sponsor in photo._event._sponsors" :key="sponsor.id" class="mr-2 d-flex flex-column">
+                      <img :src="sponsor.logo" class="sponsor-size-auto">
+                      <span class="overflow">{{sponsor.brand_name}}</span>
+                    </div>
+                  </div>
+
                 </div>
               </div>
             </div>

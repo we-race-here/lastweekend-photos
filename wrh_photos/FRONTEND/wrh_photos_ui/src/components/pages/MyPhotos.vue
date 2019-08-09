@@ -445,7 +445,7 @@
           return this.showError("No title entered!");
         }
 
-        let sequensePromise = Promise.resolve();
+        let sequencePromise = Promise.resolve();
         // Fix photo relations
         for (let i = 0; i < this.selectedPhotos.length; i++) {
           let uploadPhoto = this.selectedPhotos[i];
@@ -488,7 +488,7 @@
           }
 
           uploadPhoto.uploading = true;
-          sequensePromise = sequensePromise.then(() => {
+          sequencePromise = sequencePromise.then(() => {
             return uploadAction(postData).then(() => {
               uploadPhoto.uploading = false;
               uploadPhoto.uploaded = true;
