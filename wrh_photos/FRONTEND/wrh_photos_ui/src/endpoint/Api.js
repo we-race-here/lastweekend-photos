@@ -15,7 +15,7 @@ function checkMismatchVersion(response) {
 
 const axiosInstance = axios.create({
   baseURL: Config.API_BASE_URL,
-  timeout: 5000,
+  timeout: 300000,
   xsrfCookieName: "csrftoken",
   xsrfHeaderName: "X-CSRFToken",
   withCredentials: true,
