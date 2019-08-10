@@ -1,7 +1,9 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm
+from django.urls import path
 
+from .views import AdminSendSignupInvitationView
 from .models import User, PhotoOrder, Cart, Photo, PhotoPeople, PhotoTag, Event, Sponsor, Photographer, PhotoAds
 
 
@@ -16,6 +18,11 @@ class MyUserAdmin(UserAdmin):
     fieldsets = UserAdmin.fieldsets + (
             (None, {'fields': ('gender', 'avatar')}),
     )
+
+    def get_urls(self):
+        return [
+            path('signup-invitation/', AdminSendSignupInvitationView.as_view(), name='user_signup_invitation'),
+        ] + super().get_urls()
 
 
 class PhotoAdsAdmin(admin.ModelAdmin):
