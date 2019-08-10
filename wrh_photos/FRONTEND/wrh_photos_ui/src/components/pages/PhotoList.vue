@@ -12,6 +12,30 @@
     font-size: 1.75rem;
   }
 
+  .sponsor-size-auto {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border: 1px solid #bebfc3;
+    border-radius: 4px;
+  }
+
+  .sponsors-container {
+    padding: 5px !important;
+    background-color: #efefef;
+    opacity: 0.7;
+  }
+
+  .overflow {
+    width: 60px;
+    text-overflow: ellipsis;
+    /**
+     * Required properties to achieve text-overflow
+     */
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
   #kt_subheader_search_container {
     width: 100%;
   }
@@ -107,6 +131,20 @@
                 </div>
                 <div class="">
                   <img :src="photo.preview_file" class="size-auto"/>
+                </div>
+                <div class="kt-portlet__foot kt-portlet__foot--sm kt-align-center sponsors-container">
+                  <div class="d-flex">
+                    <div v-for="sponsor in photo._event._sponsors" :key="sponsor.id"
+                         class="mr-2 d-flex flex-column" :title="`Event Sponsored By:<br><b>${sponsor.brand_name}</b>`" v-b-tooltip.html>
+                      <img :src="sponsor.logo" class="sponsor-size-auto">
+                      <span class="overflow">{{sponsor.brand_name}}</span>
+                    </div>
+                    <div v-if="!photo._event._sponsors || !photo._event._sponsors.length" class="mr-2 d-flex flex-column">
+                      <img :src="`${$publicPath}resources/images/no-photo-available.png`" class="sponsor-size-auto">
+                      <span>No Sponsor</span>
+                    </div>
+                  </div>
+
                 </div>
               </div>
             </div>
