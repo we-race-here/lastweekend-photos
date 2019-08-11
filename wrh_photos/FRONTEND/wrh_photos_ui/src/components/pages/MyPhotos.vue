@@ -1,3 +1,139 @@
+<style scoped>
+
+  #generalSearch {
+    font-size: 1rem !important;
+  }
+
+  .event-select {
+    width: 70% !important;
+    margin-top: 8px !important;
+  }
+
+  #kt_subheader_search_container .kt-subheader__main .kt-subheader__title {
+    margin-top: 5px !important;
+  }
+
+  .large-icon {
+    font-size: 1.75rem;
+  }
+
+  #kt_subheader_search_container {
+    width: 100%;
+  }
+
+  .modal-full {
+    height: 93%;
+    display: flex;
+    width: 100% !important;
+    max-width: 100% !important;
+    background-color: #ffffff;
+  }
+
+  .modal-content {
+    background-color: transparent;
+    color: white;
+  }
+
+  .upload-btn-wrapper {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+  }
+
+  .btn-file {
+    border: 2px solid gray;
+    color: gray;
+    background-color: white;
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: 20px;
+    font-weight: bold;
+  }
+
+  .upload-btn-wrapper input[type=file] {
+    font-size: 100px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+  }
+
+  .upload-content {
+    position: inherit;
+    top: 45%
+  }
+
+  .btn-rescale {
+    position: absolute;
+    color: #eeeeee;
+    font-size: x-large;
+    top: 5px;
+    left: 15px;
+    font-weight: 400;
+  }
+
+  .btn-pencil {
+    position: absolute;
+    color: #eeeeee;
+    font-size: x-large;
+    top: 5px;
+    left: 40px;
+    font-weight: 400;
+  }
+
+  .img-thumbnail-viewed {
+    max-width: 50px;
+    width: 50px;
+    border: 3px dotted #dee2e6;
+    height: auto;
+  }
+
+  .img-thumbnail-uploaded {
+    max-width: 50px;
+    width: 50px;
+    border: 3px dotted #11e604;
+    height: auto;
+  }
+
+  .img-thumbnail-uploading {
+    max-width: 50px;
+    width: 50px;
+    border: 3px dotted #ffeb16;
+    height: auto;
+  }
+
+  .navigation-arrow {
+    font-size: 28px;
+    background-color: #343a40
+  }
+
+  .navigation-arrow-hover:hover {
+    cursor: pointer;
+  }
+
+  .flaticon2-back {
+    color: white;
+  }
+
+  .flaticon2-next {
+    color: white;
+  }
+
+  .overlay-div {
+    position: absolute; /* Sit on top of the page content */
+    width: 100%; /* Full width (cover the whole page) */
+    height: 100%; /* Full height (cover the whole page) */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(222, 222, 222, 0.5); /* Black background with opacity */
+    z-index: 10000; /* Specify a stack order in case you're using a different order for other elements */
+    cursor: not-allowed;
+  }
+
+</style>
+
 <template>
   <div class="kt-container kt-container--fluid  kt-grid__item kt-grid__item--fluid">
     <page-bar></page-bar>
@@ -126,6 +262,8 @@
               </div>
             </div>
             <div class="col-md-6 col-sm-12 pr-0">
+              <div v-if="selectedPhotos[0].name == unknownFileName" class="overlay-div"
+                   title="Please select photo first!"></div>
               <div class="row">
                 <div class="col">
                   <div class="row">
@@ -620,126 +758,3 @@
     }
   }
 </script>
-
-<style scoped>
-
-  #generalSearch {
-    font-size: 1rem !important;
-  }
-
-  .event-select {
-    width: 70% !important;
-    margin-top: 8px !important;
-  }
-
-  #kt_subheader_search_container .kt-subheader__main .kt-subheader__title {
-    margin-top: 5px !important;
-  }
-
-  .large-icon {
-    font-size: 1.75rem;
-  }
-
-  #kt_subheader_search_container {
-    width: 100%;
-  }
-
-  .modal-full {
-    height: 93%;
-    display: flex;
-    width: 100% !important;
-    max-width: 100% !important;
-    background-color: #ffffff;
-  }
-
-  .modal-content {
-    background-color: transparent;
-    color: white;
-  }
-
-  .upload-btn-wrapper {
-    position: relative;
-    overflow: hidden;
-    display: inline-block;
-  }
-
-  .btn-file {
-    border: 2px solid gray;
-    color: gray;
-    background-color: white;
-    padding: 8px 20px;
-    border-radius: 8px;
-    font-size: 20px;
-    font-weight: bold;
-  }
-
-  .upload-btn-wrapper input[type=file] {
-    font-size: 100px;
-    position: absolute;
-    left: 0;
-    top: 0;
-    opacity: 0;
-  }
-
-  .upload-content {
-    position: inherit;
-    top: 45%
-  }
-
-  .btn-rescale {
-    position: absolute;
-    color: #eeeeee;
-    font-size: x-large;
-    top: 5px;
-    left: 15px;
-    font-weight: 400;
-  }
-
-  .btn-pencil {
-    position: absolute;
-    color: #eeeeee;
-    font-size: x-large;
-    top: 5px;
-    left: 40px;
-    font-weight: 400;
-  }
-
-  .img-thumbnail-viewed {
-    max-width: 50px;
-    width: 50px;
-    border: 3px dotted #dee2e6;
-    height: auto;
-  }
-
-  .img-thumbnail-uploaded {
-    max-width: 50px;
-    width: 50px;
-    border: 3px dotted #11e604;
-    height: auto;
-  }
-
-  .img-thumbnail-uploading {
-    max-width: 50px;
-    width: 50px;
-    border: 3px dotted #ffeb16;
-    height: auto;
-  }
-
-  .navigation-arrow {
-    font-size: 28px;
-    background-color: #343a40
-  }
-
-  .navigation-arrow-hover:hover {
-    cursor: pointer;
-  }
-
-  .flaticon2-back {
-    color: white;
-  }
-
-  .flaticon2-next {
-    color: white;
-  }
-
-</style>
