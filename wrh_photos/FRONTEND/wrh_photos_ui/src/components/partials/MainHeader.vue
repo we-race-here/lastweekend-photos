@@ -173,7 +173,7 @@
       <template v-else>
         <div class="kt-header__topbar-item kt-header__topbar-item--quickpanel" title="Login">
           <div class="kt-header__topbar-wrapper" data-offset="10px,0px">
-            <a is="router-link" :to="{name: $rns.LOGIN_PAGE}" class="kt-header__topbar-icon kt-header__topbar-icon--warning"><i class="fa fa-sign-in-alt"></i></a>
+            <a href="/login" class="kt-header__topbar-icon kt-header__topbar-icon--warning"><i class="fa fa-sign-in-alt"></i></a>
           </div>
         </div>
       </template>
@@ -195,7 +195,8 @@
         SessionApi.logout().then(
             function () {
               self.$store.state.currentUser = {};
-              self.$router.replace({ name: self.$rns.ROOT });
+              // self.$router.replace({ name: self.$rns.ROOT });
+              window.location = "/login"
             },
             function (error) {
               self.showDefaultServerError(error);

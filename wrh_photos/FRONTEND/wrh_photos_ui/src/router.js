@@ -7,8 +7,6 @@ import VueRouter from "vue-router";
 import PhotoList from "./components/pages/PhotoList";
 import MyProfile from "./components/pages/MyProfile";
 import MyPhotos from "./components/pages/MyPhotos";
-import Download from "./components/pages/Download";
-import LoginPage from "./components/pages/LoginPage";
 import store from "./store";
 
 Vue.use(VueRouter);
@@ -17,7 +15,6 @@ export const routeNames = {
   ROOT: "root",
   DASHBOARD: "dashboard",
   INDEX_PAGE: "index_page",
-  LOGIN_PAGE: "login_page",
   MY_PROFILE: "my_profile",
   MY_PHOTOS: "my_photos",
   DOWNLOAD:'download',
@@ -53,18 +50,6 @@ const router = new VueRouter({
         }
       },
       component: PhotoList
-    },
-    {
-      path: "/login",
-      name: routeNames.LOGIN_PAGE,
-      meta: {
-        public: true,
-        pageInfo: {
-          title: "Login",
-          titleDesc: "login in panel"
-        }
-      },
-      component: LoginPage
     },
     {
       path: "/my-profile",

@@ -70,7 +70,6 @@
     color: white;
   }
 
-
 </style>
 
 <template>
