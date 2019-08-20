@@ -1,0 +1,55 @@
+{% extends "admin/change_list.html" %}
+{% block object-tools-items %}
+
+    {{ block.super }}
+
+    <li>
+        <!--<a class="btn btn-danger btn-xs" href="{% url 'admin:user_signup_invitation' %}"
+           title="send signup invitation via email">
+          <span class="glyphicon glyphicon-send"></span>
+          Send Invitaion
+        </a>-->
+        <button type="button" class="btn btn-xs btn-danger signup-invitation-button" data-toggle="popover">
+          <span class="glyphicon glyphicon-send"></span>
+          Send Invitaion
+        </button>
+        <div id="signupInvitationFormContainer" class="hide">
+            <form action="{% url 'admin:user_signup_invitation' %}" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" name="email" id="email" class="form-control input-md" placeholder="Email Address">
+                </div>
+
+                <div class="form-group">
+                  <button type="submit" class="btn btn-primary btn-sm" data-loading-text="Sending ...">
+                      <i class="glyphicon glyphicon-check"></i> Send
+                  </button>
+                  <button type="button" class="btn btn-secondary btn-sm close-invitation-popover">
+                    <em class="glyphicon glyphicon-remove"></em> Cancel
+                  </button>
+                </div>
+            </form>
+        </div>
+
+    </li>
+
+{% endblock %}
+
+{% block js %}
+  {{ block.super }}
+  <script>
+  (function ($) {
+    $(document).on('click', 'button.close-invitation-popover', function() {
+      $('.signup-invitation-button').popover('hide');
+    });
+    $('.signup-invitation-button').popover({
+      title: 'Signup invitation',
+      content: $('#signupInvitationFormContainer').html(),
+      html: true,
+      container: 'body',
+      placement: 'left'
+    });
+  })(django.jQuery);
+  </script>
+{% endblock %}
