@@ -1,4 +1,5 @@
 import Api from "@/endpoint/Api";
+import {Config} from "../Config";
 
 export default {
   getAll(params) {
@@ -10,7 +11,7 @@ export default {
     return Api.get("photo/my", {'params': params});
   },
   add(photo) {
-    return Api.post("photo", photo);
+    return Api.post("photo", photo, {timeout: Config.PHOTO_UPLOAD_AXIOS_TIMEOUT});
   },
   edit(photo) {
     return Api.put(`photo/${photo.id}`, photo);

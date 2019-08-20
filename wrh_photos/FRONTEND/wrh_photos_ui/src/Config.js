@@ -3,5 +3,7 @@ export const Config = {
   // API_BASE_URL: 'http://localhost:8000/api/v1', // localhost url
   // API_BASE_URL: 'http://photo.dev.weracehere.org/api/v1', // dev server url
   // API_BASE_URL: 'http://photo.weracehere.org/api/v1', // prod server url
-  DEFAULT_PHONE_COUNTRY_CODE: "+1"
+  DEFAULT_PHONE_COUNTRY_CODE: "+1",
+  DEFAULT_AXIOS_TIMEOUT: undefined,  // in ms. undefined means no timeout set
+  PHOTO_UPLOAD_AXIOS_TIMEOUT: undefined,  // in ms. undefined means no timeout set
 };
