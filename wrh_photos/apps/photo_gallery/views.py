@@ -1,9 +1,14 @@
 from django.conf import settings
+from django.contrib.admin.views.decorators import staff_member_required
 from django.core import signing
+from django.core.exceptions import PermissionDenied
 from django.core.mail import send_mail
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
 from django.template.loader import render_to_string
+from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
 from django.views import View
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
@@ -54,6 +59,15 @@ class LoginView(View):
 
 class SignUpView(View):
     template_name = 'photo_gallery/registration/signup.html'
+    success_message = 'Activation link sent to your email, please check your email.'
+    redirect_url = settings.LOGIN_URL
+
+    def get_context(self, **kwargs):
+        kwargs['public_sign_up_disabled'] = self.is_public_signup_disabled()
+        return kwargs
+
+    def is_public_signup_disabled(self):
+        return settings.SIGNUP_REQUEST_PUBLIC_DISABLED
 
     def _send_activation_email(self, email):
         sign = signing.dumps({'email': email}, salt=settings.SIGNUP_ACTIVATION_SALT)
@@ -70,19 +84,40 @@ class SignUpView(View):
         if request.user.is_authenticated:
             return redirect(settings.LOGIN_REDIRECT_URL)
         form = SignUpForm()
-        ctx = {'form': form}
-        return render(request, self.template_name, ctx)
+        return render(request, self.template_name, self.get_context(form=form))
+
+    def post(self, request, *args, **kwargs):
+        if self.is_public_signup_disabled():
+            raise PermissionDenied("Not allowed public signup. only invitation from admin allowed!")
+        
+        form = SignUpForm(data=request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            self._send_activation_email(email)
+            success_message(self.success_message.format(email=email), request)
+            return redirect(self.redirect_url)
+
+        send_form_errors(form, request)
+        return render(request, self.template_name, self.get_context(form=form))
+
+
+@method_decorator(staff_member_required, name='dispatch')
+class AdminSendSignupInvitationView(SignUpView):
+    success_message = 'Activation link sent to "{email}" successfully.'
+    redirect_url = reverse_lazy("admin:photo_gallery_user_changelist")
+
+    def get(self, request, *args, **kwargs):
+        return redirect(self.redirect_url)
 
     def post(self, request, *args, **kwargs):
         form = SignUpForm(data=request.POST)
         if form.is_valid():
-            self._send_activation_email(form.cleaned_data['email'])
-            success_message('Activation link sent to your email, please check your email.', request)
-            return redirect(settings.LOGIN_URL)
-
-        send_form_errors(form, request)
-        ctx = {'form': form}
-        return render(request, self.template_name, ctx)
+            email = form.cleaned_data['email']
+            self._send_activation_email(email)
+            success_message(self.success_message.format(email=email), request)
+        else:
+            send_form_errors(form, request)
+        return redirect(self.redirect_url)
 
 
 class ActivationSignUpView(View):
@@ -111,8 +146,6 @@ class ActivationSignUpView(View):
         return False
 
     def get(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return redirect(settings.LOGIN_REDIRECT_URL)
         if self.exists_email():
             error_message('An account with this email already registered!', request)
             return redirect(settings.LOGIN_REDIRECT_URL)

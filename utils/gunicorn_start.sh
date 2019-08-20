@@ -31,5 +31,5 @@ exec ${ENVDIR}/bin/gunicorn ${DJANGO_WSGI_MODULE}:application \
   --user=${USER} --group=${GROUP} \
   --bind=unix:${SOCKFILE} \
   --log-level=debug \
-  --timeout=100 \
+  --timeout=300 \
   --log-file=${PROJECTDIR}/logs/gunicorn.log
