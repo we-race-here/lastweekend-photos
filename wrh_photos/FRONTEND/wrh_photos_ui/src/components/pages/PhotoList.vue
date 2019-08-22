@@ -69,7 +69,6 @@
     color: white;
   }
 
-
 </style>
 
 <template>

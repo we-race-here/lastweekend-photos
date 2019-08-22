@@ -56,86 +56,136 @@ table th a:hover {
 }
 
 /* ---- margin --- */
-.mar-left5 { margin-left: 5px !important; }
-.mar-left10 { margin-left: 10px !important; }
-.mar-left15 { margin-left: 15px !important; }
-.mar-left20 { margin-left: 20px !important; }
-.mar-left25 { margin-left: 25px !important; }
-.mar-left30 { margin-left: 30px !important; }
+.mar-left5 {
+  margin-left: 5px !important;
+}
 
-.mar-right5 { margin-right: 5px !important; }
-.mar-right10 { margin-right: 10px !important; }
-.mar-right15 { margin-right: 15px !important; }
-.mar-right20 { margin-right: 20px !important; }
-.mar-right25 { margin-right: 25px !important; }
-.mar-right30 { margin-right: 30px !important; }
+.mar-left10 {
+  margin-left: 10px !important;
+}
+
+.mar-left15 {
+  margin-left: 15px !important;
+}
+
+.mar-left20 {
+  margin-left: 20px !important;
+}
+
+.mar-left25 {
+  margin-left: 25px !important;
+}
+
+.mar-left30 {
+  margin-left: 30px !important;
+}
+
+.mar-right5 {
+  margin-right: 5px !important;
+}
+
+.mar-right10 {
+  margin-right: 10px !important;
+}
+
+.mar-right15 {
+  margin-right: 15px !important;
+}
+
+.mar-right20 {
+  margin-right: 20px !important;
+}
+
+.mar-right25 {
+  margin-right: 25px !important;
+}
+
+.mar-right30 {
+  margin-right: 30px !important;
+}
 
 /* top */
 .mar-top0 {
-    margin-top: 0 !important;
+  margin-top: 0 !important;
 }
+
 .mar-top5 {
-    margin-top: 5px !important;
+  margin-top: 5px !important;
 }
 
 .mar-top10 {
-    margin-top: 10px !important;
+  margin-top: 10px !important;
 }
 
 .mar-top15 {
-    margin-top: 15px !important;
+  margin-top: 15px !important;
 }
+
 .mar-top20 {
-    margin-top: 20px !important;
+  margin-top: 20px !important;
 }
+
 .mar-top25 {
-    margin-top: 25px !important;
+  margin-top: 25px !important;
 }
+
 .mar-top30 {
-    margin-top: 30px !important;
+  margin-top: 30px !important;
 }
+
 .mar-top35 {
-    margin-top: 35px !important;
+  margin-top: 35px !important;
 }
+
 .mar-top40 {
-    margin-top: 40px !important;
+  margin-top: 40px !important;
+}
+
+.mar-top50 {
+  margin-top: 50px !important;
 }
 
 
 /* bottom */
 .mar-bot0 {
-    margin-bottom: 0 !important;
+  margin-bottom: 0 !important;
 }
+
 .mar-bot5 {
-    margin-bottom: 5px !important;
+  margin-bottom: 5px !important;
 }
 
 .mar-bot10 {
-    margin-bottom: 10px !important;
+  margin-bottom: 10px !important;
 }
 
 .mar-bot15 {
-    margin-bottom: 15px !important;
+  margin-bottom: 15px !important;
 }
+
 .mar-bot20 {
-    margin-bottom: 20px !important;
+  margin-bottom: 20px !important;
 }
+
 .mar-bot25 {
-    margin-bottom: 25px !important;
+  margin-bottom: 25px !important;
 }
+
 .mar-bot30 {
-    margin-bottom: 30px !important;
+  margin-bottom: 30px !important;
 }
+
 .mar-bot35 {
-    margin-bottom: 35px !important;
+  margin-bottom: 35px !important;
 }
+
 .mar-bot40 {
-    margin-bottom: 40px !important;
+  margin-bottom: 40px !important;
 }
 
 .messages {
   display: block;
-  z-index:999999;
+  z-index: 999999;
   left: 30%;
   right: 30%;
   top: 0 !important;
@@ -144,53 +194,53 @@ table th a:hover {
 }
 
 .my-login-page .brand img {
-	width: 100%;
+  width: 100%;
 }
 
 .my-login-page .card-wrapper {
-	width: 400px;
+  width: 400px;
 }
 
 .my-login-page .card {
-	border-color: transparent;
-	box-shadow: 0 4px 8px rgba(0,0,0,.05);
+  border-color: transparent;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, .05);
 }
 
 .my-login-page .card.fat {
-	padding: 10px;
+  padding: 10px;
 }
 
 .my-login-page .card .card-title {
-	margin-bottom: 30px;
+  margin-bottom: 30px;
 }
 
 .my-login-page .form-control {
-	border-width: 2.3px;
+  border-width: 2.3px;
 }
 
 .my-login-page .form-group label {
-	width: 100%;
+  width: 100%;
 }
 
 .my-login-page .btn.btn-block {
-	padding: 12px 10px;
+  padding: 12px 10px;
 }
 
 @media screen and (max-width: 425px) {
-	.my-login-page .card-wrapper {
-		width: 90%;
-		margin: 0 auto;
-	}
+  .my-login-page .card-wrapper {
+    width: 90%;
+    margin: 0 auto;
+  }
 }
 
 @media screen and (max-width: 320px) {
-	.my-login-page .card.fat {
-		padding: 0;
-	}
+  .my-login-page .card.fat {
+    padding: 0;
+  }
 
-	.my-login-page .card.fat .card-body {
-		padding: 15px;
-	}
+  .my-login-page .card.fat .card-body {
+    padding: 15px;
+  }
 }
 
 .page-title {
@@ -215,7 +265,7 @@ table th a:hover {
 }
 
 .table-nowrap {
-  table-layout:fixed;
+  table-layout: fixed;
 }
 
 .table-nowrap td {
@@ -251,4 +301,14 @@ table th a:hover {
 
 .form-check {
   padding-left: 0;
+}
+
+.metronic-header {
+  height: 80px;
+  background-color: #fff !important;
+  box-shadow: 0 0 40px 0 rgba(82, 63, 105, .1);
+}
+
+.metronic-header a{
+  color: #434349;
 }
