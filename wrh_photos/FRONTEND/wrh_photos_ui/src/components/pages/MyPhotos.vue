@@ -123,13 +123,25 @@
     position: absolute; /* Sit on top of the page content */
     width: 100%; /* Full width (cover the whole page) */
     height: 100%; /* Full height (cover the whole page) */
-    top: 0;
-    left: 0;
+    top: -4px;
+    left: 5px;
     right: 0;
     bottom: 0;
     background-color: rgba(222, 222, 222, 0.5); /* Black background with opacity */
+    border: solid 1px #d6d3d3;
+    border-radius: 5px;
     z-index: 10000; /* Specify a stack order in case you're using a different order for other elements */
     cursor: not-allowed;
+  }
+  .overlay-div .overlay-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    font-size: 20px;
+    font-weight: 600;
+    color: #aba8a8;
+    transform: translate(-50%,-50%);
+    -ms-transform: translate(-50%,-50%);
   }
 
 </style>
@@ -263,7 +275,12 @@
             </div>
             <div class="col-md-6 col-sm-12 pr-0">
               <div v-if="selectedPhotos[0].name == unknownFileName" class="overlay-div"
-                   title="Please select photo first!"></div>
+                   title="Please select photo first!">
+                <div class="overlay-text">No photo!</div>
+              </div>
+              <div v-else-if="selectedPhotos[selectedPhotoIndex].uploading || selectedPhotos[selectedPhotoIndex].uploaded" class="overlay-div">
+                <div v-if="photoModalType === PhotoModalType.Add" class="overlay-text">{{ selectedPhotos[selectedPhotoIndex].uploading? `#${selectedPhotoIndex+1} Uploading ...`: `#${selectedPhotoIndex+1} Completed!` }}</div>
+              </div>
               <div class="row">
                 <div class="col">
                   <div class="row">
@@ -361,6 +378,7 @@
                 <b-row>
                   <b-col v-for="index in 10" :key="(index - 1) + selectedPhotoNavigationIndex">
                     <b-img fluid
+                           class="pointer-cursor"
                            v-bind:class="selectedPhotos[(index - 1) + selectedPhotoNavigationIndex].uploaded ? 'img-thumbnail-uploaded' : selectedPhotos[(index - 1) + selectedPhotoNavigationIndex].uploading ? 'img-thumbnail-uploading': (selectedPhotoIndex === (index - 1) + selectedPhotoNavigationIndex ? 'img-thumbnail-viewed' : '')"
                            v-if="selectedPhotos.length >= index + selectedPhotoNavigationIndex"
                            :src="selectedPhotos[(index - 1) + selectedPhotoNavigationIndex].original_file || selectedPhotos[(index - 1) + selectedPhotoNavigationIndex].preview_file"
@@ -630,6 +648,12 @@
             return uploadAction(postData).then(() => {
               uploadPhoto.uploading = false;
               uploadPhoto.uploaded = true;
+              if (this.photoModalType === this.PhotoModalType.Add) {
+                this.nextPhoto();
+              } else {
+                this.showSuccess("Photo updated successfully.");
+                this.$refs.addEditPhotoModalRef.hide();
+              }
             }, () => {
               uploadPhoto.uploading = false;
               this.showError(`Some error happened when trying to upload ${uploadPhoto.name} photo`, 500);
